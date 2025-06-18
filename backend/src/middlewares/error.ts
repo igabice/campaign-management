@@ -18,7 +18,8 @@ export const errorConverter: ErrorRequestHandler = (err, req, res, next) => {
 };
 
 
-export const errorHandler: ErrorRequestHandler = (err, _, res) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const errorHandler: ErrorRequestHandler = (err, _, res, next) => {
   const { statusCode, message } = err;
 
   res.locals.errorMessage = err.message;
