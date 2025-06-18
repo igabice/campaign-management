@@ -29,7 +29,7 @@ const options = {
       url: "/v1/docs/swagger.json",
     },
   },
-  apis: ["src/docs/*.yml", "src/routes/*.ts"],
+  apis: ["src/docs/*.yml", "src/routes/*.ts", 'dist/src/routes/*.js'],
 };
 
 const swaggerSpec = swaggerJSDoc(options);

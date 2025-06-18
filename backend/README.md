@@ -1,32 +1,81 @@
-# Backend app
+# Adcash Campaign Management Backend
 
-### Setup
+![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5+-3178C6?logo=typescript)
+![Prisma](https://img.shields.io/badge/Prisma-5+-2D3748?logo=prisma)
+![Swagger](https://img.shields.io/badge/Swagger-85EA2D?logo=swagger&logoColor=black)
 
-rename .env.copy to .env and set variables for mysql & redis configuration
+A backend application built with Express.js, TypeScript, and Prisma ORM .
 
-```
-REDIS_HOST=redis://redis
-REDIS_PORT=6379
+## Technologies
 
+- **Runtime**: Node.js 18+
+- **Framework**: [Express.js](https://expressjs.com/)
+- **Language**: [TypeScript 5+](https://www.typescriptlang.org/)
+- **ORM**: [Prisma](https://www.prisma.io/)
+- **Database**: MySQL 8.4
+- **Caching**: [Redis](https://redis.io/)
+- **Containerization**: [Docker](https://www.docker.com/)
+- **Testing**: [Jest](https://jestjs.io/)
+- **API Documentation**: [Swagger](https://jestjs.io/)
+
+## Requirements
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- Node.js 18+
+- npm 9+
+
+## Quick Start
+
+### 1. Environment Setup
+
+Rename `.env.copy` to `.env` and configure:
+
+```env
+# Database
+DATABASE_URL="mysql://root:rootpassword@127.0.0.1:3306/mydb"
 MYSQL_ROOT_PASSWORD=rootpassword
-MYSQL_DATABASE=app_db
+MYSQL_DATABASE=mydb
 MYSQL_USER=user
 MYSQL_PASSWORD=password
 MYSQL_PORT=3306
 
-DATABASE_URL="mysql://root:rootpassword@127.0.0.1:3306/mydb"
-
+# Redis
+REDIS_URL=redis://127.0.0.1:6379
+REDIS_PORT=6379
 ```
 
+### 2. Start services
+The application is configured with docker-compose to easily set up redis and MySQL. [docker-compose.only-db-redis.yml](https://github.com/igabice/campaign-management/blob/main/backend/docker-compose.only-db-redis.yml)
 
-### Prisma Migration
+- To start database and redis services
+` docker-compose -f docker-compose.only-db-redis.yml up -d `
 
-To sync migrations run
 
-`npm run db:push`
+- To stop database and redis services
+` docker-compose -f docker-compose.only-db-redis.yml down `
 
-### Testing
+### 3. install dependencies
+` npm install `
 
-To run integration tests for apis
+### 4. Database Migration
+apply Prisma migrations:
+```
+ npm run db:generate  // creates changes
+ npm run db:push      // commits changes
+ ```
 
-`npm run test`
+### 5. start development server
+` npm run dev `
+
+## Testing
+Run integration tests:
+` npm test `
+*Note:* [Docker](https://www.docker.com/products/docker-desktop/) must be running for integration tests.
+
+## API Documentation
+- Swagger documentation is available at this link
+[doc-link](http://127.0.0.1:3000/v1/docs/swagger)
+
+- A postman collection can be exported from this link
+[postman](http://localhost:3000/v1/docs/swagger.json)

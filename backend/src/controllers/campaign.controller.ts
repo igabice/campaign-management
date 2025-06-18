@@ -3,12 +3,15 @@ import asyncHandler from "express-async-handler";
 import ApiError from "../utils/ApiError";
 import campaignService from "../services/campaign.service";
 import { isBoolean } from "lodash";
+import redis from "../config/redis";
+import logger from "../config/logger";
+
+const CACHE_EXPIRES_ONE_HOUR_IN_MS = 3600;
 
 const createCampaign = asyncHandler(async (req, res) => {
   const campaign = await campaignService.createCampaign(req.body);
   res.status(httpStatus.CREATED).send(campaign);
 });
-
 
 const getCampaigns = asyncHandler(async (req, res) => {
   let filter = {};
@@ -30,13 +33,10 @@ const getCampaigns = asyncHandler(async (req, res) => {
       ],
     };
   }
-  
+
   if (isBoolean(req.query?.isRunning)) {
     filter = { ...filter, isRunning: req.query?.isRunning };
   }
-
-  console.log({ filter });
-
 
   const options = {
     sortBy: req.query.sortBy as string,
@@ -44,7 +44,25 @@ const getCampaigns = asyncHandler(async (req, res) => {
     page: req.query.page ? parseInt(req.query.page as string) : 1,
     sortType: req.query.sortType as "asc" | "desc",
   };
-  const campaigns = await campaignService.queryCampaigns(filter, options);
+
+  const redisKey = `campaigns:${JSON.stringify(options)}:${JSON.stringify(filter)}`;
+  let campaigns;
+
+  const cachedData = await redis.get(redisKey);
+  if (cachedData) {
+    campaigns = JSON.parse(cachedData);
+    logger.debug('reading from cache');
+  } else {
+    campaigns = await campaignService.queryCampaigns(filter, options);
+
+    await redis.set(
+      redisKey,
+      JSON.stringify(campaigns),
+      "EX",
+      CACHE_EXPIRES_ONE_HOUR_IN_MS
+      
+    );
+  }
 
   res.send(campaigns);
 });
@@ -61,7 +79,10 @@ const getCampaign = asyncHandler(async (req, res) => {
 
 const updateCampaign = asyncHandler(async (req, res) => {
   const campaignId = req.params.id;
-  const campaign = await campaignService.updateCampaignById(campaignId, req.body);
+  const campaign = await campaignService.updateCampaignById(
+    campaignId,
+    req.body
+  );
   res.send(campaign);
 });
 
