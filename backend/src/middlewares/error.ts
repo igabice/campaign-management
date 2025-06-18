@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import httpStatus from "http-status";
 import logger from "../config/logger";
 import ApiError from "../utils/ApiError";
+import config from "../config/config";
 
 export const errorConverter: ErrorRequestHandler = (err, req, res, next) => {
   let error = err;
@@ -18,7 +19,8 @@ export const errorConverter: ErrorRequestHandler = (err, req, res, next) => {
 };
 
 
-export const errorHandler: ErrorRequestHandler = (err, _, res) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const errorHandler: ErrorRequestHandler = (err, _, res, next) => {
   const { statusCode, message } = err;
 
   res.locals.errorMessage = err.message;
@@ -28,7 +30,9 @@ export const errorHandler: ErrorRequestHandler = (err, _, res) => {
     message,
   };
 
-  logger.error(err);
+  if (config.env === 'dev') {
+    logger.error(err);
+  }
   
   res.status(statusCode).send(response);
 };

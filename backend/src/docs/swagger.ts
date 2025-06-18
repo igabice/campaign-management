@@ -7,7 +7,7 @@ const options = {
   swaggerDefinition: {
     openapi: "3.0.0",
     info: {
-      title: `${name} API Documentation`,
+      title: `${name} API`,
       version: "1.0.0",
       description: "API documentation for Adcash Campaign Management",
     },
@@ -29,7 +29,7 @@ const options = {
       url: "/v1/docs/swagger.json",
     },
   },
-  apis: ["src/docs/*.yml", "src/routes/*.ts"],
+  apis: ["src/docs/*.yml", "src/routes/*.ts", 'dist/src/routes/*.js'],
 };
 
 const swaggerSpec = swaggerJSDoc(options);

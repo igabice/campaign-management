@@ -15,27 +15,11 @@ services:
       - mysql_dir:/var/lib/mysql
     networks:
       - app-network
-    healthcheck: # <-- ADD THIS BLOCK
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p${MYSQL_ROOT_PASSWORD}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
   
-  redis:
-    image: redis:7-alpine
-    container_name: redis
-    restart: unless-stopped
-    ports:
-      - "${REDIS_PORT}:6379"
-    networks:
-      - app-network
-
 
 volumes:
   mysql_dir:
     driver: local
-  redis_data:
 
 networks:
   app-network:

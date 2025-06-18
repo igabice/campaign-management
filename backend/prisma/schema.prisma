@@ -6,3 +6,30 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model Campaign {
+  id             String   @id @default(uuid())
+  title          String
+  landingPageUrl String   @map("landing_page_url")
+  isRunning      Boolean  @default(false) @map("is_running")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  payouts Payout[]
+
+  @@map("campaigns") // Map to table
+}
+
+model Payout {
+  id        String   @id @default(uuid())
+  country   String
+  amount    Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  campaignId String   @map("campaign_id")
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, country]) //one payout per country & campaign
+  @@map("payouts")
+}

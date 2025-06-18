@@ -1,0 +1,78 @@
+components:
+  schemas:
+    Campaign:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        landingPageUrl:
+          type: string
+        isRunning:
+          type: boolean
+      example:
+        id: 2650f8ef-8419-4ea6-9614-a8ea7bb1b093
+        title: Autumn special 2025
+        landingPageUrl: https://summer.com/festive2025
+        isRunning: true
+        createdAt: 2020-05-12T16:18:04.793Z
+        updatedAt: 2020-05-12T16:18:04.793Z
+
+
+    Payout:
+      type: object
+      properties:
+        id:
+          type: string
+        country:
+          type: string
+        amount:
+          type: number
+      example:
+        id: 2650f8ef-8419-4ea6-9614-a8ea7bb1b093
+        country: Estonia
+        amount: 1.50
+        createdAt: 2020-05-12T16:18:04.793Z
+        updatedAt: 2020-05-12T16:18:04.793Z
+
+
+    Success:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: number
+      example:
+        code: 201
+        message: Successfully created
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: number
+        message:
+          type: string
+
+
+    Duplicate:
+      description: Object already exists
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 400
+            message: Name already taken
+       
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 404
+            message: Not found
