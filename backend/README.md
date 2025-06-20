@@ -1,4 +1,4 @@
-# Adcash Campaign Management Backend
+# Campaign Management Backend
 
 ![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5+-3178C6?logo=typescript)
@@ -11,9 +11,9 @@ A backend application built with Express.js, TypeScript, and Prisma ORM .
 
 - **Runtime**: Node.js 18+
 - **Framework**: [Express.js](https://expressjs.com/)
-- **Language**: [TypeScript 5+](https://www.typescriptlang.org/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
 - **ORM**: [Prisma](https://www.prisma.io/)
-- **Database**: MySQL 8.4
+- **Database**: MySQL 8.0
 - **Caching**: [Redis](https://redis.io/)
 - **Containerization**: [Docker](https://www.docker.com/)
 - **Testing**: [Jest](https://jestjs.io/)
@@ -43,39 +43,54 @@ MYSQL_PORT=3306
 # Redis
 REDIS_URL=redis://127.0.0.1:6379
 REDIS_PORT=6379
+
+PORT=3001
 ```
 
 ### 2. Start services
 The application is configured with docker-compose to easily set up redis and MySQL. [docker-compose.only-db-redis.yml](https://github.com/igabice/campaign-management/blob/main/backend/docker-compose.only-db-redis.yml)
 
 - To start database and redis services
-` docker-compose -f docker-compose.only-db-redis.yml up -d `
+```bash 
+docker-compose -f docker-compose.only-db-redis.yml up -d 
+```
 
 
 - To stop database and redis services
-` docker-compose -f docker-compose.only-db-redis.yml down `
+```bash 
+docker-compose -f docker-compose.only-db-redis.yml down 
+```
 
 ### 3. install dependencies
-` npm install `
+
+```bash 
+npm install
+```
 
 ### 4. Database Migration
 apply Prisma migrations:
-```
+```bash
  npm run db:generate  // creates changes
  npm run db:push      // commits changes
  ```
 
 ### 5. start development server
-` npm run dev `
+
+```bash 
+npm run dev 
+```
 
 ## Testing
 Run integration tests:
-` npm test `
+
+```bash 
+npm test
+```
 *Note:* [Docker](https://www.docker.com/products/docker-desktop/) must be running for integration tests.
 
 ## API Documentation
 - Swagger documentation is available at this link
-[doc-link](http://127.0.0.1:3000/v1/docs/swagger)
+[doc-link](http://127.0.0.1:3001/v1/docs/swagger)
 
 - A postman collection can be exported from this link
-[postman](http://localhost:3000/v1/docs/swagger.json)
+[postman](http://localhost:3001/v1/docs/swagger.json)
