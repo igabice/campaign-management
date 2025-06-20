@@ -24,10 +24,10 @@ The project follows a client-server architecture:
 ## Technologies Used
 
 ### Frontend (`frontend/`) 
-![Link to documentation](https://github.com/igabice/campaign-management/tree/main/frontend#readme)
+[Link to documentation](https://github.com/igabice/campaign-management/tree/main/frontend#readme)
 
 ### Backend (`backend/`)
-![Link to documentation](https://github.com/igabice/campaign-management/tree/main/backend#readme)
+[Link to documentation](https://github.com/igabice/campaign-management/tree/main/backend#readme)
 
 ---
 
@@ -35,7 +35,7 @@ The project follows a client-server architecture:
 
 ### Campaigns Table
 This view displays a list of all campaigns, showing key information at a glance.
-![Campaigns Table](https://github.com/igabice/campaign-management/blob/main/images/campains-table.png)
+![Campaigns Table](https://github.com/igabice/campaign-management/blob/main/images/campaigns-table.png)
 
 ### Filter/Search Campaigns
 This view displays searching campaigns by name, landing url and filtering by status (running/paused).

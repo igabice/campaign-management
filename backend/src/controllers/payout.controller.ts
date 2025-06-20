@@ -1,9 +1,11 @@
 import httpStatus from "http-status";
 import asyncHandler from "express-async-handler";
 import payoutService from "../services/payout.service";
+import { invalidateAllCaches } from "../middlewares/cache";
 
 const createPayout = asyncHandler(async (req, res) => {
   const payout = await payoutService.createPayout(req.body);
+  await invalidateAllCaches();
   res.status(httpStatus.CREATED).send(payout);
 });
 
@@ -42,6 +44,7 @@ const getAllPayouts = asyncHandler(async (req, res) => {
 const updatePayout = asyncHandler(async (req, res) => {
   const payoutId = req.params.id;
   const payout = await payoutService.updatePayoutById(payoutId, req.body);
+  await invalidateAllCaches();
   res.send(payout);
 });
 
