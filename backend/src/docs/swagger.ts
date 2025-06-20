@@ -16,7 +16,7 @@ const options = {
     },
     servers: [
       {
-        url: "https://campaign-management-0z3y.onrender.com",
+        url: "https://campaign-management-0z3y.onrender.com/v1",
         description: "Live server",
       },
       {
