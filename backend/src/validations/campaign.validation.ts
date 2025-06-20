@@ -1,9 +1,16 @@
 import Joi from "joi";
 
-const body = Joi.object().keys({
+
+const body = Joi.object({
   title: Joi.string().required(),
-  landingPageUrl: Joi.string().required(),
+  landingPageUrl: Joi.string().uri().required().min(1),
   isRunning: Joi.boolean(),
+  payouts: Joi.array().items({country: Joi.string().required(),
+      amount: Joi.number().required()}).min(0)
+    .unique('country')
+  .messages({ 
+      'array.unique': 'Each payout must have a unique country. Duplicate country found: "{{#value}}".'
+    }),
 });
 
 const createCampaign = {
@@ -11,8 +18,8 @@ const createCampaign = {
 };
 
 const getCampaigns = {
-  query: Joi.object().keys({
-    searchTerm: Joi.string(),
+  query: Joi.object({
+    searchTerm: Joi.string().allow(null).empty(""),
     isRunning: Joi.bool(),
     sortBy: Joi.string().allow(null).empty(""),
     sortType: Joi.string().allow(null).empty(""),
@@ -22,7 +29,7 @@ const getCampaigns = {
 };
 
 const getCampaign = {
-  params: Joi.object().keys({
+  params: Joi.object({
     id: Joi.string(),
   }),
     query: Joi.object().keys({
@@ -35,7 +42,7 @@ const getCampaign = {
 };
 
 const updateCampaign = {
-  params: Joi.object().keys({
+  params: Joi.object({
     id: Joi.string(),
   }),
   body: {
@@ -46,7 +53,7 @@ const updateCampaign = {
 };
 
 const deleteCampaign = {
-  params: Joi.object().keys({
+  params: Joi.object({
     id: Joi.string(),
   }),
 };

@@ -9,20 +9,24 @@ setupTestDB();
 describe("POST /v1/campaigns", () => {
   test("should create campaign", async () => {
 
+
     const res = await server
       .post("/v1/campaigns")
       .send({
         title: "Autumn special 2025",
         landingPageUrl: "https://summer.com/festive2025",
-        isRunning: true
+        isRunning: true,
+        payouts: []
       });
+    console.log(res.body);
     expect(res.status).toEqual(httpStatus.CREATED);
     expect(
       omit(res.body, ["createdAt", "updatedAt", "id"])
     ).toMatchObject({
         title: "Autumn special 2025",
         landingPageUrl: "https://summer.com/festive2025",
-        isRunning: true
+      isRunning: true,
+        payouts: []
     });
   });
 

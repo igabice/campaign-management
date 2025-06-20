@@ -3,9 +3,18 @@ import httpStatus from "http-status";
 import ApiError from "../utils/ApiError";
 import prisma from "../config/prisma";
 
-async function createCampaign(data: Prisma.CampaignCreateInput): Promise<Campaign> {
+async function createCampaign(createData: Prisma.CampaignCreateInput): Promise<Campaign> {
+  const {  payouts, ...restData } = createData;
+  let data = {};
+  if (payouts) {
+    data = { ...restData, payouts: { create: payouts } };
+    
+  }
   return prisma.campaign.create({
-    data,
+    data: data as Prisma.CampaignCreateInput,
+      include: {
+    payouts: true // Include payouts in the returned object
+  }
   });
 }
 
@@ -23,13 +32,9 @@ async function queryCampaigns(
   return prisma.campaign.paginate(
     {
       ...(!!filter && { where: filter }),
-    //   include: {
-    //   _count: {
-    //     select: {
-    //       payouts: true,
-    //     },
-    //   },
-    // },
+      include: {
+        payouts: true
+      },
       orderBy: sortBy ? { [sortBy]: sortType } : undefined,
     },
     { limit, page }
@@ -39,6 +44,9 @@ async function queryCampaigns(
 async function getCampaignById(id: string) {
   return prisma.campaign.findFirst({
     where: { id },
+    include: {
+        payouts: true
+      },
   });
 }
 

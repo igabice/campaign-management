@@ -45,7 +45,8 @@ describe("GET /v1/campaigns", () => {
         ).toEqual({
         title: 'Winter special',
         landingPageUrl: 'https://winter.com/festive2025',
-        isRunning: false,
+          isRunning: false,
+        payouts: []
         });
   });
 
@@ -60,7 +61,8 @@ describe("GET /v1/campaigns", () => {
         ).toEqual({
         title: "Summer special",
         landingPageUrl: "https://summer.com/festive2024",
-        isRunning: true
+          isRunning: true,
+        payouts: []
         });
   });
 
@@ -82,7 +84,7 @@ describe("GET /v1/campaigns/{campaignId}/payouts", () => {
         data: {
           title: "Autumn special 2025",
           landingPageUrl: "https://summer.com/festive2025",
-          isRunning: true
+          isRunning: true,
         },
       });
 

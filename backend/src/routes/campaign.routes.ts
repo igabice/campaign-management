@@ -3,6 +3,7 @@ import validate from "../middlewares/validate";
 import campaignValidation from "../validations/campaign.validation";
 import campaignController from "../controllers/campaign.controller";
 import payoutController from "../controllers/payout.controller";
+import { redisCachingMiddleware } from "../middlewares/cache";
 
 const router = express.Router();
 
@@ -136,7 +137,7 @@ router
  */
 router
   .route("/")
-  .get(validate(campaignValidation.getCampaigns), campaignController.getAllCampaigns);
+  .get(validate(campaignValidation.getCampaigns), redisCachingMiddleware({ EX: 3600 }), campaignController.getCampaigns);
 
 /**
  * @swagger
@@ -168,7 +169,7 @@ router
  */
 router
   .route("/:id")
-  .get(validate(campaignValidation.getCampaign), campaignController.getCampaign);
+  .get(validate(campaignValidation.getCampaign), redisCachingMiddleware({ EX: 3600 }), campaignController.getCampaign);
 
 
 /**
@@ -247,7 +248,7 @@ router
  */
 router
   .route("/:id/payouts")
-  .get(validate(campaignValidation.getCampaign), payoutController.getAllPayouts);
+  .get(validate(campaignValidation.getCampaign), redisCachingMiddleware({ EX: 3600 }), payoutController.getAllPayouts);
 
 /**
  * @swagger
