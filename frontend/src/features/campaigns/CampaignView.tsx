@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Box,
   Heading,
@@ -45,6 +45,12 @@ export const CampaignView = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [action, setAction] = useState<ACTION | null>(null);
   const [payouts, setPayouts] = useState<Payout[]>([]);
+
+  const filteredPayouts = useMemo(() => {
+    return payouts.filter((payout) =>
+      payout.country.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [payouts, searchTerm]);
 
   useEffect(() => {
     getCampaign();
@@ -224,7 +230,7 @@ export const CampaignView = () => {
               </Tr>
             </Thead>
             <Tbody>
-              {payouts.map((payout, index) => (
+              {filteredPayouts.map((payout, index) => (
                 <Tr key={index}>
                   <Td>
                     {getFlagEmoji(payout.country)} {payout.country}
@@ -265,7 +271,7 @@ export const CampaignView = () => {
           isSuccessButtonLoading={isLoading}
         >
           <Box bg="gray.800" boxShadow="md" borderRadius="md" p={4}>
-            <strong>AMOUNT:{payout?.amount}</strong>
+            <strong>AMOUNT: ${payout?.amount}</strong>
           </Box>
         </AppModal>
       )}

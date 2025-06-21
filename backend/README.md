@@ -86,11 +86,18 @@ Run integration tests:
 ```bash 
 npm test
 ```
+This spins up a mysql database using docker-compose [docker-compose.only-db.yml](https://github.com/igabice/campaign-management/blob/main/backend/docker-compose.only-db.yml) which is used for integration test and after tests are completed the database container is killed.
 *Note:* [Docker](https://www.docker.com/products/docker-desktop/) must be running for integration tests.
 
 ## API Documentation
-- Swagger documentation is available at this link
-[doc-link](http://127.0.0.1:3001/v1/docs/swagger)
 
-- A postman collection can be exported from this link
+Swagger documentation & postman collection is available at this links
+
+### Online
+
+[swagger](https://campaign-management-0z3y.onrender.com/v1/docs/swagger)
+[postman](https://campaign-management-0z3y.onrender.com/v1/docs/swagger.json)
+
+### Local
+[swagger](http://127.0.0.1:3001/v1/docs/swagger)
 [postman](http://localhost:3001/v1/docs/swagger.json)
