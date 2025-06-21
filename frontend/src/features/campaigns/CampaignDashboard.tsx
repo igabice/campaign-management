@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import {
   Box,
   Stack,
@@ -49,6 +49,17 @@ export const CampaignsDashboard = () => {
     setIsLoading(false);
   };
 
+  const handleStatusChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const value = event.target.value;
+    if (value === "paused") {
+      setIsRunning(false);
+    } else if (value === "running") {
+      setIsRunning(true);
+    } else {
+      setIsRunning(null);
+    }
+  };
+
   return (
     <Flex justify="center" width="100%">
       <Box p={4} minH="100vh" w={{ base: "full", sm: "100%", md: "1200px" }}>
@@ -76,16 +87,7 @@ export const CampaignsDashboard = () => {
           />
           <Select
             placeholder="Campaign Status"
-            onChange={(e) => {
-              const value = e.target.value;
-              if (value === "paused") {
-                setIsRunning(false);
-              } else if (value === "running") {
-                setIsRunning(true);
-              } else {
-                setIsRunning(null);
-              }
-            }}
+            onChange={handleStatusChange}
             bg="gray.700"
             color="whiteAlpha.800"
             border="none"

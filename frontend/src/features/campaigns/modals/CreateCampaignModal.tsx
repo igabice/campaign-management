@@ -75,10 +75,10 @@ const CampaignModal: React.FC<CampaignModalProps> = ({
       setIsRunning(false);
     }
     setFormErrors([]);
-  }, [campaign]);
+  }, [campaign, isOpen]);
 
   const handleAddPayout = useCallback(() => {
-    setPayouts((prev) => [...prev, { country: "US", amount: 0 }]);
+    setPayouts((prev) => [...prev, { country: "EE", amount: 0 }]);
     setFormErrors([]);
   }, []);
 
