@@ -6,7 +6,7 @@ const body = Joi.object({
   landingPageUrl: Joi.string().uri().required().min(1),
   isRunning: Joi.boolean(),
   payouts: Joi.array().items({country: Joi.string().required(),
-      amount: Joi.number().required()}).min(0)
+      amount: Joi.number().required()}).min(1)
     .unique('country')
   .messages({ 
       'array.unique': 'Each payout must have a unique country. Duplicate country found: "{{#value}}".'
