@@ -96,9 +96,9 @@ echo ""
 # --- Step 2: Start Backend App ---
 echo -e "3. Starting backend app...${NC}"
 
-npm install
+npm install > "$BACKEND_LOG_FILE" 2>&1 &
 
-nohup yarn dev > "$BACKEND_LOG_FILE" 2>&1 &
+nohup npm run dev > "$BACKEND_LOG_FILE" 2>&1 &
 echo -e "${GREEN}   Backend app started in background.${NC}"
 
 echo ""
@@ -110,7 +110,7 @@ echo ""
 
 echo -e "5. Starting frontend app...${NC}"
 
-npm install
+npm install > "$FRONTEND_LOG_FILE" 2>&1 &
 
 nohup npm start > "$FRONTEND_LOG_FILE" 2>&1 &
 echo -e "${GREEN}   Frontend app started in background.${NC}"

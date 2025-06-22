@@ -92,7 +92,7 @@ You can
     ```
 3.  **Install Backend Dependencies:**
     ```bash
-    cd backend
+    cd ../backend
     npm install # or yarn install
     cd ..
     ```
@@ -100,6 +100,8 @@ You can
 ### Starting the Application Easily
 
 A convenient bash script is provided in the root directory to start all services (frontend, backend, MySQL & Redis) with a single command.
+
+*Note:* If ports 3000 & 3001 are not free on your system, please update `FRONTEND_PORT` & `BACKEND_PORT` in the `start.sh` script before running.
 
 1.  **Make the script executable:**
     ```bash
@@ -116,7 +118,7 @@ The `start.sh` script initiates the startup process for all services:
 
 * **Starts Docker Services:** It first navigates to the `backend/` directory and uses `docker-compose -f docker-compose.only-db-redis.yml up -d` to spin up a MySQL database and Redis server in detached mode.
 * **Installs Dependencies:** It installs dependencies for backend and frontend services.
-* **Starts Backend API:** It then starts the  backend service in development mode (`yarn dev`).
+* **Starts Backend API:** It then starts the  backend service in development mode (`npm run dev`).
 * **Starts Frontend App:** Next, it navigates to the `frontend/` directory and starts the frontend app (`npm start`). This command will take over your current terminal with a prompt that accepts commands to kill all services.
 
 ### Stopping the Application

@@ -16,7 +16,6 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^6.10.0",
-    "@types/ioredis": "^4.28.10",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
@@ -41,6 +40,7 @@
     "@jest/globals": "^29.7.0",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "@types/ioredis": "^4.28.10",
     "@types/jest": "^29.5.13",
     "@types/lodash": "^4.17.10",
     "@types/node": "^22.7.4",

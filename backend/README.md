@@ -86,6 +86,7 @@ Run integration tests:
 ```bash 
 npm test
 ```
+
 *Note:* [Docker](https://www.docker.com/products/docker-desktop/) must be running for integration tests.
 
 ## API Documentation
