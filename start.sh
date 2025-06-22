@@ -75,12 +75,12 @@ stop_all_services() {
 
 echo -e "${GREEN}--- Starting Development Environment ---${NC}"
 
-# --- Step 1: Start Backend Docker Services (MySQL & Redis) ---
 echo -e "1. Navigating to backend directory: ${BACKEND_DIR}${NC}"
 cd "$BACKEND_DIR"
 
 echo ""
 
+# --- Step 1: Start Docker Services (MySQL & Redis) ---
 echo -e "2. Starting Docker Compose services (MySQL & Redis) in detached mode.${NC}"
 cp .env.copy .env
 docker-compose -f "$DOCKER_COMPOSE_FILE" up -d
@@ -98,7 +98,11 @@ echo -e "3. Starting backend app...${NC}"
 
 npm install > "$BACKEND_LOG_FILE" 2>&1 &
 
-nohup npm run dev > "$BACKEND_LOG_FILE" 2>&1 &
+npm run db:generate > "$BACKEND_LOG_FILE" 2>&1 &
+
+npm run db:push > "$BACKEND_LOG_FILE" 2>&1 &
+
+npm run dev > "$BACKEND_LOG_FILE" 2>&1 &
 echo -e "${GREEN}   Backend app started in background.${NC}"
 
 echo ""
@@ -112,7 +116,7 @@ echo -e "5. Starting frontend app...${NC}"
 
 npm install > "$FRONTEND_LOG_FILE" 2>&1 &
 
-nohup npm start > "$FRONTEND_LOG_FILE" 2>&1 &
+npm run start > "$FRONTEND_LOG_FILE" 2>&1 &
 echo -e "${GREEN}   Frontend app started in background.${NC}"
 
 echo -e "${GREEN}--- All services are running in the background. ---${NC}"
