@@ -17,7 +17,7 @@ The "Campaign Management" application provides an interface for users to create 
 The project follows a client-server architecture:
 * **Frontend (`frontend/`):** The client application built with React.js, providing the user interface.
 * **Backend (`backend/`):** A RESTful API built with Express.js (Node.js), responsible for business logic, data storage, and serving API requests.
-* **Database & Cache:** MySQL for data storage and Redis for caching management, both managed via Docker containers.
+* **Database & Cache:** MySQL for data storage and Redis for caching apis, both managed via Docker containers.
 
 ---
 
