@@ -72,6 +72,7 @@ const updateCampaign = asyncHandler(async (req, res) => {
 const deleteCampaign = asyncHandler(async (req, res) => {
   const campaignId = req.params.id;
   await campaignService.deleteCampaignById(campaignId);
+  await invalidateAllCaches();
   res.status(httpStatus.NO_CONTENT).send();
 });
 

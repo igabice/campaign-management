@@ -51,6 +51,7 @@ const updatePayout = asyncHandler(async (req, res) => {
 const deletePayout = asyncHandler(async (req, res) => {
   const payoutId = req.params.id;
   await payoutService.deletePayoutById(payoutId);
+  await invalidateAllCaches();
   res.status(httpStatus.NO_CONTENT).send();
 });
 
