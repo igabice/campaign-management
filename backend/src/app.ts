@@ -6,8 +6,12 @@ import ApiError from "./utils/ApiError";
 import routes from "./routes";
 import { initializeRedisClient } from "./middlewares/cache";
 import logger from "./config/logger";
+import { toNodeHandler } from "better-auth/node";
+import { auth } from "./config/auth";
 
 const app = express();
+
+app.all("/v1/auth/*", toNodeHandler(auth));
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
