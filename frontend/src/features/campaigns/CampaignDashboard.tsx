@@ -29,6 +29,17 @@ export const CampaignsDashboard = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
+    const socialLoginInitiated = localStorage.getItem("socialLoginInitiated");
+    if (socialLoginInitiated) {
+      toast({
+        title: "Success",
+        description: "Logged in successfully.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+      localStorage.removeItem("socialLoginInitiated");
+    }
     loadCampaigns();
   }, []);
 

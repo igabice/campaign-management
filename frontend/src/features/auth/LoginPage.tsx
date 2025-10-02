@@ -1,0 +1,142 @@
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Box,
+  Button,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Input,
+  Stack,
+  Heading,
+  Text,
+  Link as ChakraLink,
+  useToast,
+} from "@chakra-ui/react";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { z } from "zod";
+import { loginSchema } from "./schemas";
+import { authClient } from "../../lib/auth-client";
+import { useAuth } from "./AuthContext";
+import { useEffect } from "react";
+import { Spinner } from "@chakra-ui/react";
+
+type LoginFormInputs = z.infer<typeof loginSchema>;
+
+export const LoginPage: React.FC = () => {
+  const toast = useToast();
+  const { session, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (session) {
+      navigate("/campaigns");
+    }
+  }, [session, navigate]);
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormInputs>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const onSubmit = async (data: LoginFormInputs) => {
+    const { error } = await authClient.signIn.email(data);
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    } else {
+      window.location.href = "/campaigns";
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    localStorage.setItem("socialLoginInitiated", "true");
+    const { error } = await authClient.signIn.social({ provider: "google" });
+    if (error) {
+      localStorage.removeItem("socialLoginInitiated");
+      toast({
+        title: "Login Error",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleFacebookLogin = async () => {
+    localStorage.setItem("socialLoginInitiated", "true");
+    const { error } = await authClient.signIn.social({ provider: "facebook" });
+    if (error) {
+      localStorage.removeItem("socialLoginInitiated");
+      toast({
+        title: "Login Error",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Box textAlign="center" mt={10}>
+        <Spinner size="xl" />
+      </Box>
+    );
+  }
+
+  return (
+    <Box maxW="md" mx="auto" mt={10}>
+      <Heading textAlign="center" mb={6}>
+        Login
+      </Heading>
+      <Box as="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+        <Stack spacing={4}>
+          <FormControl isInvalid={!!errors.email}>
+            <FormLabel htmlFor="email">Email</FormLabel>
+            <Input id="email" type="email" {...register("email")} />
+            <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
+          </FormControl>
+          <FormControl isInvalid={!!errors.password}>
+            <FormLabel htmlFor="password">Password</FormLabel>
+            <Input id="password" type="password" {...register("password")} />
+            <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
+          </FormControl>
+          <Button type="submit" isLoading={isSubmitting} colorScheme="teal">
+            Login
+          </Button>
+        </Stack>
+      </Box>
+      <Stack spacing={2} mt={4}>
+        <Button onClick={handleGoogleLogin} colorScheme="red">
+          Login with Google
+        </Button>
+        <Button onClick={handleFacebookLogin} colorScheme="facebook">
+          Login with Facebook
+        </Button>
+      </Stack>
+      <Text mt={4} textAlign="center">
+        Don't have an account?{" "}
+        <ChakraLink as={RouterLink} to="/signup" color="teal.500">
+          Sign up
+        </ChakraLink>
+      </Text>
+      <Text mt={2} textAlign="center">
+        <ChakraLink as={RouterLink} to="/forgot-password" color="teal.500">
+          Forgot password?
+        </ChakraLink>
+      </Text>
+    </Box>
+  );
+};
