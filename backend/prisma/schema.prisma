@@ -46,6 +46,7 @@ model User {
 
   accounts Account[]
   sessions Session[]
+  teams    Team[]
 
   @@map("users")
 }
@@ -117,4 +118,16 @@ model Verification {
 
   @@unique([identifier, value])
   @@map("verifications")
+}
+
+model Team {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  userId      String   @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("teams")
 }
