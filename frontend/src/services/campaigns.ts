@@ -2,7 +2,7 @@ import { get, post, patch, del, getPaginated } from "../lib/http";
 import { Campaign } from "../types/commons";
 import { PaginatedResponse } from "../types/commons";
 
-const CAMPAIGNS_BASE_URL = "/campaigns";
+const CAMPAIGNS_BASE_URL = "/v1/campaigns";
 
 export const campaignsApi = {
 

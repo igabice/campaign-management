@@ -83,7 +83,7 @@ echo ""
 # --- Step 1: Start Docker Services (MySQL & Redis) ---
 echo -e "2. Starting Docker Compose services (MySQL & Redis) in detached mode.${NC}"
 cp .env.copy .env
-docker-compose -f "$DOCKER_COMPOSE_FILE" up -d
+docker-compose -f "$DOCKER_COMPOSE_FILE" up -d --no-deps --force-recreate
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}Error: Docker Compose failed to start backend services. Please check your '$DOCKER_COMPOSE_FILE'. Exiting.${NC}"

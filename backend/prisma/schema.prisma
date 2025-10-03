@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -17,7 +17,7 @@ model Campaign {
 
   payouts Payout[]
 
-  @@map("campaigns") // Map to table
+  @@map("campaigns")
 }
 
 model Payout {
@@ -30,55 +30,91 @@ model Payout {
   campaignId String   @map("campaign_id")
   campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
-  @@unique([campaignId, country]) //one payout per country & campaign
+  @@unique([campaignId, country])
   @@map("payouts")
 }
 
 model User {
-  id            String         @id @default(cuid())
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String?
   name          String?
-  email         String         @unique
-  emailVerified DateTime?
+  emailVerified Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
   image         String?
-  lastLoginMethod String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  sessions      Session[]
-  authenticators Authenticator[]
-  roles         UserRole[]
+
+  accounts Account[]
+  sessions Session[]
+
+  @@map("users")
+}
+
+model Provider {
+  id         String   @id @default(cuid())
+  providerId String   @unique
+  name       String
+  type       String
+  enabled    Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  accounts Account[]
+
+  @@map("providers")
+}
+
+model Account {
+  id                String    @id @default(cuid())
+  userId            String
+  accountId         String
+  providerId        String // This should match Provider.providerId
+  providerAccountId String
+  accessToken       String?
+  refreshToken      String?
+  expiresAt         DateTime?
+  password          String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider Provider @relation(fields: [providerId], references: [providerId], onDelete: Cascade)
+
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+
+  @@unique([providerId, providerAccountId])
+  @@map("accounts")
 }
 
 model Session {
   id        String   @id @default(cuid())
   userId    String
   expiresAt DateTime
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  createdAt DateTime @default(now())
 
-  @@index([userId])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+
+  @@map("sessions")
 }
 
-model Authenticator {
-  id                   String   @id @default(cuid())
-  credentialID         String   @unique
-  userId               String
-  provider             String
-  credentialPublicKey  Bytes
-  counter              Int
-  credentialDeviceType String
-  credentialBackedUp   Boolean
-  transports           String?
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
 
-  @@index([userId])
-}
+  updatedAt DateTime @default(now()) @updatedAt
 
-model UserRole {
-  id     String @id @default(cuid())
-  name   String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String
-
-  @@unique([userId, name])
+  @@unique([identifier, value])
+  @@map("verifications")
 }

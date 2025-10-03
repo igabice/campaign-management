@@ -1,24 +1,21 @@
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: mysql
-    command: --default-authentication-plugin=mysql_native_password 
+  postgres:
+    image: postgres:13
+    container_name: postgres
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+     - POSTGRES_USER: postgres
+     - POSTGRES_PASSWORD: secret
+     - POSTGRES_DB: campaign
     ports:
-      - "${MYSQL_PORT}:3306"
+      - "${DB_PORT}:5432"
     volumes:
-      - mysql_dir:/var/lib/mysql
+      - postgres_dir:/var/lib/postgresql/data
     networks:
       - app-network
-  
 
 volumes:
-  mysql_dir:
+  postgres_dir:
     driver: local
 
 networks:

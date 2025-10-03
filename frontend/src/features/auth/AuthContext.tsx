@@ -1,6 +1,6 @@
 import React, { createContext, useContext, ReactNode } from "react";
 import { authClient } from "../../lib/auth-client";
-import type { Session } from "better-auth/client";
+type Session = ReturnType<typeof authClient.useSession>['data'];
 
 interface AuthContextType {
   session: Session | null | undefined; // undefined for loading state
