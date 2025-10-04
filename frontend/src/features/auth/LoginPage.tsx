@@ -31,7 +31,7 @@ export const LoginPage: React.FC = () => {
 
   useEffect(() => {
     if (session) {
-      navigate("/campaigns");
+      navigate("/dashboard");
     }
   }, [session, navigate]);
 
@@ -44,18 +44,20 @@ export const LoginPage: React.FC = () => {
   });
 
   const onSubmit = async (data: LoginFormInputs) => {
-    const { error } = await authClient.signIn.email(data);
-    if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-    } else {
-      window.location.href = "/campaigns";
-    }
+    await authClient.signIn.email(data, {
+      onSuccess: () => {
+        // Session will be updated, useEffect will navigate
+      },
+      onError: (ctx) => {
+        toast({
+          title: "Error",
+          description: ctx.error.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      },
+    });
   };
 
   const handleGoogleLogin = async () => {

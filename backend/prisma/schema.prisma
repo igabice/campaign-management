@@ -35,33 +35,19 @@ model Payout {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  password      String?
-  name          String?
-  emailVerified Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  image         String?
+  id               String   @id @default(cuid())
+  email            String   @unique
+  name             String?
+  emailVerified    Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  image            String?
+  twoFactorEnabled Boolean  @default(false)
 
   accounts Account[]
   sessions Session[]
 
   @@map("users")
-}
-
-model Provider {
-  id         String   @id @default(cuid())
-  providerId String   @unique
-  name       String
-  type       String
-  enabled    Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  accounts Account[]
-
-  @@map("providers")
 }
 
 model Account {
@@ -76,10 +62,8 @@ model Account {
   password          String?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
-
   // Relations
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  provider Provider @relation(fields: [providerId], references: [providerId], onDelete: Cascade)
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   idToken               String?
   accessTokenExpiresAt  DateTime?

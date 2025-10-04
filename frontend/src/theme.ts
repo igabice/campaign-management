@@ -11,12 +11,12 @@ export const theme = extendTheme({
     },
   },
   styles: {
-    global: {
+    global: (props: { colorMode: 'light' | 'dark' }) => ({
       body: {
-        bg: "gray.900",
-        color: "whiteAlpha.900",
+        bg: props.colorMode === "dark" ? "gray.900" : "white",
+        color: props.colorMode === "dark" ? "whiteAlpha.900" : "black",
       },
-    },
+    }),
   },
   components: {
     Button: {

@@ -11,26 +11,25 @@ import { ForgotPasswordPage } from "./features/auth/ForgotPasswordPage";
 import { ResetPasswordPage } from "./features/auth/ResetPasswordPage";
 import { VerifyEmailPage } from "./features/auth/VerifyEmailPage";
 import { ProtectedRoute } from "./features/auth/ProtectedRoute";
+import { Dashboard } from "./features/dashboard/Dashboard";
 
 const App = () => {
   return (
     <ChakraProvider theme={theme}>
       <Router>
-        <AppHeader />
-        <Box p={4}>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/verify-email" element={<VerifyEmailPage />} />
-            <Route element={<ProtectedRoute />}>
-              <Route path="/campaigns" element={<CampaignsDashboard />} />
-              <Route path="/campaigns/:campaignId" element={<CampaignView />} />
-              <Route path="/" element={<CampaignsDashboard />} />
-            </Route>
-          </Routes>
-        </Box>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<><AppHeader /><Dashboard /></>} />
+            <Route path="/campaigns" element={<><AppHeader /><Box p={4}><CampaignsDashboard /></Box></>} />
+            <Route path="/campaigns/:campaignId" element={<><AppHeader /><Box p={4}><CampaignView /></Box></>} />
+            <Route path="/" element={<><AppHeader /><Dashboard /></>} />
+          </Route>
+        </Routes>
       </Router>
     </ChakraProvider>
   );
