@@ -26,6 +26,17 @@ export const VerifyEmailPage: React.FC = () => {
 
   return (
     <Box maxW="md" mx="auto" mt={10} textAlign="center">
+      <Box mb={8}>
+        <ChakraLink
+          as={RouterLink}
+          to="/"
+          _hover={{ textDecoration: "none" }}
+        >
+          <Heading size="lg" color="teal.500" mb={2}>
+            CampaignPro
+          </Heading>
+        </ChakraLink>
+      </Box>
       <Heading mb={6}>{error ? "Verification Failed" : "Email Verified!"}</Heading>
       {error ? (
         <Alert status="error">

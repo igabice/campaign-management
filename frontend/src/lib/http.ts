@@ -1,15 +1,16 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { PaginatedResponse } from '../types/commons';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001/v1/';
+const API_BASE_URL = process.env.REACT_APP_API_URL ? `${process.env.REACT_APP_API_URL}/v1/` : 'http://localhost:3001/v1/';
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    
+
   },
 });
 
@@ -58,6 +59,14 @@ export const patch = async <T = any, D = any, R = AxiosResponse<T>>(
   config?: AxiosRequestConfig
 ): Promise<R> => {
   return axiosInstance.patch<T, R, D>(url, data, config);
+};
+
+export const put = async <T = any, D = any, R = AxiosResponse<T>>(
+  url: string,
+  data?: D,
+  config?: AxiosRequestConfig
+): Promise<R> => {
+  return axiosInstance.put<T, R, D>(url, data, config);
 };
 
 export const del = async <T = any, R = AxiosResponse<T>>(

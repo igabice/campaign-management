@@ -1,24 +1,5 @@
 components:
   schemas:
-    Campaign:
-      type: object
-      properties:
-        id:
-          type: string
-        title:
-          type: string
-        landingPageUrl:
-          type: string
-        isRunning:
-          type: boolean
-      example:
-        id: 2650f8ef-8419-4ea6-9614-a8ea7bb1b093
-        title: Autumn special 2025
-        landingPageUrl: https://summer.com/festive2025
-        isRunning: true
-        createdAt: 2020-05-12T16:18:04.793Z
-        updatedAt: 2020-05-12T16:18:04.793Z
-
     Team:
       type: object
       properties:
@@ -28,69 +9,276 @@ components:
           type: string
         description:
           type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
         userId:
           type: string
-      example:
-        id: 2650f8ef-8419-4ea6-9614-a8ea7bb1b093
-        title: My Awesome Team
-        description: This is a description of my awesome team.
-        userId: clrqy6svo000012mjd9wgc1p0
-        createdAt: 2020-05-12T16:18:04.793Z
-        updatedAt: 2020-05-12T16:18:04.793Z
-
-    Payout:
+      required:
+        - id
+        - title
+        - createdAt
+        - updatedAt
+        - userId
+    Member:
       type: object
       properties:
         id:
           type: string
-        country:
+        teamId:
           type: string
-        amount:
-          type: number
-      example:
-        id: 2650f8ef-8419-4ea6-9614-a8ea7bb1b093
-        country: Estonia
-        amount: 1.50
-        createdAt: 2020-05-12T16:18:04.793Z
-        updatedAt: 2020-05-12T16:18:04.793Z
-
-
-    Success:
+        userId:
+          type: string
+        status:
+          type: string
+        role:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        team:
+          $ref: '#/components/schemas/Team'
+      required:
+        - id
+        - teamId
+        - userId
+        - status
+        - role
+        - createdAt
+        - updatedAt
+    SocialMedia:
       type: object
       properties:
-        message:
+        id:
           type: string
-        code:
-          type: number
-      example:
-        code: 201
-        message: Successfully created
-
-    Error:
+        accountName:
+          type: string
+        teamId:
+          type: string
+        platform:
+          type: string
+          enum: [facebook, twitter, tiktok, linkedin]
+        profileLink:
+          type: string
+        image:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        team:
+          $ref: '#/components/schemas/Team'
+      required:
+        - id
+        - accountName
+        - teamId
+        - platform
+        - profileLink
+        - status
+        - createdAt
+        - updatedAt
+    Invite:
       type: object
       properties:
-        code:
-          type: number
-        message:
+        id:
           type: string
-
-
-    Duplicate:
-      description: Object already exists
+        email:
+          type: string
+          format: email
+        status:
+          type: string
+          enum: [pending, accepted, declined, expired]
+        inviterId:
+          type: string
+        teamId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        inviter:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            email:
+              type: string
+        team:
+          type: object
+          properties:
+            id:
+              type: string
+            title:
+              type: string
+      required:
+        - id
+        - email
+        - status
+        - inviterId
+        - teamId
+        - createdAt
+        - updatedAt
+    Post:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        socialMedias:
+          type: array
+          items:
+            $ref: '#/components/schemas/SocialMedia'
+        image:
+          type: string
+        scheduledDate:
+          type: string
+          format: date-time
+        sendReminder:
+          type: boolean
+        plannerId:
+          type: string
+        createdBy:
+          type: string
+        status:
+          type: string
+          enum: [Draft, Posted]
+        teamId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        creator:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            email:
+              type: string
+         team:
+           type: object
+           properties:
+             id:
+               type: string
+             title:
+               type: string
+       required:
+         - id
+         - content
+         - socialMedias
+         - scheduledDate
+         - sendReminder
+         - createdBy
+         - status
+         - teamId
+         - createdAt
+         - updatedAt
+      Plan:
+        type: object
+        properties:
+          id:
+            type: string
+          title:
+            type: string
+          description:
+            type: string
+          startDate:
+            type: string
+            format: date-time
+          endDate:
+            type: string
+            format: date-time
+          tone:
+            type: string
+          status:
+            type: string
+            enum: [draft, published]
+          createdBy:
+            type: string
+          teamId:
+            type: string
+          createdAt:
+            type: string
+            format: date-time
+          updatedAt:
+            type: string
+            format: date-time
+         posts:
+           type: array
+           items:
+             $ref: '#/components/schemas/Post'
+         creator:
+           type: object
+           properties:
+             id:
+               type: string
+             name:
+               type: string
+             email:
+               type: string
+         team:
+           type: object
+           properties:
+             id:
+               type: string
+             title:
+               type: string
+       required:
+         - id
+         - title
+         - startDate
+         - endDate
+         - createdBy
+         - teamId
+         - createdAt
+         - updatedAt
+  responses:
+    Unauthorized:
+      description: Unauthorized
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            code: 400
-            message: Name already taken
-       
+            type: object
+            properties:
+              code:
+                type: string
+                example: UNAUTHORIZED
+              message:
+                type: string
+                example: Unauthorized
     NotFound:
       description: Not found
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            code: 404
-            message: Not found
+            type: object
+            properties:
+              code:
+                type: string
+                example: Not found
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -1,6 +1,8 @@
-// src/middleware/authMiddleware.ts
 import { Request, Response, NextFunction } from "express";
 import { auth } from "../config/auth";
+import asyncHandler from "express-async-handler";
+import httpStatus from "http-status";
+import ApiError from "../utils/ApiError";
 
 // Middleware to handle Better-Auth routes
 export const authMiddleware = async (
@@ -47,3 +49,16 @@ export const authMiddleware = async (
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+// Middleware to require authentication
+export const requireAuth = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const session = await auth.api.getSession({ headers: req.headers });
+    if (!session) {
+      throw new ApiError(httpStatus.UNAUTHORIZED, "Unauthorized");
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (req as any).session = session;
+    next();
+  }
+);

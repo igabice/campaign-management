@@ -13,3 +13,37 @@ export const CampaignFormSchema = z.object({
 });
 
 export type CampaignFormData = z.infer<typeof CampaignFormSchema>;
+
+export interface Post {
+  id: string;
+  title?: string;
+  content: string;
+  socialMedias: { id: string; accountName: string; platform: string }[];
+  image?: string;
+  scheduledDate: string;
+  sendReminder?: boolean;
+  plannerId?: string;
+  planId?: string;
+  createdBy: string;
+  status: 'Draft' | 'Posted';
+  createdAt: string;
+  updatedAt: string;
+  creator: { id: string; name: string; email: string };
+  team: { id: string; title: string };
+}
+
+export interface Plan {
+  id: string;
+  title: string;
+  description?: string;
+  startDate: string;
+  endDate: string;
+  tone?: string;
+  createdBy: string;
+  teamId: string;
+  createdAt: string;
+  updatedAt: string;
+  posts: Post[];
+  creator: { id: string; name: string; email: string };
+  team: { id: string; title: string };
+}

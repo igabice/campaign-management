@@ -7,11 +7,13 @@ const setupTestDB = () => {
   });
 
   beforeEach(async () => {
-    await prisma.campaign.deleteMany();
+    await prisma.team.deleteMany();
+    await prisma.member.deleteMany();
   });
 
   afterAll(async () => {
-    await prisma.campaign.deleteMany();
+    await prisma.team.deleteMany();
+    await prisma.member.deleteMany();
     await prisma.$disconnect();
   });
 };

@@ -9,7 +9,7 @@ const options = {
     info: {
       title: `${name} API`,
       version: "1.0.0",
-      description: "API documentation for Adcash Campaign Management",
+      description: "API documentation",
     },
     license: {
       name: "MIT",
@@ -29,7 +29,7 @@ const options = {
       url: "/v1/docs/swagger.json",
     },
   },
-  apis: ["src/docs/*.yml", "src/routes/*.ts", 'dist/src/routes/*.js'],
+  apis: ["src/docs/*.yml", "src/routes/*.ts", "dist/src/routes/*.js"],
 };
 
 const swaggerSpec = swaggerJSDoc(options);

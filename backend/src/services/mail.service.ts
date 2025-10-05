@@ -1,0 +1,361 @@
+import nodemailer from "nodemailer";
+import { Invite } from "@prisma/client";
+
+interface TeamWithUser {
+  id: string;
+  title: string;
+  user: {
+    name: string | null;
+    email: string;
+  };
+}
+
+class MailService {
+  private transporter;
+
+  constructor() {
+    this.transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      secure: process.env.EMAIL_SERVER_SECURE === "true",
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+  }
+
+  async sendInviteEmail(invite: Invite, team: TeamWithUser): Promise<void> {
+    const inviteUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/invites/${invite.id}`;
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>You've been invited to join ${team.title}</h2>
+        <p>Hello,</p>
+        <p>You have been invited to join the team "${team.title}" by ${team.user.name || team.user.email}.</p>
+        <p>Click the button below to respond to your invitation:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${inviteUrl}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+            View Invitation
+          </a>
+        </div>
+        <p>If you didn't expect this invitation, you can safely ignore this email.</p>
+        <p>Best regards,<br>The Campaign Management Team</p>
+      </div>
+    `;
+
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_FROM || "noreply@campaignapp.com",
+        to: invite.email,
+        subject: `Invitation to join ${team.title}`,
+        html,
+      });
+    } catch (error) {
+      console.error("Failed to send invite email:", error);
+      // Don't throw error - invite is still created even if email fails
+    }
+  }
+
+  async sendWelcomeEmail(user: {
+    name: string | null;
+    email: string;
+  }): Promise<void> {
+    const dashboardUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/dashboard`;
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Welcome to Campaign Management! 🎉</h2>
+        <p>Hello ${user.name || "there"},</p>
+        <p>Welcome to the Campaign Management platform! Your account has been successfully created.</p>
+        <p>You can now:</p>
+        <ul>
+          <li>Create and manage teams</li>
+          <li>Invite team members</li>
+          <li>Track campaign performance</li>
+          <li>Schedule social media posts</li>
+        </ul>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${dashboardUrl}" style="background-color: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+            Get Started
+          </a>
+        </div>
+        <p>If you have any questions, feel free to reach out to our support team.</p>
+        <p>Happy campaigning!<br>The Campaign Management Team</p>
+      </div>
+    `;
+
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_FROM || "noreply@campaignapp.com",
+        to: user.email,
+        subject: "Welcome to Campaign Management!",
+        html,
+      });
+    } catch (error) {
+      console.error("Failed to send welcome email:", error);
+      // Don't throw error - account is still created even if email fails
+    }
+  }
+
+  async sendWelcomeTeamEmail(team: {
+    title: string;
+    user: { name: string | null; email: string };
+  }): Promise<void> {
+    const teamUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/team`;
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Team "${team.title}" Created Successfully! 🚀</h2>
+        <p>Hello ${team.user.name || "there"},</p>
+        <p>Congratulations! Your team "${team.title}" has been created successfully.</p>
+        <p>You are now the owner of this team and can:</p>
+        <ul>
+          <li>Invite team members</li>
+          <li>Manage social media accounts</li>
+          <li>Schedule campaigns</li>
+          <li>Track team performance</li>
+        </ul>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${teamUrl}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+            Manage Your Team
+          </a>
+        </div>
+        <p>Start by inviting your team members to collaborate on campaigns!</p>
+        <p>Best regards,<br>The Campaign Management Team</p>
+      </div>
+    `;
+
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_FROM || "noreply@campaignapp.com",
+        to: team.user.email,
+        subject: `Team "${team.title}" Created Successfully!`,
+        html,
+      });
+    } catch (error) {
+      console.error("Failed to send welcome team email:", error);
+      // Don't throw error - team is still created even if email fails
+    }
+  }
+
+  async sendReEngagementEmail(
+    user: { name: string | null; email: string },
+    daysInactive: number
+  ): Promise<void> {
+    const dashboardUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/dashboard`;
+
+    const reEngagementContent = {
+      3: {
+        subject: "We miss you! Come back to Campaign Manager",
+        message:
+          "It's been a few days since we last saw you. Your campaigns might need some attention!",
+        cta: "Check Your Campaigns",
+      },
+      5: {
+        subject: "Your campaigns are waiting for you",
+        message:
+          "Your scheduled posts and campaign performance are ready for review.",
+        cta: "View Dashboard",
+      },
+      7: {
+        subject: "Don't forget about your social media strategy",
+        message:
+          "Keep your audience engaged with fresh content and strategic posting.",
+        cta: "Plan Your Content",
+      },
+      14: {
+        subject: "Time to boost your social media presence",
+        message:
+          "Consistent posting leads to better engagement. Let's get back on track!",
+        cta: "Schedule Posts",
+      },
+      21: {
+        subject: "Your audience is waiting - let's create some content!",
+        message:
+          "It's been a few weeks! Your followers miss your valuable content.",
+        cta: "Create Content",
+      },
+    };
+
+    const content =
+      reEngagementContent[daysInactive as keyof typeof reEngagementContent];
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>${content.subject} 👋</h2>
+        <p>Hello ${user.name || "there"},</p>
+        <p>${content.message}</p>
+        <p>Here are some things you can do right now:</p>
+        <ul>
+          <li>Review your campaign performance</li>
+          <li>Schedule new posts for your audience</li>
+          <li>Check in with your team members</li>
+          <li>Plan your next content strategy</li>
+        </ul>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${dashboardUrl}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+            ${content.cta}
+          </a>
+        </div>
+        <p>We value you as part of our community and want to help you succeed!</p>
+        <p>Best regards,<br>The Campaign Management Team</p>
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+        <p style="font-size: 12px; color: #666;">
+          You're receiving this email because you haven't been active on Campaign Manager for ${daysInactive} days.
+          If you no longer wish to receive these emails, you can update your preferences in your account settings.
+        </p>
+      </div>
+    `;
+
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_FROM || "noreply@campaignapp.com",
+        to: user.email,
+        subject: content.subject,
+        html,
+      });
+    } catch (error) {
+      console.error("Failed to send re-engagement email:", error);
+      throw error; // Re-throw for task error handling
+    }
+  }
+
+  async sendOnboardingEmail(
+    user: { name: string | null; email: string },
+    campaign: {
+      subject: string;
+      feature: string;
+      content: string;
+      daysAfterRegistration: number;
+    }
+  ): Promise<void> {
+    const dashboardUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/dashboard`;
+
+    const featureUrls = {
+      "Team Management": `${process.env.FRONTEND_URL || "http://localhost:3000"}/team`,
+      "Social Media Integration": `${process.env.FRONTEND_URL || "http://localhost:3000"}/team`, // Social media accounts are managed in team settings
+      "AI Content Generation": `${process.env.FRONTEND_URL || "http://localhost:3000"}/content-planner`,
+      "Post Scheduling": `${process.env.FRONTEND_URL || "http://localhost:3000"}/calendar`,
+      "Performance Analytics": `${process.env.FRONTEND_URL || "http://localhost:3000"}/dashboard`, // Analytics would be in dashboard
+    };
+
+    const featureUrl =
+      featureUrls[campaign.feature as keyof typeof featureUrls] || dashboardUrl;
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>${campaign.subject} 🚀</h2>
+        <p>Hello ${user.name || "there"},</p>
+        <p>Welcome back! It's been ${campaign.daysAfterRegistration} days since you joined Campaign Manager.</p>
+        <p>Today, let's explore: <strong>${campaign.feature}</strong></p>
+        <p>${campaign.content}</p>
+
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #007bff;">💡 Pro Tip</h3>
+          <p style="margin-bottom: 0;">${getProTip(campaign.feature)}</p>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${featureUrl}" style="background-color: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+            Explore ${campaign.feature}
+          </a>
+        </div>
+
+        <p>Remember, consistent use of Campaign Manager will help you:</p>
+        <ul>
+          <li>Grow your social media presence</li>
+          <li>Engage better with your audience</li>
+          <li>Collaborate effectively with your team</li>
+          <li>Track and improve your performance</li>
+        </ul>
+
+        <p>We're here to help you succeed! Feel free to reach out if you have any questions.</p>
+        <p>Happy campaigning!<br>The Campaign Management Team</p>
+
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+        <p style="font-size: 12px; color: #666;">
+          This is email ${campaign.daysAfterRegistration === 3 ? "1" : campaign.daysAfterRegistration === 5 ? "2" : campaign.daysAfterRegistration === 7 ? "3" : campaign.daysAfterRegistration === 14 ? "4" : "5"} of 5 in our onboarding series.
+          You're receiving this because you signed up for Campaign Manager ${campaign.daysAfterRegistration} days ago.
+        </p>
+      </div>
+    `;
+
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_FROM || "noreply@campaignapp.com",
+        to: user.email,
+        subject: campaign.subject,
+        html,
+      });
+    } catch (error) {
+      console.error("Failed to send onboarding email:", error);
+      throw error; // Re-throw for task error handling
+    }
+  }
+
+  async sendResetPasswordEmail(
+    user: { name: string | null; email: string },
+    resetUrl: string
+  ): Promise<void> {
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Reset Your Password 🔒</h2>
+        <p>Hello ${user.name || "there"},</p>
+        <p>You have requested to reset your password for your Campaign Management account.</p>
+        <p>Click the button below to reset your password:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetUrl}" style="background-color: #dc3545; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+            Reset Password
+          </a>
+        </div>
+        <p><strong>Important:</strong> This link will expire in 1 hour for security reasons.</p>
+        <p>If you didn't request this password reset, please ignore this email. Your password will remain unchanged.</p>
+        <p>If the button above doesn't work, you can copy and paste this link into your browser:</p>
+        <p style="word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace;">
+          ${resetUrl}
+        </p>
+        <p>For security reasons, please don't share this email or the reset link with anyone.</p>
+        <p>Best regards,<br>The Campaign Management Team</p>
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+        <p style="font-size: 12px; color: #666;">
+          If you have any issues resetting your password, please contact our support team.
+        </p>
+      </div>
+    `;
+
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_FROM || "noreply@campaignapp.com",
+        to: user.email,
+        subject: "Reset Your Password - Campaign Management",
+        html,
+      });
+    } catch (error) {
+      console.error("Failed to send reset password email:", error);
+      throw error; // Re-throw for auth error handling
+    }
+  }
+}
+
+function getProTip(feature: string): string {
+  const tips = {
+    "Team Management":
+      "Start by inviting 2-3 key team members who will help manage your social media accounts.",
+    "Social Media Integration":
+      "Connect your primary brand accounts first, then add secondary accounts as needed.",
+    "AI Content Generation":
+      "Use specific keywords and tone preferences to get better AI-generated content.",
+    "Post Scheduling":
+      "Schedule posts during your audience's peak activity times for maximum engagement.",
+    "Performance Analytics":
+      "Review your top-performing posts weekly to understand what resonates with your audience.",
+  };
+  return (
+    tips[feature as keyof typeof tips] ||
+    "Consistency is key to social media success!"
+  );
+}
+
+const mailService = new MailService();
+export default mailService;

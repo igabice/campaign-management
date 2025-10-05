@@ -80,8 +80,9 @@ cd "$BACKEND_DIR"
 
 echo ""
 
-# --- Step 1: Start Docker Services (MySQL & Redis) ---
-echo -e "2. Starting Docker Compose services (MySQL & Redis) in detached mode.${NC}"
+
+# --- Step 1: Start Docker Services (PostgreSQL & Redis) ---
+echo -e "2. Starting Docker Compose services (PostgreSQL & Redis) in detached mode.${NC}"
 cp .env.copy .env
 docker-compose -f "$DOCKER_COMPOSE_FILE" up -d --no-deps --force-recreate
 
@@ -92,6 +93,7 @@ fi
 echo -e "${GREEN}   Docker Compose services started.${NC}"
 
 echo ""
+
 
 # --- Step 2: Start Backend App ---
 echo -e "3. Starting backend app...${NC}"

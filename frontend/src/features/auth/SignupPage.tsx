@@ -31,7 +31,7 @@ export const SignupPage: React.FC = () => {
 
   useEffect(() => {
     if (session) {
-      navigate("/campaigns");
+      navigate("/dashboard");
     }
   }, [session, navigate]);
 
@@ -61,7 +61,7 @@ export const SignupPage: React.FC = () => {
         duration: 5000,
         isClosable: true,
       });
-      navigate("/login");
+      navigate("/dashboard");
     }
   };
 
@@ -105,6 +105,17 @@ export const SignupPage: React.FC = () => {
 
   return (
     <Box maxW="md" mx="auto" mt={10}>
+      <Box textAlign="center" mb={8}>
+        <ChakraLink
+          as={RouterLink}
+          to="/"
+          _hover={{ textDecoration: "none" }}
+        >
+          <Heading size="lg" color="teal.500" mb={2}>
+            CampaignPro
+          </Heading>
+        </ChakraLink>
+      </Box>
       <Heading textAlign="center" mb={6}>
         Sign Up
       </Heading>

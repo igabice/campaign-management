@@ -1,4 +1,4 @@
-# Campaign Management Frontend
+#  Frontend
 
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
@@ -13,7 +13,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Features
 
-### Campaign Management
+### 
 
 * **View Campaigns:** Display a paginated list of all campaigns.
 * **Create Campaigns:** Add new campaigns with details like title, landing page URL, status (running/inactive), and initial payouts.

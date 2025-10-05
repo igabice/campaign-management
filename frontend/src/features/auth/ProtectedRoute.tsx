@@ -2,6 +2,7 @@ import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import { Box, Spinner, Text } from "@chakra-ui/react";
+import { TeamProvider } from "../../contexts/TeamContext";
 
 export const ProtectedRoute: React.FC = () => {
   const { session, isLoading } = useAuth();
@@ -19,5 +20,9 @@ export const ProtectedRoute: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
-  return <Outlet />;
+  return (
+    <TeamProvider>
+      <Outlet />
+    </TeamProvider>
+  );
 };

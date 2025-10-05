@@ -1,0 +1,57 @@
+import { z } from "zod";
+
+const createSocialMedia = z.object({
+  body: z.object({
+    accountName: z.string().min(1, "Account name is required"),
+    teamId: z.string().uuid("Invalid team ID"),
+    platform: z.enum(["facebook", "twitter", "tiktok", "linkedin"]),
+    profileLink: z.string().url("Invalid profile link"),
+    image: z.string().optional(),
+    status: z.string().optional().default("active"),
+  }),
+});
+
+const getSocialMedia = z.object({
+  params: z.object({
+    id: z.string().uuid("Invalid social media ID"),
+  }),
+});
+
+const getSocialMedias = z.object({
+  query: z.object({
+    teamId: z.string().uuid("Invalid team ID").optional(),
+    platform: z.string().optional(),
+    status: z.string().optional(),
+    sortBy: z.string().optional(),
+    limit: z.string().regex(/^\d+$/).transform(Number).optional(),
+    page: z.string().regex(/^\d+$/).transform(Number).optional(),
+    sortType: z.enum(["asc", "desc"]).optional(),
+  }),
+});
+
+const updateSocialMedia = z.object({
+  params: z.object({
+    id: z.string().uuid("Invalid social media ID"),
+  }),
+  body: z.object({
+    accountName: z.string().min(1).optional(),
+    platform: z.string().optional(),
+    profileLink: z.string().url().optional(),
+    image: z.string().optional(),
+    status: z.string().optional(),
+  }),
+});
+
+const deleteSocialMedia = z.object({
+  params: z.object({
+    id: z.string().uuid("Invalid social media ID"),
+  }),
+});
+
+export default {
+  createSocialMedia,
+  getSocialMedia,
+  getSocialMedias,
+  updateSocialMedia,
+  deleteSocialMedia,
+};

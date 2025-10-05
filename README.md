@@ -1,10 +1,10 @@
-# Campaign Management Web Application
+#  Web Application
 
 This project is a full-stack web application designed for managing advertising campaigns and their associated payouts. It consists of a React.js frontend and an Express.js backend.
 
 ## Project Overview
 
-The "Campaign Management" application provides an interface for users to create new campaigns, define their payout structures (country and amount) and track their operational status (running/paused).
+The "" application provides an interface for users to create new campaigns, define their payout structures (country and amount) and track their operational status (running/paused).
 
 **Key functionalities include:**
 * **Campaign Lifecycle Management:** Create, view, update, and delete campaign records.
@@ -116,10 +116,10 @@ A convenient bash script is provided in the root directory to start all services
 
 The `start.sh` script initiates the startup process for all services:
 
-* **Starts Docker Services:** It first navigates to the `backend/` directory and uses `docker-compose -f docker-compose.only-db-redis.yml up -d` to spin up a MySQL database and Redis server in detached mode.
+* **Starts Docker Services:** It first navigates to the `backend/` directory and uses `docker-compose -f docker-compose.only-db-redis.yml up -d` to spin up a PostgreSQL database and Redis server in detached mode.
 * **Installs Dependencies:** It installs dependencies for backend and frontend services.
 * **Starts Backend API:** It then starts the  backend service in development mode (`npm run dev`).
-* **Starts Frontend App:** Next, it navigates to the `frontend/` directory and starts the frontend app (`npm start`). This command will take over your current terminal with a prompt that accepts commands to kill all services.
+* **Starts Frontend App:** Next, it navigates to the `frontend/` directory and starts the frontend app (`npm start`). This command will take over your current terminal prompt with a prompt that accepts commands to kill all services.
 
 ### Stopping the Application
 

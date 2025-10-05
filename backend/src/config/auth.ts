@@ -1,26 +1,49 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { stripe } from "@better-auth/stripe";
+import Stripe from "stripe";
 import prisma from "./prisma";
+import mailService from "../services/mail.service";
+
+const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2025-08-27.basil",
+});
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
   secret: process.env.BETTER_AUTH_SECRET!,
-  emailAndPassword: {
+   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
     minPasswordLength: 8,
     maxPasswordLength: 20,
     // requireEmailVerification: true,
-    // sendResetPassword: async (user, url) => {
-    //   // Implement your email service here
-    //   console.log(`Reset password URL for ${user.user.email}: ${url}`);
-    // },
+    sendResetPassword: async (user, url) => {
+      const resetUrl = typeof url === 'string' ? url : url?.url || '';
+      await mailService.sendResetPasswordEmail({
+        name: user.user.name,
+        email: user.user.email,
+      }, resetUrl);
+    },
     // sendVerification: async (user: User, url: string) => {
     //   // Implement your email service here
     //   console.log(`Verification URL for ${user.email}: ${url}`);
     // },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          // Send welcome email after user creation
+          await mailService.sendWelcomeEmail({
+            name: user.name,
+            email: user.email,
+          });
+        },
+      },
+    },
   },
   socialProviders: {
     google: {
@@ -39,8 +62,49 @@ export const auth = betterAuth({
     updateAge: 60 * 60 * 24, // Update every 24 hours
   },
 
-  // URL configuration (important for production)
-  baseURL: process.env.BASE_URL || "http://localhost:3001",
-  trustedOrigins: ["http://localhost:3000"],
-  trustHost: process.env.NODE_ENV !== "production",
+   // URL configuration (important for production)
+   baseURL: process.env.BASE_URL || "http://localhost:3001",
+   trustedOrigins: ["http://localhost:3000"],
+   trustHost: process.env.NODE_ENV !== "production",
+   redirectTo: "/dashboard",
+  plugins: [
+    stripe({
+      stripeClient,
+      stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
+      createCustomerOnSignUp: true,
+      subscription: {
+        enabled: true,
+        plans: [
+          {
+            name: "free",
+            priceId: process.env.STRIPE_FREE_PRICE_ID || "price_free",
+            limits: {
+              teams: 1,
+              posts: 10,
+              plans: 1,
+            },
+          },
+          {
+            name: "pro",
+            priceId: process.env.STRIPE_PRO_PRICE_ID || "price_pro",
+            annualDiscountPriceId: process.env.STRIPE_PRO_ANNUAL_PRICE_ID,
+            limits: {
+              teams: 5,
+              posts: 100,
+              plans: 10,
+            },
+          },
+          {
+            name: "enterprise",
+            priceId: process.env.STRIPE_ENTERPRISE_PRICE_ID || "price_enterprise",
+            limits: {
+              teams: -1, // unlimited
+              posts: -1,
+              plans: -1,
+            },
+          },
+        ],
+      },
+    }),
+  ],
 });

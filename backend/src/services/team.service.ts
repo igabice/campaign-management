@@ -2,18 +2,53 @@ import { Team, Prisma } from "@prisma/client";
 import httpStatus from "http-status";
 import ApiError from "../utils/ApiError";
 import prisma from "../config/prisma";
+import mailService from "./mail.service";
+import { checkSubscriptionLimits } from "./subscription.service";
 
 async function createTeam(userId: string, teamBody: { title: string, description?: string }): Promise<Team> {
-  return prisma.team.create({
-    data: {
-      ...teamBody,
+  console.log("Checking subscription limits for user:", userId);
+  await checkSubscriptionLimits(userId, 'team');
+
+  console.log("Creating team with data:", { ...teamBody, userId });
+  const team = await prisma.$transaction(async (tx) => {
+    const team = await tx.team.create({
+      data: {
+        ...teamBody,
+        userId,
+      },
+    });
+
+    console.log("Team created:", team.id, "creating member");
+    await tx.member.create({
+      data: {
+        teamId: team.id,
+        userId,
+        status: "active",
+        role: "owner",
+      },
+    });
+
+    return team;
+  });
+
+  // Send welcome team email after successful creation
+  const teamWithUser = await prisma.team.findUnique({
+    where: { id: team.id },
+    include: {
       user: {
-        connect: {
-          id: userId,
+        select: {
+          name: true,
+          email: true,
         },
       },
     },
   });
+
+  if (teamWithUser) {
+    await mailService.sendWelcomeTeamEmail(teamWithUser);
+  }
+
+  return team;
 }
 
 async function queryTeams(
@@ -72,10 +107,56 @@ async function deleteTeamById(id: string, userId: string): Promise<Team> {
   return team;
 }
 
+async function getMyTeams(userId: string) {
+  return prisma.member.findMany({
+    where: {
+      userId,
+      status: "active",
+    },
+    include: {
+      team: true,
+    },
+  });
+}
+
+async function getTeamMembers(teamId: string, userId: string) {
+  // First check if user is a member of the team
+  const membership = await prisma.member.findFirst({
+    where: {
+      teamId,
+      userId,
+      status: "active",
+    },
+  });
+
+  if (!membership) {
+    throw new ApiError(httpStatus.FORBIDDEN, "You are not a member of this team");
+  }
+
+  return prisma.member.findMany({
+    where: {
+      teamId,
+      status: "active",
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
+    },
+  });
+}
+
 export default {
   createTeam,
   queryTeams,
   getTeamById,
   updateTeamById,
   deleteTeamById,
+  getMyTeams,
+  getTeamMembers,
 };

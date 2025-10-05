@@ -1,14 +1,24 @@
 import express from "express";
-import payoutRoutes from "./payout.routes";
-import campaignRoutes from "./campaign.routes";
 import teamRoutes from "./team.routes";
+import socialMediaRoutes from "./socialMedia.routes";
+import inviteRoutes from "./invite.routes";
+import postRoutes from "./post.routes";
+import planRoutes from "./plan.routes";
+import notificationRoutes from "./notification.routes";
+import aiRoutes from "./ai.routes";
+import subscriptionRoutes from "./subscription.routes";
 import docRoute from "../docs/swagger";
 
 const router = express.Router();
 
-router.use("/payouts", payoutRoutes);
-router.use("/campaigns", campaignRoutes);
 router.use("/teams", teamRoutes);
+router.use("/social-media", socialMediaRoutes);
+router.use("/invites", inviteRoutes);
+router.use("/posts", postRoutes);
+router.use("/plans", planRoutes);
+router.use("/notifications", notificationRoutes);
+router.use("/subscriptions", subscriptionRoutes);
+router.use("/ai", aiRoutes);
 router.use("/docs", docRoute);
 
 export default router;

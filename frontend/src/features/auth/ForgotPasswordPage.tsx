@@ -58,6 +58,17 @@ export const ForgotPasswordPage: React.FC = () => {
 
   return (
     <Box maxW="md" mx="auto" mt={10}>
+      <Box textAlign="center" mb={8}>
+        <ChakraLink
+          as={RouterLink}
+          to="/"
+          _hover={{ textDecoration: "none" }}
+        >
+          <Heading size="lg" color="teal.500" mb={2}>
+            CampaignPro
+          </Heading>
+        </ChakraLink>
+      </Box>
       <Heading textAlign="center" mb={6}>
         Forgot Password
       </Heading>

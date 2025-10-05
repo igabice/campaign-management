@@ -1,4 +1,4 @@
-# Campaign Management Backend
+#  Backend
 
 ![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5+-3178C6?logo=typescript)
@@ -48,17 +48,39 @@ PORT=3001
 ```
 
 ### 2. Start services
-The application is configured with docker-compose to easily set up redis and MySQL. [docker-compose.only-db-redis.yml](https://github.com/igabice/campaign-management/blob/main/backend/docker-compose.only-db-redis.yml)
+The application is configured with docker-compose to easily set up redis and PostgreSQL. [docker-compose.only-db-redis.yml](https://github.com/igabice/campaign-management/blob/main/backend/docker-compose.only-db-redis.yml)
 
 - To start database and redis services
-```bash 
-docker-compose -f docker-compose.only-db-redis.yml up -d 
+```bash
+docker-compose -f docker-compose.only-db-redis.yml up -d
 ```
 
 
 - To stop database and redis services
-```bash 
-docker-compose -f docker-compose.only-db-redis.yml down 
+```bash
+docker-compose -f docker-compose.only-db-redis.yml down
+```
+
+#### Alternative: Run the full application with Docker
+You can also run the entire backend application with Docker using the main docker-compose.yml file:
+
+```bash
+docker-compose up -d
+```
+
+This will start PostgreSQL, Redis, and the backend application in containers.
+
+#### Building the Docker image manually
+To build the Docker image for the backend application:
+
+```bash
+docker build -t campaign-management-backend .
+```
+
+Then run it:
+
+```bash
+docker run -p 3001:3001 --env-file .env campaign-management-backend
 ```
 
 ### 3. install dependencies
@@ -83,11 +105,11 @@ npm run dev
 ## Testing
 Run integration tests:
 
-```bash 
+```bash
 npm test
 ```
 
-This spins up a mysql database using docker-compose [docker-compose.only-db.yml](https://github.com/igabice/campaign-management/blob/main/backend/docker-compose.only-db.yml) which is used for integration test and after tests are completed the database container is killed.
+This spins up a postgres database using docker-compose [docker-compose.only-db.yml](https://github.com/igabice/campaign-management/blob/main/backend/docker-compose.only-db.yml) which is used for integration test and after tests are completed the database container is killed.
 *Note:* [Docker](https://www.docker.com/products/docker-desktop/) must be running for integration tests.
 
 ## API Documentation

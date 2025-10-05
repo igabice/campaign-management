@@ -25,6 +25,7 @@ import {
   Spacer,
   Divider,
   Icon,
+  Badge,
 } from "@chakra-ui/react";
 import {
   SunIcon,
@@ -34,10 +35,13 @@ import {
   ViewIcon,
   CalendarIcon,
   SettingsIcon,
+  BellIcon,
 } from "@chakra-ui/icons";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import { authClient } from "../lib/auth-client";
 import { useAuth } from "../features/auth/AuthContext";
+import { notificationsApi, Notification } from "../services/notifications";
+import { useState, useEffect } from "react";
 
 export const AppHeader = () => {
   const { session } = useAuth();
@@ -45,6 +49,35 @@ export const AppHeader = () => {
   const { colorMode, toggleColorMode } = useColorMode();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const location = useLocation();
+
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (session) {
+      fetchNotifications();
+    }
+  }, [session]);
+
+  const fetchNotifications = async () => {
+    try {
+      const data = await notificationsApi.getNotifications();
+      setNotifications(data);
+      setUnreadCount(data.filter(n => !n.isRead).length);
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+    }
+  };
+
+  const markAsRead = async (id: string) => {
+    try {
+      await notificationsApi.markAsRead(id);
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error("Failed to mark as read:", error);
+    }
+  };
 
   const handleLogout = async () => {
     await authClient.signOut();
@@ -82,12 +115,61 @@ export const AppHeader = () => {
           </Show>
           <Hide below="md">
             <Box fontSize="2xl" fontWeight="bold">
-              <Heading>Campaign Manager</Heading>
+              <Heading> Manager</Heading>
             </Box>
           </Hide>
         </Flex>
         <Spacer />
         <Flex align="center">
+          {session && (
+            <Menu placement="bottom-end">
+              <MenuButton
+                as={IconButton}
+                icon={<BellIcon />}
+                aria-label="Notifications"
+                variant="ghost"
+                mr={2}
+                position="relative"
+              >
+                {unreadCount > 0 && (
+                  <Badge
+                    position="absolute"
+                    top="-1"
+                    right="-1"
+                    colorScheme="red"
+                    borderRadius="full"
+                    fontSize="xs"
+                    minW="18px"
+                    h="18px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </Badge>
+                )}
+              </MenuButton>
+              <MenuList zIndex={10000} maxW="400px">
+                {notifications.slice(0, 5).map((notif) => (
+                  <MenuItem
+                    key={notif.id}
+                    onClick={() => markAsRead(notif.id)}
+                    fontSize="sm"
+                    whiteSpace="normal"
+                    wordBreak="break-word"
+                  >
+                    {notif.description}
+                  </MenuItem>
+                ))}
+                {notifications.length === 0 && (
+                  <MenuItem disabled>No notifications</MenuItem>
+                )}
+                <MenuItem onClick={() => navigate("/notifications")}>
+                  View All Notifications
+                </MenuItem>
+              </MenuList>
+            </Menu>
+          )}
           <IconButton
             aria-label="Toggle color mode"
             icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
@@ -104,7 +186,7 @@ export const AppHeader = () => {
               >
                 {session.user.name || session.user.email}
               </MenuButton>
-              <MenuList zIndex={9999}>
+              <MenuList zIndex={10000}>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </MenuList>
             </Menu>
