@@ -17,7 +17,7 @@ COPY . .
 RUN npx prisma generate
 
 # Build the application
-RUN npm run build
+RUN npm run db:generate && npm run build
 
 # Production stage
 FROM node:20-alpine AS production
@@ -38,15 +38,8 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
-# Copy Prisma schema
-COPY --from=builder /app/prisma ./prisma
-
-# Copy start script
-COPY start.sh ./
-RUN chmod +x start.sh
-
 # Expose port 3001 to the outside world
 EXPOSE 3001
 
 # Command to run the application
-CMD ["./start.sh"]
+CMD ["npm", "start"]
