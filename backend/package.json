@@ -1,7 +1,7 @@
 {
-  "name": "adcash-campaign-management",
+  "name": "campaign-management",
   "version": "1.0.0",
-  "description": "campaign-management web app for Adcash",
+  "description": "campaign-management web app ",
   "main": "dist/src/server.js",
   "scripts": {
     "test": "docker-compose -f docker-compose.only-db.yml up -d && npm run db:push && jest -i --colors  --silent=false --verbose --detectOpenHandles && docker-compose -f docker-compose.only-db.yml down",
