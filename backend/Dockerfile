@@ -38,6 +38,15 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
+# Copy Prisma schema
+COPY --from=builder /app/prisma ./prisma
+
+# Copy start script
+# COPY start.sh ./
+# RUN chmod +x start.sh
+
+RUN npx prisma db push --accept-data-loss
+
 # Expose port 3001 to the outside world
 EXPOSE 3001
 
