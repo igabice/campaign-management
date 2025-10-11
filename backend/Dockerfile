@@ -45,7 +45,7 @@ COPY --from=builder /app/prisma ./prisma
 # COPY start.sh ./
 # RUN chmod +x start.sh
 
-RUN npx prisma db push --accept-data-loss
+RUN npx prisma db push
 
 # Expose port 3001 to the outside world
 EXPOSE 3001
