@@ -3,6 +3,6 @@ import { lastLoginMethodClient } from "better-auth/client/plugins";
 import { stripeClient } from "@better-auth/stripe/client";
 
 export const authClient = createAuthClient({
-  baseURL: process.env.BASE_API || "http://localhost:3001",
+  baseURL: process.env.REACT_APP_API_URL || "http://localhost:3001",
   plugins: [lastLoginMethodClient(), stripeClient({ subscription: true })],
 });

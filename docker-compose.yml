@@ -114,16 +114,18 @@ services:
       - app-network
 
   frontend:
-    build:
-      context: ./frontend
-    container_name: frontend_app
-    restart: unless-stopped
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
-    networks:
-      - app-network
+     build:
+       context: ./frontend
+     container_name: frontend_app
+     restart: unless-stopped
+     ports:
+       - "3000:80"
+     environment:
+       - REACT_APP_API_URL=http://backend:3001
+     depends_on:
+       - backend
+     networks:
+       - app-network
 
 volumes:
   postgres_dir:
