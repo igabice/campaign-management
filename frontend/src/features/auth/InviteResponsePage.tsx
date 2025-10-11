@@ -85,7 +85,12 @@ export const InviteResponsePage: React.FC = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minH="400px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minH="400px"
+      >
         <Spinner size="xl" />
       </Box>
     );
@@ -116,13 +121,9 @@ export const InviteResponsePage: React.FC = () => {
   return (
     <Box p={8} maxW="600px" mx="auto">
       <Box textAlign="center" mb={8}>
-        <ChakraLink
-          as={RouterLink}
-          to="/"
-          _hover={{ textDecoration: "none" }}
-        >
+        <ChakraLink as={RouterLink} to="/" _hover={{ textDecoration: "none" }}>
           <Heading size="lg" color="teal.500" mb={2}>
-            CampaignPro
+            Dokahub
           </Heading>
         </ChakraLink>
       </Box>
@@ -144,7 +145,8 @@ export const InviteResponsePage: React.FC = () => {
 
             <Box>
               <Text mb={2}>
-                <strong>Invited by:</strong> {invite.inviter.name || invite.inviter.email}
+                <strong>Invited by:</strong>{" "}
+                {invite.inviter.name || invite.inviter.email}
               </Text>
               <Text mb={2}>
                 <strong>Email:</strong> {invite.email}

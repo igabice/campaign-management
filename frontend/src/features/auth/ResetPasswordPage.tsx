@@ -14,7 +14,11 @@ import {
   Link as ChakraLink,
   useToast,
 } from "@chakra-ui/react";
-import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  Link as RouterLink,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { z } from "zod";
 import { resetPasswordSchema } from "./schemas";
 import { authClient } from "../../lib/auth-client";
@@ -82,13 +86,9 @@ export const ResetPasswordPage: React.FC = () => {
   return (
     <Box maxW="md" mx="auto" mt={10}>
       <Box textAlign="center" mb={8}>
-        <ChakraLink
-          as={RouterLink}
-          to="/"
-          _hover={{ textDecoration: "none" }}
-        >
+        <ChakraLink as={RouterLink} to="/" _hover={{ textDecoration: "none" }}>
           <Heading size="lg" color="teal.500" mb={2}>
-            CampaignPro
+            Dokahub
           </Heading>
         </ChakraLink>
       </Box>
@@ -104,9 +104,17 @@ export const ResetPasswordPage: React.FC = () => {
               <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
             </FormControl>
             <FormControl isInvalid={!!errors.confirmPassword}>
-              <FormLabel htmlFor="confirmPassword">Confirm New Password</FormLabel>
-              <Input id="confirmPassword" type="password" {...register("confirmPassword")} />
-              <FormErrorMessage>{errors.confirmPassword?.message}</FormErrorMessage>
+              <FormLabel htmlFor="confirmPassword">
+                Confirm New Password
+              </FormLabel>
+              <Input
+                id="confirmPassword"
+                type="password"
+                {...register("confirmPassword")}
+              />
+              <FormErrorMessage>
+                {errors.confirmPassword?.message}
+              </FormErrorMessage>
             </FormControl>
             <Button type="submit" isLoading={isSubmitting} colorScheme="teal">
               Reset Password

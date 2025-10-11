@@ -33,8 +33,8 @@ export const ForgotPasswordPage: React.FC = () => {
 
   const onSubmit = async (data: ForgotPasswordFormInputs) => {
     const { error } = await authClient.requestPasswordReset({
-        email: data.email,
-        redirectTo: `${window.location.origin}/reset-password`,
+      email: data.email,
+      redirectTo: `${window.location.origin}/reset-password`,
     });
 
     if (error) {
@@ -48,7 +48,8 @@ export const ForgotPasswordPage: React.FC = () => {
     } else {
       toast({
         title: "Password reset email sent.",
-        description: "Please check your email for a link to reset your password.",
+        description:
+          "Please check your email for a link to reset your password.",
         status: "success",
         duration: 5000,
         isClosable: true,
@@ -59,13 +60,9 @@ export const ForgotPasswordPage: React.FC = () => {
   return (
     <Box maxW="md" mx="auto" mt={10}>
       <Box textAlign="center" mb={8}>
-        <ChakraLink
-          as={RouterLink}
-          to="/"
-          _hover={{ textDecoration: "none" }}
-        >
+        <ChakraLink as={RouterLink} to="/" _hover={{ textDecoration: "none" }}>
           <Heading size="lg" color="teal.500" mb={2}>
-            CampaignPro
+            Dokahub
           </Heading>
         </ChakraLink>
       </Box>

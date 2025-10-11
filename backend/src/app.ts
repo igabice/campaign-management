@@ -13,7 +13,11 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: [
+      "http://localhost:3000",
+      "https://www.dokahub.com",
+      "https://dokahub.com",
+    ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })
@@ -34,7 +38,12 @@ initializeRedisClient()
 
 app.get("/", (req, res) => {
   // Don't redirect to swagger if it's an auth callback or API request
-  if (req.path.startsWith('/api/') || req.query.code || req.query.state || req.query.error) {
+  if (
+    req.path.startsWith("/api/") ||
+    req.query.code ||
+    req.query.state ||
+    req.query.error
+  ) {
     res.status(404).json({ message: "Not found" });
   } else {
     res.redirect("/v1/docs/swagger");

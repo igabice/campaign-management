@@ -101,7 +101,9 @@ export const HomePage = () => {
   const footerRef = useRef<HTMLDivElement>(null);
   const [footerVisible, setFooterVisible] = useState(false);
 
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
+  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "annual">(
+    "monthly"
+  );
 
   useEffect(() => {
     setIsVisible(true);
@@ -172,7 +174,7 @@ export const HomePage = () => {
       >
         <Flex as="nav" p={6} align="center" maxW="1200px" mx="auto">
           <Heading size="lg" fontWeight="bold" color={accentColor}>
-            CampaignPro
+            Dokahub
           </Heading>
           <Spacer />
           <HStack spacing={4}>
@@ -324,7 +326,7 @@ export const HomePage = () => {
                 mb={4}
                 fontSize={["2xl", "3xl", "4xl"]}
               >
-                See CampaignPro in Action
+                See Dokahub in Action
               </Heading>
               <Text fontSize={["md", "lg", "xl"]} color="gray.300" mb={8}>
                 Watch how our AI-powered content calendar automation transforms
@@ -421,7 +423,7 @@ export const HomePage = () => {
                     fontWeight="bold"
                     textShadow="0 2px 4px rgba(0,0,0,0.5)"
                   >
-                    CampaignPro Demo
+                    Dokahub Demo
                   </Text>
                   <Text
                     color="white"
@@ -724,39 +726,50 @@ export const HomePage = () => {
               >
                 Simple, Transparent Pricing
               </Heading>
-               <Text fontSize={["md", "lg", "xl"]} color={"gray.700"}>
-                 Start automating your content calendar today with our flexible
-                 pricing.
-               </Text>
-             </Box>
+              <Text fontSize={["md", "lg", "xl"]} color={"gray.700"}>
+                Start automating your content calendar today with our flexible
+                pricing.
+              </Text>
+            </Box>
 
-             {/* Billing Toggle */}
-             <HStack spacing={0} bg="gray.200" p={1} borderRadius="full" maxW="300px" mx="auto">
-               <Button
-                 flex={1}
-                 variant={billingPeriod === 'monthly' ? 'solid' : 'ghost'}
-                 bg={billingPeriod === 'monthly' ? 'white' : 'transparent'}
-                 color={billingPeriod === 'monthly' ? 'black' : 'gray.600'}
-                 _hover={{ bg: billingPeriod === 'monthly' ? 'white' : 'gray.100' }}
-                 onClick={() => setBillingPeriod('monthly')}
-                 borderRadius="full"
-               >
-                 Monthly
-               </Button>
-               <Button
-                 flex={1}
-                 variant={billingPeriod === 'annual' ? 'solid' : 'ghost'}
-                 bg={billingPeriod === 'annual' ? 'white' : 'transparent'}
-                 color={billingPeriod === 'annual' ? 'black' : 'gray.600'}
-                 _hover={{ bg: billingPeriod === 'annual' ? 'white' : 'gray.100' }}
-                 onClick={() => setBillingPeriod('annual')}
-                 borderRadius="full"
-               >
-                 Annual
-               </Button>
-             </HStack>
+            {/* Billing Toggle */}
+            <HStack
+              spacing={0}
+              bg="gray.200"
+              p={1}
+              borderRadius="full"
+              maxW="300px"
+              mx="auto"
+            >
+              <Button
+                flex={1}
+                variant={billingPeriod === "monthly" ? "solid" : "ghost"}
+                bg={billingPeriod === "monthly" ? "white" : "transparent"}
+                color={billingPeriod === "monthly" ? "black" : "gray.600"}
+                _hover={{
+                  bg: billingPeriod === "monthly" ? "white" : "gray.100",
+                }}
+                onClick={() => setBillingPeriod("monthly")}
+                borderRadius="full"
+              >
+                Monthly
+              </Button>
+              <Button
+                flex={1}
+                variant={billingPeriod === "annual" ? "solid" : "ghost"}
+                bg={billingPeriod === "annual" ? "white" : "transparent"}
+                color={billingPeriod === "annual" ? "black" : "gray.600"}
+                _hover={{
+                  bg: billingPeriod === "annual" ? "white" : "gray.100",
+                }}
+                onClick={() => setBillingPeriod("annual")}
+                borderRadius="full"
+              >
+                Annual
+              </Button>
+            </HStack>
 
-             <Box
+            <Box
               maxW="400px"
               w="full"
               mx="auto"
@@ -799,24 +812,24 @@ export const HomePage = () => {
                     <Text fontSize="lg" color={"gray.300"}>
                       Pro Plan
                     </Text>
-                      <HStack align="baseline" spacing={1}>
-                        <Text
-                          fontSize="4xl"
-                          fontWeight="black"
-                          color={accentColor}
-                        >
-                          {billingPeriod === 'monthly' ? '$9.99' : '$99.90'}
-                        </Text>
-                        <Text fontSize="lg" color={"gray.300"}>
-                          {billingPeriod === 'monthly' ? '/month' : '/year'}
-                        </Text>
-                      </HStack>
+                    <HStack align="baseline" spacing={1}>
                       <Text
-                        fontSize="sm"
-                        color={useColorModeValue("gray.500", "gray.400")}
+                        fontSize="4xl"
+                        fontWeight="black"
+                        color={accentColor}
                       >
-                        Billed {billingPeriod} • Cancel anytime
+                        {billingPeriod === "monthly" ? "$9.99" : "$99.90"}
                       </Text>
+                      <Text fontSize="lg" color={"gray.300"}>
+                        {billingPeriod === "monthly" ? "/month" : "/year"}
+                      </Text>
+                    </HStack>
+                    <Text
+                      fontSize="sm"
+                      color={useColorModeValue("gray.500", "gray.400")}
+                    >
+                      Billed {billingPeriod} • Cancel anytime
+                    </Text>
                   </VStack>
 
                   <VStack spacing={4} align="start" w="full">
@@ -1033,9 +1046,7 @@ export const HomePage = () => {
             justify="space-between"
             textAlign={["center", "left"]}
           >
-            <Text color={"gray.300"}>
-              © 2024 CampaignPro. All rights reserved.
-            </Text>
+            <Text color={"gray.300"}>© 2024 Dokahub. All rights reserved.</Text>
             <HStack spacing={6} mt={[4, 0]}>
               <Text
                 cursor="pointer"

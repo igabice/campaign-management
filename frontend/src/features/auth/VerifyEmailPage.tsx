@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Box, Heading, Text, Link as ChakraLink, Spinner, Alert, AlertIcon, AlertTitle, AlertDescription } from "@chakra-ui/react";
+import {
+  Box,
+  Heading,
+  Text,
+  Link as ChakraLink,
+  Spinner,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+} from "@chakra-ui/react";
 import { Link as RouterLink, useSearchParams } from "react-router-dom";
 
 export const VerifyEmailPage: React.FC = () => {
@@ -27,17 +37,15 @@ export const VerifyEmailPage: React.FC = () => {
   return (
     <Box maxW="md" mx="auto" mt={10} textAlign="center">
       <Box mb={8}>
-        <ChakraLink
-          as={RouterLink}
-          to="/"
-          _hover={{ textDecoration: "none" }}
-        >
+        <ChakraLink as={RouterLink} to="/" _hover={{ textDecoration: "none" }}>
           <Heading size="lg" color="teal.500" mb={2}>
-            CampaignPro
+            Dokahub
           </Heading>
         </ChakraLink>
       </Box>
-      <Heading mb={6}>{error ? "Verification Failed" : "Email Verified!"}</Heading>
+      <Heading mb={6}>
+        {error ? "Verification Failed" : "Email Verified!"}
+      </Heading>
       {error ? (
         <Alert status="error">
           <AlertIcon />
@@ -48,7 +56,9 @@ export const VerifyEmailPage: React.FC = () => {
         <Alert status="success">
           <AlertIcon />
           <AlertTitle>Success!</AlertTitle>
-          <AlertDescription>Your email has been successfully verified.</AlertDescription>
+          <AlertDescription>
+            Your email has been successfully verified.
+          </AlertDescription>
         </Alert>
       )}
       <Text mt={4}>

@@ -102,13 +102,9 @@ export const LoginPage: React.FC = () => {
   return (
     <Box maxW="md" mx="auto" mt={10}>
       <Box textAlign="center" mb={8}>
-        <ChakraLink
-          as={RouterLink}
-          to="/"
-          _hover={{ textDecoration: "none" }}
-        >
+        <ChakraLink as={RouterLink} to="/" _hover={{ textDecoration: "none" }}>
           <Heading size="lg" color={accentColor} mb={2}>
-            CampaignPro
+            Dokahub
           </Heading>
         </ChakraLink>
       </Box>
@@ -127,7 +123,13 @@ export const LoginPage: React.FC = () => {
             <Input id="password" type="password" {...register("password")} />
             <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
           </FormControl>
-          <Button type="submit" isLoading={isSubmitting} bg={accentColor} color="black" _hover={{ bg: accentColor, opacity: 0.8 }}>
+          <Button
+            type="submit"
+            isLoading={isSubmitting}
+            bg={accentColor}
+            color="black"
+            _hover={{ bg: accentColor, opacity: 0.8 }}
+          >
             Login
           </Button>
         </Stack>
