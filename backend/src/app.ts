@@ -11,9 +11,19 @@ import { toNodeHandler } from "better-auth/node";
 
 const app = express();
 
+// Parse CORS origins from environment variable or use defaults
+const corsOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim())
+  : [
+      "http://localhost:3000",
+      "https://www.dokahub.com",
+      "https://dokahub.com",
+      "https://api.dokahub.com",
+    ];
+
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://api.dokahub.com"],
+    origin: corsOrigins,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })
