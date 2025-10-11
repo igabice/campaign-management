@@ -42,13 +42,11 @@ COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/prisma ./prisma
 
 # Copy start script
-# COPY start.sh ./
-# RUN chmod +x start.sh
-
-RUN npx prisma db push
+COPY start.sh ./
+RUN chmod +x start.sh
 
 # Expose port 3001 to the outside world
 EXPOSE 3001
 
 # Command to run the application
-CMD ["npm", "start"]
+CMD ["./start.sh"]
