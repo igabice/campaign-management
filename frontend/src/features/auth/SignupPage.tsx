@@ -28,6 +28,7 @@ export const SignupPage: React.FC = () => {
   const toast = useToast();
   const navigate = useNavigate();
   const { session, isLoading } = useAuth();
+  const accentColor = "#F9D71C";
 
   useEffect(() => {
     if (session) {
@@ -111,7 +112,7 @@ export const SignupPage: React.FC = () => {
           to="/"
           _hover={{ textDecoration: "none" }}
         >
-          <Heading size="lg" color="teal.500" mb={2}>
+          <Heading size="lg" color={accentColor} mb={2}>
             CampaignPro
           </Heading>
         </ChakraLink>
@@ -136,7 +137,7 @@ export const SignupPage: React.FC = () => {
             <Input id="password" type="password" {...register("password")} />
             <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
           </FormControl>
-          <Button type="submit" isLoading={isSubmitting} colorScheme="teal">
+          <Button type="submit" isLoading={isSubmitting} bg={accentColor} color="black" _hover={{ bg: accentColor, opacity: 0.8 }}>
             Sign Up with Email
           </Button>
         </Stack>
@@ -151,7 +152,7 @@ export const SignupPage: React.FC = () => {
       </Stack>
       <Text mt={4} textAlign="center">
         Already have an account?{" "}
-        <ChakraLink as={RouterLink} to="/login" color="teal.500">
+        <ChakraLink as={RouterLink} to="/login" color={accentColor}>
           Login
         </ChakraLink>
       </Text>

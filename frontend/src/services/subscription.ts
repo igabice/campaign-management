@@ -4,10 +4,27 @@ export const subscriptionService = {
   upgrade: async (data: {
     plan: string;
     annual?: boolean;
+    subscriptionId?: string;
+    metadata?: Record<string, any>;
+    seats?: number;
     successUrl: string;
     cancelUrl: string;
+    returnUrl?: string;
   }) => {
-    return authClient.subscription.upgrade(data);
+    const response = await fetch('/subscriptions/upgrade', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to upgrade subscription');
+    }
+
+    return response.json();
   },
 
   list: async (referenceId?: string) => {
@@ -15,7 +32,7 @@ export const subscriptionService = {
   },
 
   getActive: async () => {
-    const response = await fetch('/api/subscriptions/active', {
+    const response = await fetch('/subscriptions/active', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

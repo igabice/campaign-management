@@ -28,6 +28,7 @@ export const LoginPage: React.FC = () => {
   const toast = useToast();
   const { session, isLoading } = useAuth();
   const navigate = useNavigate();
+  const accentColor = "#F9D71C";
 
   useEffect(() => {
     if (session) {
@@ -106,7 +107,7 @@ export const LoginPage: React.FC = () => {
           to="/"
           _hover={{ textDecoration: "none" }}
         >
-          <Heading size="lg" color="teal.500" mb={2}>
+          <Heading size="lg" color={accentColor} mb={2}>
             CampaignPro
           </Heading>
         </ChakraLink>
@@ -126,7 +127,7 @@ export const LoginPage: React.FC = () => {
             <Input id="password" type="password" {...register("password")} />
             <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
           </FormControl>
-          <Button type="submit" isLoading={isSubmitting} colorScheme="teal">
+          <Button type="submit" isLoading={isSubmitting} bg={accentColor} color="black" _hover={{ bg: accentColor, opacity: 0.8 }}>
             Login
           </Button>
         </Stack>
@@ -141,12 +142,12 @@ export const LoginPage: React.FC = () => {
       </Stack>
       <Text mt={4} textAlign="center">
         Don't have an account?{" "}
-        <ChakraLink as={RouterLink} to="/signup" color="teal.500">
+        <ChakraLink as={RouterLink} to="/signup" color={accentColor}>
           Sign up
         </ChakraLink>
       </Text>
       <Text mt={2} textAlign="center">
-        <ChakraLink as={RouterLink} to="/forgot-password" color="teal.500">
+        <ChakraLink as={RouterLink} to="/forgot-password" color={accentColor}>
           Forgot password?
         </ChakraLink>
       </Text>

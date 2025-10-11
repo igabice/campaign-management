@@ -14,18 +14,21 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   secret: process.env.BETTER_AUTH_SECRET!,
-   emailAndPassword: {
+  emailAndPassword: {
     enabled: true,
     autoSignIn: true,
     minPasswordLength: 8,
     maxPasswordLength: 20,
     // requireEmailVerification: true,
     sendResetPassword: async (user, url) => {
-      const resetUrl = typeof url === 'string' ? url : url?.url || '';
-      await mailService.sendResetPasswordEmail({
-        name: user.user.name,
-        email: user.user.email,
-      }, resetUrl);
+      const resetUrl = typeof url === "string" ? url : url?.url || "";
+      await mailService.sendResetPasswordEmail(
+        {
+          name: user.user.name,
+          email: user.user.email,
+        },
+        resetUrl
+      );
     },
     // sendVerification: async (user: User, url: string) => {
     //   // Implement your email service here
@@ -62,11 +65,11 @@ export const auth = betterAuth({
     updateAge: 60 * 60 * 24, // Update every 24 hours
   },
 
-   // URL configuration (important for production)
-   baseURL: process.env.BASE_URL || "http://localhost:3001",
-   trustedOrigins: ["http://localhost:3000"],
-   trustHost: process.env.NODE_ENV !== "production",
-   redirectTo: "/dashboard",
+  // URL configuration (important for production)
+  baseURL: process.env.BASE_URL || "http://localhost:3001",
+  trustedOrigins: ["http://localhost:3000"],
+  trustHost: process.env.NODE_ENV !== "production",
+  redirectTo: "/dashboard",
   plugins: [
     stripe({
       stripeClient,
@@ -93,10 +96,14 @@ export const auth = betterAuth({
               posts: 100,
               plans: 10,
             },
+            freeTrial: {
+              days: 7,
+            },
           },
           {
             name: "enterprise",
-            priceId: process.env.STRIPE_ENTERPRISE_PRICE_ID || "price_enterprise",
+            priceId:
+              process.env.STRIPE_ENTERPRISE_PRICE_ID || "price_enterprise",
             limits: {
               teams: -1, // unlimited
               posts: -1,

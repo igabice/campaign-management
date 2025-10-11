@@ -294,6 +294,187 @@ class MailService {
     }
   }
 
+  async sendSubscriptionWelcomeEmail(user: {
+    name: string | null;
+    email: string;
+    plan: string;
+  }): Promise<void> {
+    const dashboardUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/dashboard`;
+
+    const planNames = {
+      free: "Free",
+      pro: "Pro",
+      enterprise: "Enterprise",
+    };
+
+    const planName = planNames[user.plan as keyof typeof planNames] || "Pro";
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Welcome to ${planName} Plan! 🎉</h2>
+        <p>Hello ${user.name || "there"},</p>
+        <p>Thank you for upgrading to the <strong>${planName} Plan</strong>! Your subscription has been successfully activated.</p>
+
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #28a745;">🚀 What you can do now:</h3>
+          <ul style="margin-bottom: 0;">
+            ${user.plan === 'pro' ? `
+              <li>Create up to 5 teams</li>
+              <li>Schedule up to 100 posts per month</li>
+              <li>Generate AI-powered content</li>
+              <li>Access advanced analytics</li>
+              <li>Collaborate with team members</li>
+            ` : user.plan === 'enterprise' ? `
+              <li>Unlimited teams and posts</li>
+              <li>All Pro features</li>
+              <li>Custom integrations</li>
+              <li>Dedicated support</li>
+              <li>Advanced enterprise features</li>
+            ` : `
+              <li>Create up to 1 team</li>
+              <li>Schedule up to 10 posts per month</li>
+              <li>Basic analytics</li>
+            `}
+          </ul>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${dashboardUrl}" style="background-color: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+            Start Using Your New Features
+          </a>
+        </div>
+
+        <p>If you have any questions about your subscription or need help getting started, don't hesitate to reach out to our support team.</p>
+        <p>Welcome to the next level of campaign management!</p>
+        <p>Best regards,<br>The Campaign Management Team</p>
+      </div>
+    `;
+
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_FROM || "noreply@campaignapp.com",
+        to: user.email,
+        subject: `Welcome to ${planName} Plan - Subscription Activated!`,
+        html,
+      });
+    } catch (error) {
+      console.error("Failed to send subscription welcome email:", error);
+      // Don't throw error - subscription is still created even if email fails
+    }
+  }
+
+  async sendSubscriptionActivatedEmail(user: {
+    name: string | null;
+    email: string;
+    plan: string;
+  }): Promise<void> {
+    const dashboardUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/dashboard`;
+
+    const planNames = {
+      free: "Free",
+      pro: "Pro",
+      enterprise: "Enterprise",
+    };
+
+    const planName = planNames[user.plan as keyof typeof planNames] || "Pro";
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Subscription Activated! ✅</h2>
+        <p>Hello ${user.name || "there"},</p>
+        <p>Great news! Your ${planName} Plan subscription has been successfully activated and is now ready to use.</p>
+
+        <div style="background-color: #d4edda; border: 1px solid #c3e6cb; padding: 15px; border-radius: 4px; margin: 20px 0;">
+          <p style="margin: 0; color: #155724;"><strong>✓ Subscription Status:</strong> Active</p>
+          <p style="margin: 5px 0 0 0; color: #155724;"><strong>✓ Plan:</strong> ${planName}</p>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${dashboardUrl}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+            Access Your Dashboard
+          </a>
+        </div>
+
+        <p>You now have access to all the features included in your plan. Start creating amazing campaigns!</p>
+        <p>If you need any assistance, our support team is here to help.</p>
+        <p>Happy campaigning!<br>The Campaign Management Team</p>
+      </div>
+    `;
+
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_FROM || "noreply@campaignapp.com",
+        to: user.email,
+        subject: `Subscription Activated - ${planName} Plan`,
+        html,
+      });
+    } catch (error) {
+      console.error("Failed to send subscription activated email:", error);
+      // Don't throw error - subscription is still activated even if email fails
+    }
+  }
+
+  async sendSubscriptionCancelledEmail(user: {
+    name: string | null;
+    email: string;
+    plan: string;
+  }): Promise<void> {
+    const dashboardUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/dashboard`;
+    const billingUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/subscription`;
+
+    const planNames = {
+      free: "Free",
+      pro: "Pro",
+      enterprise: "Enterprise",
+    };
+
+    const planName = planNames[user.plan as keyof typeof planNames] || "Pro";
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Subscription Cancelled</h2>
+        <p>Hello ${user.name || "there"},</p>
+        <p>We're sorry to see you go. Your ${planName} Plan subscription has been cancelled as requested.</p>
+
+        <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 4px; margin: 20px 0;">
+          <p style="margin: 0; color: #856404;"><strong>Important:</strong> You will continue to have access to your ${planName} Plan features until the end of your current billing period.</p>
+        </div>
+
+        <p>During this time, you can:</p>
+        <ul>
+          <li>Continue using all plan features</li>
+          <li>Export your data and campaigns</li>
+          <li>Reactivate your subscription anytime</li>
+        </ul>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${billingUrl}" style="background-color: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; margin-right: 10px;">
+            Reactivate Subscription
+          </a>
+          <a href="${dashboardUrl}" style="background-color: #6c757d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+            Access Dashboard
+          </a>
+        </div>
+
+        <p>We truly appreciate the time you've spent with us and hope to see you back soon. If there's anything we could have done better, we'd love to hear your feedback.</p>
+        <p>Thank you for being part of our community!</p>
+        <p>Best regards,<br>The Campaign Management Team</p>
+      </div>
+    `;
+
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_FROM || "noreply@campaignapp.com",
+        to: user.email,
+        subject: `Subscription Cancelled - ${planName} Plan`,
+        html,
+      });
+    } catch (error) {
+      console.error("Failed to send subscription cancelled email:", error);
+      // Don't throw error - subscription is still cancelled even if email fails
+    }
+  }
+
   async sendResetPasswordEmail(
     user: { name: string | null; email: string },
     resetUrl: string

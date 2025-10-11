@@ -1,14 +1,18 @@
-import { Request, Response } from "express";
 import httpStatus from "http-status";
 import asyncHandler from "express-async-handler";
 import prisma from "../config/prisma";
+import { auth } from "../config/auth";
 
 export const getNotifications = asyncHandler(async (req, res) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const session = (req as any).session;
+  const session = await auth.api.getSession({ headers: req.headers });
+  if (!session) {
+    res.status(httpStatus.UNAUTHORIZED).json({ error: "Unauthorized" });
+    return;
+  }
   const userId = session.user.id;
   const { unread } = req.query;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const where: any = { userId };
   if (unread === "true") {
     where.isRead = false;
@@ -23,8 +27,11 @@ export const getNotifications = asyncHandler(async (req, res) => {
 });
 
 export const markAsRead = asyncHandler(async (req, res) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const session = (req as any).session;
+  const session = await auth.api.getSession({ headers: req.headers });
+  if (!session) {
+    res.status(httpStatus.UNAUTHORIZED).json({ error: "Unauthorized" });
+    return;
+  }
   const userId = session.user.id;
   const { id } = req.params;
 
@@ -42,8 +49,11 @@ export const markAsRead = asyncHandler(async (req, res) => {
 });
 
 export const markAllAsRead = asyncHandler(async (req, res) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const session = (req as any).session;
+  const session = await auth.api.getSession({ headers: req.headers });
+  if (!session) {
+    res.status(httpStatus.UNAUTHORIZED).json({ error: "Unauthorized" });
+    return;
+  }
   const userId = session.user.id;
 
   await prisma.notification.updateMany({

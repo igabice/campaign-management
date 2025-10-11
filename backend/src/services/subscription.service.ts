@@ -3,6 +3,18 @@ import prisma from "../config/prisma";
 import ApiError from "../utils/ApiError";
 import httpStatus from "http-status";
 
+interface UpgradeSubscriptionParams {
+  plan: string;
+  annual?: boolean;
+  referenceId: string;
+  subscriptionId?: string;
+  metadata?: Record<string, any>;
+  seats?: number;
+  successUrl: string;
+  cancelUrl: string;
+  returnUrl?: string;
+}
+
 interface SubscriptionLimits {
   teams: number;
   posts: number;
@@ -41,6 +53,31 @@ export async function checkSubscriptionLimits(userId: string, action: 'team' | '
   }
 
   await checkUsageLimits(userId, action, planLimits);
+}
+
+export async function upgradeSubscription(params: UpgradeSubscriptionParams, headers: Record<string, string>) {
+  try {
+    const data = await auth.api.upgradeSubscription({
+      body: {
+        plan: params.plan,
+        annual: params.annual,
+        referenceId: params.referenceId,
+        subscriptionId: params.subscriptionId,
+        metadata: params.metadata,
+        seats: params.seats,
+        successUrl: params.successUrl,
+        cancelUrl: params.cancelUrl,
+        returnUrl: params.returnUrl,
+        disableRedirect: true, // required
+      },
+      headers,
+    });
+
+    return data;
+  } catch (error) {
+    console.error("Failed to upgrade subscription:", error);
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to upgrade subscription");
+  }
 }
 
 async function checkUsageLimits(userId: string, action: 'team' | 'post' | 'plan', limits: SubscriptionLimits): Promise<void> {

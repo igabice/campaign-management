@@ -44,11 +44,21 @@ async function createTeam(userId: string, teamBody: { title: string, description
     },
   });
 
-  if (teamWithUser) {
-    await mailService.sendWelcomeTeamEmail(teamWithUser);
-  }
+   if (teamWithUser) {
+     await mailService.sendWelcomeTeamEmail(teamWithUser);
+   }
 
-  return team;
+   // Create notification for the user
+   await prisma.notification.create({
+     data: {
+       userId,
+       objectId: team.id,
+       objectType: "team",
+       description: `Your team "${team.title}" has been created successfully!`,
+     },
+   });
+
+   return team;
 }
 
 async function queryTeams(

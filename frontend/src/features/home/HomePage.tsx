@@ -76,10 +76,10 @@ export const HomePage = () => {
   const navigate = useNavigate();
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  const bgColor = "gray.900";
-  const textColor = "white";
+  const bgColor = "white";
+  const textColor = "gray.900";
   const accentColor = "#F9D71C";
-  const featureTextColor = "gray.300";
+  const featureTextColor = "gray.600";
 
   const [isVisible, setIsVisible] = useState(false);
 
@@ -100,6 +100,8 @@ export const HomePage = () => {
 
   const footerRef = useRef<HTMLDivElement>(null);
   const [footerVisible, setFooterVisible] = useState(false);
+
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
 
   useEffect(() => {
     setIsVisible(true);
@@ -126,7 +128,10 @@ export const HomePage = () => {
     if (ctaRef.current) observer.observe(ctaRef.current);
     if (footerRef.current) observer.observe(footerRef.current);
     // Handle initial intersections
-    const checkInitial = (ref: React.RefObject<HTMLDivElement | null>, setVisible: (value: boolean) => void) => {
+    const checkInitial = (
+      ref: React.RefObject<HTMLDivElement | null>,
+      setVisible: (value: boolean) => void
+    ) => {
       if (ref.current) {
         const rect = ref.current.getBoundingClientRect();
         const isIntersecting = rect.top < window.innerHeight && rect.bottom > 0;
@@ -142,17 +147,9 @@ export const HomePage = () => {
     return () => observer.disconnect();
   }, []);
 
-
-
-
-
-
-
-
-
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
-    if (element) element.scrollIntoView({ behavior: 'smooth' });
+    if (element) element.scrollIntoView({ behavior: "smooth" });
   };
 
   const animationProps = prefersReducedMotion
@@ -164,7 +161,15 @@ export const HomePage = () => {
   return (
     <Box bg={bgColor} color={textColor} minH="100vh" overflowX="hidden" pt="24">
       {/* Navigation */}
-      <Box position="fixed" top={0} left={0} right={0} zIndex={10} bg={bgColor} boxShadow="md">
+      <Box
+        position="fixed"
+        top={0}
+        left={0}
+        right={0}
+        zIndex={10}
+        bg={bgColor}
+        boxShadow="md"
+      >
         <Flex as="nav" p={6} align="center" maxW="1200px" mx="auto">
           <Heading size="lg" fontWeight="bold" color={accentColor}>
             CampaignPro
@@ -207,21 +212,21 @@ export const HomePage = () => {
       {/* Hero Section */}
       <Box
         ref={heroRef}
-        bgGradient="linear(to-br, var(--chakra-colors-purple-500), pink.400)"
+        // bgGradient="linear(to-br, purple.200, pink.200)"
         py={20}
         position="relative"
         opacity={heroVisible ? 1 : 0}
-        transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
-        _before={{
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          bg: "rgba(31, 29, 29, 0.3)",
-          zIndex: 1,
-        }}
+        // transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+        // _before={{
+        //   content: '""',
+        //   position: "absolute",
+        //   top: 0,
+        //   left: 0,
+        //   right: 0,
+        //   bottom: 0,
+        //   bg: "rgba(255, 255, 255, 0.2)",
+        //   zIndex: 1,
+        // }}
       >
         <Container maxW="1200px" position="relative" zIndex={2}>
           <VStack spacing={8} textAlign="center">
@@ -242,12 +247,12 @@ export const HomePage = () => {
 
               <Text
                 fontSize={["lg", "xl", "2xl"]}
-                color="white"
+                // color="white"
                 maxW="600px"
                 mx="auto"
                 mb={8}
                 lineHeight="1.6"
-                textShadow="0 2px 4px rgba(0,0,0,0.3)"
+                // textShadow="0 2px 4px rgba(0,0,0,0.3)"
               >
                 Transform your social media strategy with AI-powered content
                 planning, automated scheduling, and seamless team collaboration.
@@ -256,8 +261,8 @@ export const HomePage = () => {
               <HStack spacing={4} justify="center" flexWrap="wrap">
                 <Button
                   size="lg"
-                  bg="white"
-                  color="black"
+                  bg="black"
+                  color="white"
                   px={8}
                   py={4}
                   fontSize="lg"
@@ -265,6 +270,7 @@ export const HomePage = () => {
                   _hover={{
                     bg: "white",
                     opacity: 0.9,
+                    color: "black",
                     transform: "translateY(-2px)",
                     animation: prefersReducedMotion
                       ? undefined
@@ -277,6 +283,7 @@ export const HomePage = () => {
                 </Button>
                 <Button
                   size="lg"
+                  bg={accentColor}
                   variant="outline"
                   borderColor="white"
                   color="white"
@@ -299,12 +306,170 @@ export const HomePage = () => {
         </Container>
       </Box>
 
+      {/* Demo Video Section */}
+      <Box
+        id="demo"
+        ref={demoRef}
+        bg="gray.100"
+        py={20}
+        opacity={demoVisible ? 1 : 0}
+        transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+      >
+        <Container maxW="1200px">
+          <VStack spacing={12}>
+            <Box textAlign="center" maxW="800px" mx="auto">
+              <Heading
+                size="3xl"
+                fontWeight="black"
+                mb={4}
+                fontSize={["2xl", "3xl", "4xl"]}
+              >
+                See CampaignPro in Action
+              </Heading>
+              <Text fontSize={["md", "lg", "xl"]} color="gray.300" mb={8}>
+                Watch how our AI-powered content calendar automation transforms
+                your social media strategy and saves you hours of manual work
+                every week.
+              </Text>
+            </Box>
+
+            <Box
+              w="full"
+              maxW="900px"
+              mx="auto"
+              borderRadius="xl"
+              overflow="hidden"
+              boxShadow="2xl"
+              {...(prefersReducedMotion
+                ? {}
+                : {
+                    animation: `${slideInLeft} 0.8s ease-out`,
+                    opacity: isVisible ? 1 : 0,
+                  })}
+            >
+              {/* Demo Video Placeholder */}
+              <Box
+                bg="gray.200"
+                h={["250px", "400px", "500px"]}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                position="relative"
+                _hover={{
+                  "& > .play-button": {
+                    transform: "scale(1.1)",
+                  },
+                }}
+                transition="all 0.3s"
+                cursor="pointer"
+                onClick={() => {
+                  // Replace "#" with your actual demo video URL (YouTube, Vimeo, etc.)
+                  const demoVideoUrl = "#"; // e.g., "https://www.youtube.com/watch?v=YOUR_VIDEO_ID"
+                  window.open(demoVideoUrl, "_blank");
+                }}
+              >
+                {/* Video Thumbnail Placeholder */}
+                <Box
+                  position="absolute"
+                  top={0}
+                  left={0}
+                  right={0}
+                  bottom={0}
+                  bgGradient="linear(to-br, purple.200, blue.200)"
+                  opacity={0.8}
+                />
+
+                {/* Play Button */}
+                <Box
+                  className="play-button"
+                  w={20}
+                  h={20}
+                  bg="white"
+                  borderRadius="full"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  boxShadow="lg"
+                  transition="all 0.3s"
+                  position="relative"
+                  zIndex={2}
+                >
+                  <Box
+                    w={0}
+                    h={0}
+                    borderLeft="12px solid"
+                    borderLeftColor="black"
+                    borderTop="8px solid transparent"
+                    borderBottom="8px solid transparent"
+                    ml={1}
+                  />
+                </Box>
+
+                {/* Video Title Overlay */}
+                <VStack
+                  position="absolute"
+                  bottom={6}
+                  left={6}
+                  right={6}
+                  align="start"
+                  spacing={2}
+                  zIndex={2}
+                >
+                  <Text
+                    color="white"
+                    fontSize="lg"
+                    fontWeight="bold"
+                    textShadow="0 2px 4px rgba(0,0,0,0.5)"
+                  >
+                    CampaignPro Demo
+                  </Text>
+                  <Text
+                    color="white"
+                    fontSize="sm"
+                    opacity={0.9}
+                    textShadow="0 2px 4px rgba(0,0,0,0.5)"
+                  >
+                    2:34 • See how it works
+                  </Text>
+                </VStack>
+              </Box>
+            </Box>
+
+            <HStack spacing={6} flexWrap="wrap" justify="center">
+              <VStack spacing={2} align="center" minW="150px">
+                <Text fontSize="3xl" fontWeight="bold" color={accentColor}>
+                  5x
+                </Text>
+                <Text fontSize="sm" color={"gray.300"} textAlign="center">
+                  Faster content creation
+                </Text>
+              </VStack>
+              <VStack spacing={2} align="center" minW="150px">
+                <Text fontSize="3xl" fontWeight="bold" color={accentColor}>
+                  80%
+                </Text>
+                <Text fontSize="sm" color={"gray.300"} textAlign="center">
+                  Time saved on scheduling
+                </Text>
+              </VStack>
+              <VStack spacing={2} align="center" minW="150px">
+                <Text fontSize="3xl" fontWeight="bold" color={accentColor}>
+                  3x
+                </Text>
+                <Text fontSize="sm" color={"gray.300"} textAlign="center">
+                  More engagement
+                </Text>
+              </VStack>
+            </HStack>
+          </VStack>
+        </Container>
+      </Box>
+
       {/* Features Section */}
       <Box
         id="features"
         ref={featuresRef}
         py={20}
-        bg="gray.800"
         opacity={featuresVisible ? 1 : 0}
         transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
       >
@@ -323,12 +488,12 @@ export const HomePage = () => {
                   Content Success
                 </Text>
               </Heading>
-               <Text
-                 fontSize={["md", "lg", "xl"]}
-                 color="gray.300"
-                 maxW="600px"
-                 mx="auto"
-               >
+              <Text
+                fontSize={["md", "lg", "xl"]}
+                color="gray.700"
+                maxW="600px"
+                mx="auto"
+              >
                 Powerful features designed to streamline your content creation
                 and amplify your social media presence.
               </Text>
@@ -539,186 +704,12 @@ export const HomePage = () => {
         </Container>
       </Box>
 
-      {/* Demo Video Section */}
-      <Box
-        id="demo"
-        ref={demoRef}
-        py={20}
-        opacity={demoVisible ? 1 : 0}
-        transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
-      >
-        <Container maxW="1200px">
-          <VStack spacing={12}>
-            <Box textAlign="center" maxW="800px" mx="auto">
-              <Heading
-                size="3xl"
-                fontWeight="black"
-                mb={4}
-                fontSize={["2xl", "3xl", "4xl"]}
-              >
-                See CampaignPro in Action
-              </Heading>
-               <Text
-                 fontSize={["md", "lg", "xl"]}
-                 color="gray.300"
-                 mb={8}
-               >
-                 Watch how our AI-powered content calendar automation transforms
-                 your social media strategy and saves you hours of manual work
-                 every week.
-               </Text>
-            </Box>
-
-            <Box
-              w="full"
-              maxW="900px"
-              mx="auto"
-              borderRadius="xl"
-              overflow="hidden"
-              boxShadow="2xl"
-              {...(prefersReducedMotion
-                ? {}
-                : {
-                    animation: `${slideInLeft} 0.8s ease-out`,
-                    opacity: isVisible ? 1 : 0,
-                  })}
-            >
-              {/* Demo Video Placeholder */}
-               <Box
-                 bg="gray.700"
-                 h={["250px", "400px", "500px"]}
-                 display="flex"
-                 alignItems="center"
-                 justifyContent="center"
-                 position="relative"
-                 _hover={{
-                   "& > .play-button": {
-                     transform: "scale(1.1)",
-                   },
-                 }}
-                 transition="all 0.3s"
-                 cursor="pointer"
-                 onClick={() => {
-                   // Replace "#" with your actual demo video URL (YouTube, Vimeo, etc.)
-                   const demoVideoUrl = "#"; // e.g., "https://www.youtube.com/watch?v=YOUR_VIDEO_ID"
-                   window.open(demoVideoUrl, "_blank");
-                 }}
-               >
-                {/* Video Thumbnail Placeholder */}
-                <Box
-                  position="absolute"
-                  top={0}
-                  left={0}
-                  right={0}
-                  bottom={0}
-                  bgGradient="linear(to-br, purple.500, blue.500)"
-                  opacity={0.8}
-                />
-
-                {/* Play Button */}
-                <Box
-                  className="play-button"
-                  w={20}
-                  h={20}
-                  bg="white"
-                  borderRadius="full"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  boxShadow="lg"
-                  transition="all 0.3s"
-                  position="relative"
-                  zIndex={2}
-                >
-                  <Box
-                    w={0}
-                    h={0}
-                    borderLeft="12px solid"
-                    borderLeftColor="black"
-                    borderTop="8px solid transparent"
-                    borderBottom="8px solid transparent"
-                    ml={1}
-                  />
-                </Box>
-
-                {/* Video Title Overlay */}
-                <VStack
-                  position="absolute"
-                  bottom={6}
-                  left={6}
-                  right={6}
-                  align="start"
-                  spacing={2}
-                  zIndex={2}
-                >
-                  <Text
-                    color="white"
-                    fontSize="lg"
-                    fontWeight="bold"
-                    textShadow="0 2px 4px rgba(0,0,0,0.5)"
-                  >
-                    CampaignPro Demo
-                  </Text>
-                  <Text
-                    color="white"
-                    fontSize="sm"
-                    opacity={0.9}
-                    textShadow="0 2px 4px rgba(0,0,0,0.5)"
-                  >
-                    2:34 • See how it works
-                  </Text>
-                </VStack>
-              </Box>
-            </Box>
-
-            <HStack spacing={6} flexWrap="wrap" justify="center">
-              <VStack spacing={2} align="center" minW="150px">
-                <Text fontSize="3xl" fontWeight="bold" color={accentColor}>
-                  5x
-                </Text>
-                <Text
-                  fontSize="sm"
-                  color={"gray.300"}
-                  textAlign="center"
-                >
-                  Faster content creation
-                </Text>
-              </VStack>
-              <VStack spacing={2} align="center" minW="150px">
-                <Text fontSize="3xl" fontWeight="bold" color={accentColor}>
-                  80%
-                </Text>
-                <Text
-                  fontSize="sm"
-                  color={"gray.300"}
-                  textAlign="center"
-                >
-                  Time saved on scheduling
-                </Text>
-              </VStack>
-              <VStack spacing={2} align="center" minW="150px">
-                <Text fontSize="3xl" fontWeight="bold" color={accentColor}>
-                  3x
-                </Text>
-                <Text
-                  fontSize="sm"
-                  color={"gray.300"}
-                  textAlign="center"
-                >
-                  More engagement
-                </Text>
-              </VStack>
-            </HStack>
-          </VStack>
-        </Container>
-      </Box>
-
       {/* Pricing Section */}
       <Box
         id="pricing"
         ref={pricingRef}
         py={20}
-        bg="gray.800"
+        bg="gray.100"
         opacity={pricingVisible ? 1 : 0}
         transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
       >
@@ -733,16 +724,39 @@ export const HomePage = () => {
               >
                 Simple, Transparent Pricing
               </Heading>
-              <Text
-                fontSize={["md", "lg", "xl"]}
-                color={"gray.300"}
-              >
-                Start automating your content calendar today with our flexible
-                pricing.
-              </Text>
-            </Box>
+               <Text fontSize={["md", "lg", "xl"]} color={"gray.700"}>
+                 Start automating your content calendar today with our flexible
+                 pricing.
+               </Text>
+             </Box>
 
-            <Box
+             {/* Billing Toggle */}
+             <HStack spacing={0} bg="gray.200" p={1} borderRadius="full" maxW="300px" mx="auto">
+               <Button
+                 flex={1}
+                 variant={billingPeriod === 'monthly' ? 'solid' : 'ghost'}
+                 bg={billingPeriod === 'monthly' ? 'white' : 'transparent'}
+                 color={billingPeriod === 'monthly' ? 'black' : 'gray.600'}
+                 _hover={{ bg: billingPeriod === 'monthly' ? 'white' : 'gray.100' }}
+                 onClick={() => setBillingPeriod('monthly')}
+                 borderRadius="full"
+               >
+                 Monthly
+               </Button>
+               <Button
+                 flex={1}
+                 variant={billingPeriod === 'annual' ? 'solid' : 'ghost'}
+                 bg={billingPeriod === 'annual' ? 'white' : 'transparent'}
+                 color={billingPeriod === 'annual' ? 'black' : 'gray.600'}
+                 _hover={{ bg: billingPeriod === 'annual' ? 'white' : 'gray.100' }}
+                 onClick={() => setBillingPeriod('annual')}
+                 borderRadius="full"
+               >
+                 Annual
+               </Button>
+             </HStack>
+
+             <Box
               maxW="400px"
               w="full"
               mx="auto"
@@ -782,33 +796,27 @@ export const HomePage = () => {
 
                 <VStack spacing={6} p={8}>
                   <VStack spacing={2} textAlign="center">
-                    <Text
-                      fontSize="lg"
-                      color={"gray.300"}
-                    >
+                    <Text fontSize="lg" color={"gray.300"}>
                       Pro Plan
                     </Text>
-                    <HStack align="baseline" spacing={1}>
+                      <HStack align="baseline" spacing={1}>
+                        <Text
+                          fontSize="4xl"
+                          fontWeight="black"
+                          color={accentColor}
+                        >
+                          {billingPeriod === 'monthly' ? '$9.99' : '$99.90'}
+                        </Text>
+                        <Text fontSize="lg" color={"gray.300"}>
+                          {billingPeriod === 'monthly' ? '/month' : '/year'}
+                        </Text>
+                      </HStack>
                       <Text
-                        fontSize="4xl"
-                        fontWeight="black"
-                        color={accentColor}
+                        fontSize="sm"
+                        color={useColorModeValue("gray.500", "gray.400")}
                       >
-                        $9.99
+                        Billed {billingPeriod} • Cancel anytime
                       </Text>
-                      <Text
-                        fontSize="lg"
-                        color={"gray.300"}
-                      >
-                        /month
-                      </Text>
-                    </HStack>
-                    <Text
-                      fontSize="sm"
-                      color={useColorModeValue("gray.500", "gray.400")}
-                    >
-                      Billed monthly • Cancel anytime
-                    </Text>
                   </VStack>
 
                   <VStack spacing={4} align="start" w="full">
@@ -869,24 +877,17 @@ export const HomePage = () => {
                   </VStack>
 
                   <VStack spacing={4} w="full">
-                     <Box
-                       bg="blue.900"
-                       borderRadius="lg"
-                       p={4}
-                       w="full"
-                       textAlign="center"
-                     >
-                       <Text
-                         fontSize="sm"
-                         fontWeight="bold"
-                         color="blue.200"
-                       >
-                         🎉 7-Day Free Trial
-                       </Text>
-                       <Text
-                         fontSize="xs"
-                         color="blue.300"
-                       >
+                    <Box
+                      bg="grey.100"
+                      borderRadius="lg"
+                      p={4}
+                      w="full"
+                      textAlign="center"
+                    >
+                      <Text fontSize="sm" fontWeight="bold" color="grey.800">
+                        7-Day Free Trial
+                      </Text>
+                      <Text fontSize="xs" color="blue.700">
                         No credit card required
                       </Text>
                     </Box>
@@ -967,11 +968,7 @@ export const HomePage = () => {
                   Content Strategy?
                 </Text>
               </Heading>
-              <Text
-                fontSize={["md", "lg", "xl"]}
-                color={"gray.300"}
-                mb={8}
-              >
+              <Text fontSize={["md", "lg", "xl"]} color={"gray.600"} mb={8}>
                 Join thousands of creators and marketers who have automated
                 their content calendar and boosted their engagement.
               </Text>
@@ -1025,7 +1022,7 @@ export const HomePage = () => {
         ref={footerRef}
         py={8}
         borderTop="1px"
-        borderColor="gray.700"
+        borderColor="gray.300"
         opacity={footerVisible ? 1 : 0}
         transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
       >

@@ -5,13 +5,13 @@
   "main": "dist/src/server.js",
   "scripts": {
     "test": "docker-compose -f docker-compose.only-db.yml up -d && npm run db:push && jest -i --colors  --silent=false --verbose --detectOpenHandles && docker-compose -f docker-compose.only-db.yml down",
-    "dev": "cross-env NODE_ENV=dev nodemon src/server.ts",
-    "dev:tasks": "cross-env NODE_ENV=dev nodemon src/tasks-server.ts",
+    "dev": "cross-env NODE_ENV=dev APP=app nodemon src/server.ts",
+    "dev:tasks": "cross-env NODE_ENV=dev APP=scheduler nodemon src/server.ts",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "build": "rimraf build && tsc -p tsconfig.json",
-    "start": "node dist/src/server.js",
-    "start:tasks": "node dist/src/tasks-server.js",
+    "start": "cross-env APP=app node dist/src/server.js",
+    "start:tasks": "cross-env APP=scheduler node dist/src/server.js",
     "db:seed": "ts-node prisma/seed.ts"
   },
   "keywords": [],

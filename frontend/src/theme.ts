@@ -5,6 +5,10 @@ export const theme = extendTheme({
     initialColorMode: "dark",
     useSystemColorMode: false,
   },
+  fonts: {
+    heading: `'Chirp', sans-serif`,
+    body: `'Chirp', sans-serif`,
+  },
   colors: {
     primary: {
       500: "#F9D71C",
