@@ -67,7 +67,14 @@ export const auth = betterAuth({
 
   // URL configuration (important for production)
   baseURL: process.env.BASE_URL || "http://localhost:3001",
-  trustedOrigins: ["http://localhost:3000"],
+  trustedOrigins: process.env.TRUSTED_ORIGINS
+    ? process.env.TRUSTED_ORIGINS.split(",").map((origin) => origin.trim())
+    : [
+        "http://localhost:3000",
+        "https://www.dokahub.com",
+        "https://dokahub.com",
+        "https://api.dokahub.com",
+      ],
   trustHost: process.env.NODE_ENV !== "production",
   redirectTo: "/dashboard",
   plugins: [
