@@ -13,11 +13,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "https://www.dokahub.com",
-      "https://dokahub.com",
-    ],
+    origin: ["http://localhost:3000", "https://api.dokahub.com"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })
