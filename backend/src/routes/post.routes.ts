@@ -25,7 +25,7 @@ const router = express.Router();
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
@@ -44,6 +44,8 @@ const router = express.Router();
  *                   type: string
  *               image:
  *                 type: string
+ *                 format: binary
+ *                 description: Image file to upload (JPEG, PNG, GIF, WebP - max 5MB)
  *               scheduledDate:
  *                 type: string
  *                 format: date-time
@@ -58,7 +60,6 @@ const router = express.Router();
  *               title: "Exciting News!"
  *               content: "We're launching our new product next week!"
  *               socialMedias: ["123e4567-e89b-12d3-a456-426614174000"]
- *               image: "https://example.com/image.jpg"
  *               scheduledDate: "2024-01-15T10:00:00Z"
  *               sendReminder: true
  *               teamId: "123e4567-e89b-12d3-a456-426614174000"
@@ -80,7 +81,6 @@ router
   .route("/")
   .post(
     requireAuth,
-    validate(postValidation.createPost),
     postController.createPost
   )
   /**
