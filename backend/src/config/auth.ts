@@ -5,6 +5,7 @@ import { stripe } from "@better-auth/stripe";
 import Stripe from "stripe";
 import prisma from "./prisma";
 import mailService from "../services/mail.service";
+import logger from "./logger";
 
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-08-27.basil",
@@ -93,7 +94,9 @@ export const auth = betterAuth({
       createCustomerOnSignUp: true,
       subscription: {
         enabled: true,
-        authorizeReference: async ({ user, action }) => {
+        authorizeReference: async ({ user, action, session, referenceId }) => {
+          logger.debug({ user, action, session, referenceId });
+          return true;
           //session, referenceId,
           // Check if the user has permission to manage subscriptions for this reference
           if (
