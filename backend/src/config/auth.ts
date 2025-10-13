@@ -93,6 +93,23 @@ export const auth = betterAuth({
       createCustomerOnSignUp: true,
       subscription: {
         enabled: true,
+        authorizeReference: async ({ user, action }) => {
+          //session, referenceId,
+          // Check if the user has permission to manage subscriptions for this reference
+          if (
+            action === "upgrade-subscription" ||
+            action === "cancel-subscription" ||
+            action === "restore-subscription"
+          ) {
+            const org = await prisma.team.findFirst({
+              where: {
+                userId: user.id,
+              },
+            });
+            return org?.userId === "owner";
+          }
+          return true;
+        },
         plans: [
           {
             name: "starter",
