@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Box,
   Button,
@@ -18,10 +18,10 @@ import {
   GridItem,
   Switch,
   FormLabel,
-} from '@chakra-ui/react';
-import { keyframes } from '@emotion/react';
-import { CheckCircleIcon } from '@chakra-ui/icons';
-import { subscriptionService } from '../../services/subscription';
+} from "@chakra-ui/react";
+import { keyframes } from "@emotion/react";
+import { CheckCircleIcon } from "@chakra-ui/icons";
+import { subscriptionService } from "../../services/subscription";
 
 // Animation keyframes
 const fadeInUp = keyframes`
@@ -60,16 +60,16 @@ const SubscriptionPage: React.FC = () => {
       const { data, error } = await subscriptionService.list();
       if (error) {
         toast({
-          title: 'Error loading subscriptions',
+          title: "Error loading subscriptions",
           description: error.message,
-          status: 'error',
+          status: "error",
           duration: 5000,
         });
       } else {
         setSubscriptions(data || []);
       }
     } catch (error) {
-      console.error('Error loading subscriptions:', error);
+      console.error("Error loading subscriptions:", error);
     } finally {
       setLoading(false);
     }
@@ -82,28 +82,29 @@ const SubscriptionPage: React.FC = () => {
   const handleUpgrade = async (plan: string) => {
     setUpgrading(true);
     try {
-      const { error } = await subscriptionService.upgrade({
+      const data = await subscriptionService.upgrade({
         plan,
         annual: isAnnual,
         successUrl: `${window.location.origin}/dashboard`,
         cancelUrl: `${window.location.origin}/subscription`,
       });
 
-      if (error) {
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
         toast({
-          title: 'Upgrade failed',
-          description: error.message,
-          status: 'error',
+          title: "Upgrade failed",
+          description: "No checkout URL received",
+          status: "error",
           duration: 5000,
         });
       }
-      // If successful, user will be redirected to Stripe
-    } catch (error) {
-      console.error('Error upgrading:', error);
+    } catch (error: any) {
+      console.error("Error upgrading:", error);
       toast({
-        title: 'Upgrade failed',
-        description: 'An unexpected error occurred',
-        status: 'error',
+        title: "Upgrade failed",
+        description: error.message || "An unexpected error occurred",
+        status: "error",
         duration: 5000,
       });
     } finally {
@@ -119,74 +120,83 @@ const SubscriptionPage: React.FC = () => {
 
       if (error) {
         toast({
-          title: 'Error opening billing portal',
+          title: "Error opening billing portal",
           description: error.message,
-          status: 'error',
+          status: "error",
           duration: 5000,
         });
       } else if (data?.url) {
         window.location.href = data.url;
       }
     } catch (error) {
-      console.error('Error opening billing portal:', error);
+      console.error("Error opening billing portal:", error);
     }
   };
 
   const plans = [
     {
-      name: 'starter',
-      title: 'Starter',
+      name: "starter",
+      title: "Starter",
       monthlyPrice: 9,
       features: [
-        '1 Team',
-        '50 Posts/month',
-        '3 Content Plans/month',
-        'Basic analytics',
-        'Manual scheduling'
+        "1 Team",
+        "50 Posts/month",
+        "3 Content Plans/month",
+        "Basic analytics",
+        "Manual scheduling",
       ],
       limits: { teams: 1, posts: 50, plans: 3 },
       popular: false,
     },
     {
-      name: 'pro',
-      title: 'Pro',
+      name: "pro",
+      title: "Pro",
       monthlyPrice: 29,
       features: [
-        '5 Teams',
-        '200 Posts/month',
-        '20 Content Plans/month',
-        'AI-powered content generation',
-        'Automated scheduling',
-        'Team collaboration tools',
-        'Advanced analytics & insights',
-        'Priority support'
+        "5 Teams",
+        "200 Posts/month",
+        "20 Content Plans/month",
+        "AI-powered content generation",
+        "Automated scheduling",
+        "Team collaboration tools",
+        "Advanced analytics & insights",
+        "Priority support",
       ],
       limits: { teams: 5, posts: 200, plans: 20 },
       popular: true,
     },
     {
-      name: 'agency',
-      title: 'Agency',
+      name: "agency",
+      title: "Agency",
       monthlyPrice: 99,
       features: [
-        'Unlimited Teams',
-        'Unlimited Posts',
-        'Unlimited Content Plans',
-        'All Pro features',
-        'Custom integrations',
-        'Dedicated account manager',
-        '24/7 phone support'
+        "Unlimited Teams",
+        "Unlimited Posts",
+        "Unlimited Content Plans",
+        "All Pro features",
+        "Custom integrations",
+        "Dedicated account manager",
+        "24/7 phone support",
       ],
       limits: { teams: -1, posts: -1, plans: -1 },
       popular: false,
     },
   ];
 
-  const activeSubscription = subscriptions.find(sub => sub.status === 'active' || sub.status === 'trialing');
+  const activeSubscription = subscriptions.find(
+    (sub) => sub.status === "active" || sub.status === "trialing"
+  );
 
   if (loading) {
     return (
-      <Box bg={bgColor} color={textColor} minH="100vh" display="flex" justifyContent="center" alignItems="center">
+      <Box
+        bg={bgColor}
+        color={textColor}
+        minH="100vh"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+      >
         <Spinner size="xl" color={accentColor} />
       </Box>
     );
@@ -205,16 +215,17 @@ const SubscriptionPage: React.FC = () => {
             >
               Choose Your Plan
             </Heading>
-            <Text
-              fontSize={["md", "lg", "xl"]}
-              color={featureTextColor}
-            >
+            <Text fontSize={["md", "lg", "xl"]} color={featureTextColor}>
               Select the perfect plan for your content creation needs.
             </Text>
           </Box>
 
           <HStack spacing={4} justify="center">
-            <Text fontSize="lg" fontWeight="medium" color={isAnnual ? featureTextColor : textColor}>
+            <Text
+              fontSize="lg"
+              fontWeight="medium"
+              color={isAnnual ? featureTextColor : textColor}
+            >
               Monthly
             </Text>
             <Switch
@@ -223,7 +234,11 @@ const SubscriptionPage: React.FC = () => {
               isChecked={isAnnual}
               onChange={(e) => setIsAnnual(e.target.checked)}
             />
-            <Text fontSize="lg" fontWeight="medium" color={isAnnual ? textColor : featureTextColor}>
+            <Text
+              fontSize="lg"
+              fontWeight="medium"
+              color={isAnnual ? textColor : featureTextColor}
+            >
               Annual
             </Text>
             {isAnnual && (
@@ -237,20 +252,27 @@ const SubscriptionPage: React.FC = () => {
             <Alert status="info" bg="blue.50" borderColor="blue.200">
               <AlertIcon color="blue.500" />
               <Box>
-                <Text fontWeight="bold" color="blue.900">Current Plan: {activeSubscription.plan}</Text>
-                <Text color="blue.700">Status: <Badge colorScheme={activeSubscription.status === 'active' ? 'green' : 'yellow'}>
-                  {activeSubscription.status}
-                </Badge></Text>
+                <Text fontWeight="bold" color="blue.900">
+                  Current Plan: {activeSubscription.plan}
+                </Text>
+                <Text color="blue.700">
+                  Status:{" "}
+                  <Badge
+                    colorScheme={
+                      activeSubscription.status === "active"
+                        ? "green"
+                        : "yellow"
+                    }
+                  >
+                    {activeSubscription.status}
+                  </Badge>
+                </Text>
               </Box>
             </Alert>
           )}
 
           <Grid
-            templateColumns={[
-              "1fr",
-              "repeat(2, 1fr)",
-              "repeat(3, 1fr)",
-            ]}
+            templateColumns={["1fr", "repeat(2, 1fr)", "repeat(3, 1fr)"]}
             gap={8}
             w="full"
           >
@@ -298,37 +320,32 @@ const SubscriptionPage: React.FC = () => {
                   )}
 
                   <VStack spacing={6} p={8}>
-                     <VStack spacing={2} textAlign="center">
-                       <Text
-                         fontSize="lg"
-                         color={featureTextColor}
-                       >
-                         {plan.title}
-                       </Text>
-                       <HStack align="baseline" spacing={1} justify="center">
-                         <Text
-                           fontSize="4xl"
-                           fontWeight="black"
-                           color={accentColor}
-                         >
-                           ${isAnnual ? plan.monthlyPrice * 10 : plan.monthlyPrice}
-                         </Text>
-                         <Text
-                           fontSize="lg"
-                           color={featureTextColor}
-                         >
-                           /{isAnnual ? 'year' : 'month'}
-                         </Text>
-                       </HStack>
-                       {plan.name !== 'starter' && plan.name !== 'agency' && (
-                         <Text
-                           fontSize="sm"
-                           color="gray.500"
-                         >
-                           Billed {isAnnual ? 'annually' : 'monthly'} • Cancel anytime
-                         </Text>
-                       )}
-                     </VStack>
+                    <VStack spacing={2} textAlign="center">
+                      <Text fontSize="lg" color={featureTextColor}>
+                        {plan.title}
+                      </Text>
+                      <HStack align="baseline" spacing={1} justify="center">
+                        <Text
+                          fontSize="4xl"
+                          fontWeight="black"
+                          color={accentColor}
+                        >
+                          $
+                          {isAnnual
+                            ? plan.monthlyPrice * 10
+                            : plan.monthlyPrice}
+                        </Text>
+                        <Text fontSize="lg" color={featureTextColor}>
+                          /{isAnnual ? "year" : "month"}
+                        </Text>
+                      </HStack>
+                      {plan.name !== "starter" && plan.name !== "agency" && (
+                        <Text fontSize="sm" color="gray.500">
+                          Billed {isAnnual ? "annually" : "monthly"} • Cancel
+                          anytime
+                        </Text>
+                      )}
+                    </VStack>
 
                     <VStack spacing={4} align="start" w="full">
                       {plan.features.map((feature, idx) => (
@@ -345,29 +362,26 @@ const SubscriptionPage: React.FC = () => {
                     </VStack>
 
                     <VStack spacing={4} w="full">
-                       {plan.name === 'pro' && (
-                         <Box
-                           bg="blue.50"
-                           borderRadius="lg"
-                           p={4}
-                           w="full"
-                           textAlign="center"
-                         >
-                           <Text
-                             fontSize="sm"
-                             fontWeight="bold"
-                             color="blue.700"
-                           >
-                             🎉 7-Day Free Trial
-                           </Text>
-                           <Text
-                             fontSize="xs"
-                             color="blue.600"
-                           >
+                      {plan.name === "pro" && (
+                        <Box
+                          bg="blue.50"
+                          borderRadius="lg"
+                          p={4}
+                          w="full"
+                          textAlign="center"
+                        >
+                          <Text
+                            fontSize="sm"
+                            fontWeight="bold"
+                            color="blue.700"
+                          >
+                            🎉 7-Day Free Trial
+                          </Text>
+                          <Text fontSize="xs" color="blue.600">
                             No credit card required
                           </Text>
-                         </Box>
-                       )}
+                        </Box>
+                      )}
 
                       <Button
                         bg={accentColor}
@@ -386,7 +400,9 @@ const SubscriptionPage: React.FC = () => {
                         isLoading={upgrading}
                         isDisabled={activeSubscription?.plan === plan.name}
                       >
-                         {activeSubscription?.plan === plan.name ? 'Current Plan' : 'Subscribe'}
+                        {activeSubscription?.plan === plan.name
+                          ? "Current Plan"
+                          : "Subscribe"}
                       </Button>
                     </VStack>
                   </VStack>
@@ -408,7 +424,9 @@ const SubscriptionPage: React.FC = () => {
               mx="auto"
               textAlign="center"
             >
-              <Heading size="md" mb={4}>Manage Subscription</Heading>
+              <Heading size="md" mb={4}>
+                Manage Subscription
+              </Heading>
               <Button
                 bg="gray.100"
                 color="gray.900"
