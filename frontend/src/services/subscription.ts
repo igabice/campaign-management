@@ -1,5 +1,7 @@
 import { authClient } from "../lib/auth-client";
 
+const API_BASE_URL = process.env.REACT_APP_API_URL ? `${process.env.REACT_APP_API_URL}/v1` : 'http://localhost:3001/v1';
+
 export const subscriptionService = {
   upgrade: async (data: {
     plan: string;
@@ -11,7 +13,7 @@ export const subscriptionService = {
     cancelUrl: string;
     returnUrl?: string;
   }) => {
-    const response = await fetch('/subscriptions/upgrade', {
+    const response = await fetch(`${API_BASE_URL}/subscriptions/upgrade`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -32,7 +34,7 @@ export const subscriptionService = {
   },
 
   getActive: async () => {
-    const response = await fetch('/subscriptions/active', {
+    const response = await fetch(`${API_BASE_URL}/subscriptions/active`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
