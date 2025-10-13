@@ -328,7 +328,7 @@ export const HomePage = () => {
               >
                 See Dokahub in Action
               </Heading>
-              <Text fontSize={["md", "lg", "xl"]} color="gray.300" mb={8}>
+              <Text fontSize={["md", "lg", "xl"]} color="gray.600" mb={8}>
                 Watch how our AI-powered content calendar automation transforms
                 your social media strategy and saves you hours of manual work
                 every week.

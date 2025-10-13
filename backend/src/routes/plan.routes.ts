@@ -3,6 +3,7 @@ import validate from "../middlewares/validate";
 import planValidation from "../validations/plan.validation";
 import planController from "../controllers/plan.controller";
 import { requireAuth } from "../middlewares/auth";
+import { requireSubscription } from "../middlewares/subscription";
 
 const { publishPlan } = planController;
 
@@ -75,6 +76,7 @@ router
   .route("/")
   .post(
     requireAuth,
+    requireSubscription,
     validate(planValidation.createPlan),
     planController.createPlan
   )
@@ -370,6 +372,6 @@ router
  */
 router
   .route("/:id/publish")
-  .post(requireAuth, validate(planValidation.publishPlan), planController.publishPlan);
+  .post(requireAuth, requireSubscription, validate(planValidation.publishPlan), planController.publishPlan);
 
 export default router;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { stripe } from "@better-auth/stripe";
@@ -76,7 +77,7 @@ export const auth = betterAuth({
         "https://api.dokahub.com",
       ],
   trustHost: process.env.NODE_ENV !== "production",
-  redirectTo: "/dashboard",
+  redirectTo: `${process.env.FRONTEND_URL || "http://localhost:3000"}/dashboard`,
   plugins: [
     stripe({
       stripeClient,
@@ -118,6 +119,55 @@ export const auth = betterAuth({
             },
           },
         ],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onSubscriptionActive: async (subscription: {
+          userId: any;
+          plan: any;
+        }) => {
+          // Send subscription activated email
+          const user = await prisma.user.findUnique({
+            where: { id: subscription.userId },
+          });
+          if (user) {
+            await mailService.sendSubscriptionActivatedEmail({
+              name: user.name,
+              email: user.email,
+              plan: subscription.plan,
+            });
+          }
+        },
+        onSubscriptionCreated: async (subscription: {
+          userId: any;
+          plan: any;
+        }) => {
+          // Send subscription welcome email
+          const user = await prisma.user.findUnique({
+            where: { id: subscription.userId },
+          });
+          if (user) {
+            await mailService.sendSubscriptionWelcomeEmail({
+              name: user.name,
+              email: user.email,
+              plan: subscription.plan,
+            });
+          }
+        },
+        onSubscriptionCancelled: async (subscription: {
+          userId: any;
+          plan: any;
+        }) => {
+          // Send subscription cancelled email
+          const user = await prisma.user.findUnique({
+            where: { id: subscription.userId },
+          });
+          if (user) {
+            await mailService.sendSubscriptionCancelledEmail({
+              name: user.name,
+              email: user.email,
+              plan: subscription.plan,
+            });
+          }
+        },
       },
     }),
   ],

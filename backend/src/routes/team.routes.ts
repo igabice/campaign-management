@@ -3,6 +3,7 @@ import validate from "../middlewares/validate";
 import teamValidation from "../validations/team.validation";
 import teamController from "../controllers/team.controller";
 import { requireAuth } from "../middlewares/auth";
+import { requireSubscription } from "../middlewares/subscription";
 
 const router = express.Router();
 
@@ -52,6 +53,7 @@ router
     .route("/")
     .post(
         requireAuth,
+        requireSubscription,
         validate(teamValidation.createTeam),
         teamController.createTeam
     )

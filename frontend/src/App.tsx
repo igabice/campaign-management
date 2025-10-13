@@ -23,12 +23,14 @@ import { MainLayout } from "./components/MainLayout";
 import { LandingOrDashboard } from "./components/LandingOrDashboard";
 import { NotificationsPage } from "./features/notifications/NotificationsPage";
 import SubscriptionPage from "./features/subscription/SubscriptionPage";
+import { GlobalModalProvider } from "./contexts/GlobalModalContext";
 
 const App = () => {
   return (
     <ChakraProvider theme={theme}>
-      <Router>
-        <Routes>
+      <GlobalModalProvider>
+        <Router>
+          <Routes>
            <Route path="/" element={<LandingOrDashboard />} />
            <Route path="/home" element={<HomePage />} />
            <Route path="/login" element={<LoginPage />} />
@@ -119,8 +121,9 @@ const App = () => {
                       }
                     />
               </Route>
-         </Routes>
-      </Router>
+          </Routes>
+        </Router>
+      </GlobalModalProvider>
     </ChakraProvider>
   );
 };

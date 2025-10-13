@@ -23,6 +23,11 @@ axiosInstance.interceptors.response.use(
       const serverErrorMessage = (error.response.data as { message?: string })?.message;
       if (serverErrorMessage) {
         error.message = serverErrorMessage;
+        // Check for subscription required error
+        if (error.response.status === 403 && serverErrorMessage.includes("Active subscription required")) {
+          // Dispatch custom event to show subscription modal
+          window.dispatchEvent(new CustomEvent('show-subscription-modal'));
+        }
       }
     }
     return Promise.reject(error);

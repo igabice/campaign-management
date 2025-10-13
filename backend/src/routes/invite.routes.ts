@@ -3,6 +3,7 @@ import validate from "../middlewares/validate";
 import inviteValidation from "../validations/invite.validation";
 import inviteController from "../controllers/invite.controller";
 import { requireAuth } from "../middlewares/auth";
+import { requireSubscription } from "../middlewares/subscription";
 
 const router = express.Router();
 
@@ -58,6 +59,7 @@ router
   .route("/")
   .post(
     requireAuth,
+    requireSubscription,
     validate(inviteValidation.createInvite),
     inviteController.createInvite
   )
@@ -300,6 +302,7 @@ router.route("/:id/respond").post(
  */
 router.route("/:id/resend").post(
   requireAuth,
+  requireSubscription,
   validate(inviteValidation.getInvite),
   inviteController.resendInvite
 );
