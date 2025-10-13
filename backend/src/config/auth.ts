@@ -95,35 +95,54 @@ export const auth = betterAuth({
         enabled: true,
         plans: [
           {
-            name: "free",
-            priceId: process.env.STRIPE_FREE_PRICE_ID || "price_free",
+            name: "starter",
+            priceId:
+              process.env.STRIPE_STARTER_PRICE_ID ||
+              "price_1SHsWDIi1vSoxV6y8QXTKLOm",
+            annualDiscountPriceId:
+              process.env.STRIPE_STARTER_ANNUAL_PRICE_ID ||
+              "price_1SHscjIi1vSoxV6yxori6L9A",
             limits: {
-              teams: 1,
-              posts: 10,
-              plans: 1,
-            },
-          },
-          {
-            name: "pro",
-            priceId: process.env.STRIPE_PRO_PRICE_ID || "price_pro",
-            annualDiscountPriceId: process.env.STRIPE_PRO_ANNUAL_PRICE_ID,
-            limits: {
-              teams: 5,
-              posts: 100,
-              plans: 10,
+              teams: 2,
+              posts: 50,
+              plans: 5,
+              teamSize: 3,
             },
             freeTrial: {
               days: 7,
             },
           },
           {
-            name: "enterprise",
+            name: "pro",
             priceId:
-              process.env.STRIPE_ENTERPRISE_PRICE_ID || "price_enterprise",
+              process.env.STRIPE_PRO_PRICE_ID ||
+              "price_1S9vKSIi1vSoxV6yyqqWYLjf", //9.99
+            annualDiscountPriceId:
+              process.env.STRIPE_PRO_ANNUAL_PRICE_ID ||
+              "price_1SHseHIi1vSoxV6yokXrwep8", // 100
             limits: {
-              teams: -1, // unlimited
+              teams: 5,
+              posts: 100,
+              plans: 10,
+              teamSize: 5,
+            },
+            freeTrial: {
+              days: 14,
+            },
+          },
+          {
+            name: "agency",
+            priceId:
+              process.env.STRIPE_ENTERPRISE_PRICE_ID || //49.99
+              "price_1SHsWXIi1vSoxV6yr5FMr4dl",
+            annualDiscountPriceId:
+              process.env.STRIPE_ENTERPRISE_ANNUAL_PRICE_ID ||
+              "price_1SHsaNIi1vSoxV6yv5CxqpF5", // 500
+            limits: {
+              teams: -1,
               posts: -1,
               plans: -1,
+              teamSize: -1,
             },
           },
         ],

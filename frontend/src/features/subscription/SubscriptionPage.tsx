@@ -16,6 +16,8 @@ import {
   usePrefersReducedMotion,
   Grid,
   GridItem,
+  Switch,
+  FormLabel,
 } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
 import { CheckCircleIcon } from '@chakra-ui/icons';
@@ -44,13 +46,14 @@ const SubscriptionPage: React.FC = () => {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState(false);
+  const [isAnnual, setIsAnnual] = useState(false);
   const toast = useToast();
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  const bgColor = "gray.900";
-  const textColor = "white";
+  const bgColor = "gray.50";
+  const textColor = "gray.900";
   const accentColor = "#F9D71C";
-  const featureTextColor = "gray.300";
+  const featureTextColor = "gray.600";
 
   const loadSubscriptions = useCallback(async () => {
     try {
@@ -81,6 +84,7 @@ const SubscriptionPage: React.FC = () => {
     try {
       const { error } = await subscriptionService.upgrade({
         plan,
+        annual: isAnnual,
         successUrl: `${window.location.origin}/dashboard`,
         cancelUrl: `${window.location.origin}/subscription`,
       });
@@ -130,43 +134,40 @@ const SubscriptionPage: React.FC = () => {
 
   const plans = [
     {
-      name: 'free',
-      title: 'Free',
-      price: '$0',
-      priceSubtext: '',
+      name: 'starter',
+      title: 'Starter',
+      monthlyPrice: 9,
       features: [
         '1 Team',
-        '10 Posts/month',
-        '1 Content Plan/month',
+        '50 Posts/month',
+        '3 Content Plans/month',
         'Basic analytics',
         'Manual scheduling'
       ],
-      limits: { teams: 1, posts: 10, plans: 1 },
+      limits: { teams: 1, posts: 50, plans: 3 },
       popular: false,
     },
     {
       name: 'pro',
       title: 'Pro',
-      price: '$29',
-      priceSubtext: '/month',
+      monthlyPrice: 29,
       features: [
         '5 Teams',
-        '100 Posts/month',
-        '10 Content Plans/month',
+        '200 Posts/month',
+        '20 Content Plans/month',
         'AI-powered content generation',
         'Automated scheduling',
         'Team collaboration tools',
         'Advanced analytics & insights',
         'Priority support'
       ],
-      limits: { teams: 5, posts: 100, plans: 10 },
+      limits: { teams: 5, posts: 200, plans: 20 },
       popular: true,
     },
     {
-      name: 'enterprise',
-      title: 'Enterprise',
-      price: 'Custom',
-      priceSubtext: '',
+      name: 'agency',
+      title: 'Agency',
+      monthlyPrice: 99,
       features: [
         'Unlimited Teams',
         'Unlimited Posts',
@@ -212,12 +213,32 @@ const SubscriptionPage: React.FC = () => {
             </Text>
           </Box>
 
+          <HStack spacing={4} justify="center">
+            <Text fontSize="lg" fontWeight="medium" color={isAnnual ? featureTextColor : textColor}>
+              Monthly
+            </Text>
+            <Switch
+              size="lg"
+              colorScheme="yellow"
+              isChecked={isAnnual}
+              onChange={(e) => setIsAnnual(e.target.checked)}
+            />
+            <Text fontSize="lg" fontWeight="medium" color={isAnnual ? textColor : featureTextColor}>
+              Annual
+            </Text>
+            {isAnnual && (
+              <Badge colorScheme="green" fontSize="sm">
+                Save 17%
+              </Badge>
+            )}
+          </HStack>
+
           {activeSubscription && (
-            <Alert status="info" bg="blue.900" borderColor="blue.500">
-              <AlertIcon color="blue.300" />
+            <Alert status="info" bg="blue.50" borderColor="blue.200">
+              <AlertIcon color="blue.500" />
               <Box>
-                <Text fontWeight="bold" color="blue.100">Current Plan: {activeSubscription.plan}</Text>
-                <Text color="blue.200">Status: <Badge colorScheme={activeSubscription.status === 'active' ? 'green' : 'yellow'}>
+                <Text fontWeight="bold" color="blue.900">Current Plan: {activeSubscription.plan}</Text>
+                <Text color="blue.700">Status: <Badge colorScheme={activeSubscription.status === 'active' ? 'green' : 'yellow'}>
                   {activeSubscription.status}
                 </Badge></Text>
               </Box>
@@ -236,12 +257,12 @@ const SubscriptionPage: React.FC = () => {
             {plans.map((plan, index) => (
               <GridItem key={plan.name}>
                 <Box
-                  bg="gray.800"
+                  bg="white"
                   borderRadius="2xl"
                   boxShadow="2xl"
                   overflow="hidden"
-                  border={plan.popular ? "2px solid" : "none"}
-                  borderColor={plan.popular ? accentColor : undefined}
+                  border={plan.popular ? "2px solid" : "1px solid"}
+                  borderColor={plan.popular ? accentColor : "gray.200"}
                   position="relative"
                   transition="all 0.3s"
                   _hover={{
@@ -277,37 +298,37 @@ const SubscriptionPage: React.FC = () => {
                   )}
 
                   <VStack spacing={6} p={8}>
-                    <VStack spacing={2} textAlign="center">
-                      <Text
-                        fontSize="lg"
-                        color={featureTextColor}
-                      >
-                        {plan.title}
-                      </Text>
-                      <HStack align="baseline" spacing={1} justify="center">
-                        <Text
-                          fontSize="4xl"
-                          fontWeight="black"
-                          color={accentColor}
-                        >
-                          {plan.price}
-                        </Text>
-                        <Text
-                          fontSize="lg"
-                          color={featureTextColor}
-                        >
-                          {plan.priceSubtext}
-                        </Text>
-                      </HStack>
-                      {plan.name !== 'free' && plan.name !== 'enterprise' && (
-                        <Text
-                          fontSize="sm"
-                          color="gray.400"
-                        >
-                          Billed monthly • Cancel anytime
-                        </Text>
-                      )}
-                    </VStack>
+                     <VStack spacing={2} textAlign="center">
+                       <Text
+                         fontSize="lg"
+                         color={featureTextColor}
+                       >
+                         {plan.title}
+                       </Text>
+                       <HStack align="baseline" spacing={1} justify="center">
+                         <Text
+                           fontSize="4xl"
+                           fontWeight="black"
+                           color={accentColor}
+                         >
+                           ${isAnnual ? plan.monthlyPrice * 10 : plan.monthlyPrice}
+                         </Text>
+                         <Text
+                           fontSize="lg"
+                           color={featureTextColor}
+                         >
+                           /{isAnnual ? 'year' : 'month'}
+                         </Text>
+                       </HStack>
+                       {plan.name !== 'starter' && plan.name !== 'agency' && (
+                         <Text
+                           fontSize="sm"
+                           color="gray.500"
+                         >
+                           Billed {isAnnual ? 'annually' : 'monthly'} • Cancel anytime
+                         </Text>
+                       )}
+                     </VStack>
 
                     <VStack spacing={4} align="start" w="full">
                       {plan.features.map((feature, idx) => (
@@ -324,29 +345,29 @@ const SubscriptionPage: React.FC = () => {
                     </VStack>
 
                     <VStack spacing={4} w="full">
-                      {plan.name === 'pro' && (
-                        <Box
-                          bg="blue.900"
-                          borderRadius="lg"
-                          p={4}
-                          w="full"
-                          textAlign="center"
-                        >
-                          <Text
-                            fontSize="sm"
-                            fontWeight="bold"
-                            color="blue.200"
-                          >
-                            🎉 7-Day Free Trial
+                       {plan.name === 'pro' && (
+                         <Box
+                           bg="blue.50"
+                           borderRadius="lg"
+                           p={4}
+                           w="full"
+                           textAlign="center"
+                         >
+                           <Text
+                             fontSize="sm"
+                             fontWeight="bold"
+                             color="blue.700"
+                           >
+                             🎉 7-Day Free Trial
+                           </Text>
+                           <Text
+                             fontSize="xs"
+                             color="blue.600"
+                           >
+                            No credit card required
                           </Text>
-                          <Text
-                            fontSize="xs"
-                            color="blue.300"
-                          >
-                           No credit card required
-                         </Text>
-                        </Box>
-                      )}
+                         </Box>
+                       )}
 
                       <Button
                         bg={accentColor}
@@ -365,7 +386,7 @@ const SubscriptionPage: React.FC = () => {
                         isLoading={upgrading}
                         isDisabled={activeSubscription?.plan === plan.name}
                       >
-                        {activeSubscription?.plan === plan.name ? 'Current Plan' : plan.name === 'enterprise' ? 'Contact Sales' : 'Get Started'}
+                         {activeSubscription?.plan === plan.name ? 'Current Plan' : 'Subscribe'}
                       </Button>
                     </VStack>
                   </VStack>
@@ -376,9 +397,11 @@ const SubscriptionPage: React.FC = () => {
 
           {activeSubscription && (
             <Box
-              bg="gray.800"
+              bg="white"
               borderRadius="2xl"
               boxShadow="2xl"
+              border="1px solid"
+              borderColor="gray.200"
               p={8}
               w="full"
               maxW="400px"
@@ -387,13 +410,13 @@ const SubscriptionPage: React.FC = () => {
             >
               <Heading size="md" mb={4}>Manage Subscription</Heading>
               <Button
-                bg="gray.700"
-                color="white"
+                bg="gray.100"
+                color="gray.900"
                 size="lg"
                 w="full"
                 fontSize="lg"
                 _hover={{
-                  bg: "gray.600",
+                  bg: "gray.200",
                   transform: "translateY(-2px)",
                 }}
                 transition="all 0.3s"
