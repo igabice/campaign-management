@@ -9,9 +9,7 @@ import {
   Button,
   Text,
   VStack,
-  Icon,
 } from "@chakra-ui/react";
-import { FaCrown } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 interface Props {
@@ -33,7 +31,9 @@ const SubscriptionRequiredModal: React.FC<Props> = ({ isOpen, onClose }) => {
       <ModalContent bg="gray.800" color="whiteAlpha.900" borderRadius="lg">
         <ModalHeader textAlign="center" borderBottomWidth="1px" borderColor="gray.700">
           <VStack spacing={2}>
-            <Icon as={FaCrown} color="yellow.400" boxSize={8} />
+            <Text fontSize="3xl" color="yellow.400">
+              👑
+            </Text>
             <Text fontSize="lg" fontWeight="bold">
               Subscription Required
             </Text>
@@ -52,9 +52,8 @@ const SubscriptionRequiredModal: React.FC<Props> = ({ isOpen, onClose }) => {
             colorScheme="yellow"
             onClick={handleSubscribe}
             size="lg"
-            leftIcon={<FaCrown />}
           >
-            Upgrade to Pro
+            👑 Upgrade to Pro
           </Button>
         </ModalFooter>
       </ModalContent>
