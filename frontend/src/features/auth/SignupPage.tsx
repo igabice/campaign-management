@@ -68,7 +68,10 @@ export const SignupPage: React.FC = () => {
 
   const handleGoogleSignup = async () => {
     localStorage.setItem("socialLoginInitiated", "true");
-    const { error } = await authClient.signIn.social({ provider: "google" });
+    const { error } = await authClient.signIn.social({
+      provider: "google",
+      callbackURL: `${window.location.origin}/dashboard`,
+    });
     if (error) {
       localStorage.removeItem("socialLoginInitiated");
       toast({
@@ -83,7 +86,10 @@ export const SignupPage: React.FC = () => {
 
   const handleFacebookSignup = async () => {
     localStorage.setItem("socialLoginInitiated", "true");
-    const { error } = await authClient.signIn.social({ provider: "facebook" });
+    const { error } = await authClient.signIn.social({
+      provider: "facebook",
+      callbackURL: `${window.location.origin}/dashboard`,
+    });
     if (error) {
       localStorage.removeItem("socialLoginInitiated");
       toast({
