@@ -77,7 +77,15 @@ export const auth = betterAuth({
         "https://api.dokahub.com",
       ],
   trustHost: process.env.NODE_ENV !== "production",
-  redirectTo: `${process.env.FRONTEND_URL || "http://localhost:3000"}/dashboard`,
+  callbacks: {
+    signIn: {
+      // This determines where the user is redirected after successful sign in
+      redirect: () => {
+        return process.env.FRONTEND_URL || "http://localhost:3000";
+      },
+    },
+  },
+  // redirectTo: `${process.env.FRONTEND_URL || "http://localhost:3000"}/dashboard`,
   plugins: [
     stripe({
       stripeClient,

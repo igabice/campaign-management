@@ -46,6 +46,7 @@ app.get("/", (req, res) => {
   // Don't redirect to swagger if it's an auth callback or API request
   if (
     req.path.startsWith("/api/") ||
+    req.path.startsWith("/v1/") ||
     req.query.code ||
     req.query.state ||
     req.query.error
