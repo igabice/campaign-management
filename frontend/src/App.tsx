@@ -28,8 +28,8 @@ import { GlobalModalProvider } from "./contexts/GlobalModalContext";
 const App = () => {
   return (
     <ChakraProvider theme={theme}>
-      <GlobalModalProvider>
-        <Router>
+      <Router>
+        <GlobalModalProvider>
           <Routes>
            <Route path="/" element={<LandingOrDashboard />} />
            <Route path="/home" element={<HomePage />} />
@@ -122,8 +122,8 @@ const App = () => {
                     />
               </Route>
           </Routes>
-        </Router>
-      </GlobalModalProvider>
+        </GlobalModalProvider>
+      </Router>
     </ChakraProvider>
   );
 };
