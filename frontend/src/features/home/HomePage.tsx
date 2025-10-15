@@ -174,7 +174,8 @@ export const HomePage = () => {
       >
         <Flex as="nav" p={6} align="center" maxW="1200px" mx="auto">
           <Heading size="lg" fontWeight="bold" color={accentColor}>
-            Dokahub
+            Doka
+            <span style={{ color: "black" }}>hub</span>
           </Heading>
           <Spacer />
           <HStack spacing={4}>
@@ -769,163 +770,396 @@ export const HomePage = () => {
               </Button>
             </HStack>
 
-            <Box
-              maxW="400px"
+            <Grid
+              templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }}
+              gap={8}
+              maxW="1200px"
               w="full"
               mx="auto"
-              {...(prefersReducedMotion
-                ? {}
-                : {
-                    animation: `${fadeInUp} 0.8s ease-out`,
-                    opacity: isVisible ? 1 : 0,
-                  })}
             >
+              {/* Free Plan */}
               <Box
-                bg={bgColor}
-                borderRadius="2xl"
-                boxShadow="2xl"
-                overflow="hidden"
-                border="2px solid"
-                borderColor={accentColor}
-                position="relative"
+                {...(prefersReducedMotion
+                  ? {}
+                  : {
+                      animation: `${fadeInUp} 0.8s ease-out`,
+                      opacity: isVisible ? 1 : 0,
+                    })}
               >
-                {/* Popular Badge */}
                 <Box
-                  position="absolute"
-                  top={4}
-                  right={4}
-                  bg={accentColor}
-                  color="black"
-                  px={3}
-                  py={1}
-                  borderRadius="full"
-                  fontSize="xs"
-                  fontWeight="bold"
-                  textTransform="uppercase"
-                  letterSpacing="wide"
+                  bg={bgColor}
+                  borderRadius="2xl"
+                  boxShadow="2xl"
+                  overflow="hidden"
+                  h="full"
                 >
-                  Most Popular
-                </Box>
-
-                <VStack spacing={6} p={8}>
-                  <VStack spacing={2} textAlign="center">
-                    <Text fontSize="lg" color={"gray.300"}>
-                      Pro Plan
-                    </Text>
-                    <HStack align="baseline" spacing={1}>
-                      <Text
-                        fontSize="4xl"
-                        fontWeight="black"
-                        color={accentColor}
-                      >
-                        {billingPeriod === "monthly" ? "$9.99" : "$99.90"}
-                      </Text>
+                  <VStack spacing={6} p={8}>
+                    <VStack spacing={2} textAlign="center">
                       <Text fontSize="lg" color={"gray.300"}>
-                        {billingPeriod === "monthly" ? "/month" : "/year"}
+                        Free Plan
                       </Text>
-                    </HStack>
-                    <Text
-                      fontSize="sm"
-                      color={useColorModeValue("gray.500", "gray.400")}
-                    >
-                      Billed {billingPeriod} • Cancel anytime
-                    </Text>
-                  </VStack>
-
-                  <VStack spacing={4} align="start" w="full">
-                    <HStack spacing={3}>
-                      <Icon
-                        as={CheckCircleIcon}
-                        color="green.500"
-                        w={5}
-                        h={5}
-                      />
-                      <Text fontSize="sm">Unlimited content plans</Text>
-                    </HStack>
-                    <HStack spacing={3}>
-                      <Icon
-                        as={CheckCircleIcon}
-                        color="green.500"
-                        w={5}
-                        h={5}
-                      />
-                      <Text fontSize="sm">AI-powered content generation</Text>
-                    </HStack>
-                    <HStack spacing={3}>
-                      <Icon
-                        as={CheckCircleIcon}
-                        color="green.500"
-                        w={5}
-                        h={5}
-                      />
-                      <Text fontSize="sm">Automated scheduling</Text>
-                    </HStack>
-                    <HStack spacing={3}>
-                      <Icon
-                        as={CheckCircleIcon}
-                        color="green.500"
-                        w={5}
-                        h={5}
-                      />
-                      <Text fontSize="sm">Team collaboration tools</Text>
-                    </HStack>
-                    <HStack spacing={3}>
-                      <Icon
-                        as={CheckCircleIcon}
-                        color="green.500"
-                        w={5}
-                        h={5}
-                      />
-                      <Text fontSize="sm">Analytics & insights</Text>
-                    </HStack>
-                    <HStack spacing={3}>
-                      <Icon
-                        as={CheckCircleIcon}
-                        color="green.500"
-                        w={5}
-                        h={5}
-                      />
-                      <Text fontSize="sm">Priority support</Text>
-                    </HStack>
-                  </VStack>
-
-                  <VStack spacing={4} w="full">
-                    <Box
-                      bg="grey.100"
-                      borderRadius="lg"
-                      p={4}
-                      w="full"
-                      textAlign="center"
-                    >
-                      <Text fontSize="sm" fontWeight="bold" color="grey.800">
-                        7-Day Free Trial
+                      <HStack align="baseline" spacing={1}>
+                        <Text
+                          fontSize="4xl"
+                          fontWeight="black"
+                          color={textColor}
+                        >
+                          $0
+                        </Text>
+                        <Text fontSize="lg" color={"gray.300"}>
+                          /forever
+                        </Text>
+                      </HStack>
+                      <Text
+                        fontSize="sm"
+                        color={useColorModeValue("gray.500", "gray.400")}
+                      >
+                        Perfect for getting started
                       </Text>
-                      <Text fontSize="xs" color="blue.700">
-                        No credit card required
-                      </Text>
-                    </Box>
+                    </VStack>
 
-                    <Button
-                      bg={accentColor}
-                      color="black"
-                      size="lg"
-                      w="full"
-                      fontSize="lg"
-                      fontWeight="bold"
-                      _hover={{
-                        bg: accentColor,
-                        opacity: 0.8,
-                        transform: "translateY(-2px)",
-                      }}
-                      transition="all 0.3s"
-                      onClick={() => navigate("/signup")}
-                    >
-                      Start Free Trial
-                    </Button>
+                    <VStack spacing={4} align="start" w="full">
+                      <HStack spacing={3}>
+                        <Icon
+                          as={CheckCircleIcon}
+                          color="green.500"
+                          w={5}
+                          h={5}
+                        />
+                        <Text fontSize="sm">1 team</Text>
+                      </HStack>
+                      <HStack spacing={3}>
+                        <Icon
+                          as={CheckCircleIcon}
+                          color="green.500"
+                          w={5}
+                          h={5}
+                        />
+                        <Text fontSize="sm">10 posts per month</Text>
+                      </HStack>
+                      <HStack spacing={3}>
+                        <Icon
+                          as={CheckCircleIcon}
+                          color="green.500"
+                          w={5}
+                          h={5}
+                        />
+                        <Text fontSize="sm">1 content plan per month</Text>
+                      </HStack>
+                      <HStack spacing={3}>
+                        <Icon
+                          as={CheckCircleIcon}
+                          color="green.500"
+                          w={5}
+                          h={5}
+                        />
+                        <Text fontSize="sm">1 team invite</Text>
+                      </HStack>
+                      <HStack spacing={3}>
+                        <Icon
+                          as={CheckCircleIcon}
+                          color="green.500"
+                          w={5}
+                          h={5}
+                        />
+                        <Text fontSize="sm">Basic scheduling</Text>
+                      </HStack>
+                    </VStack>
+
+                    <VStack spacing={4} w="full" mt="auto">
+                      <Button
+                        bg="gray.100"
+                        color="gray.700"
+                        size="lg"
+                        w="full"
+                        fontSize="lg"
+                        fontWeight="bold"
+                        _hover={{
+                          bg: "gray.200",
+                        }}
+                        transition="all 0.3s"
+                        onClick={() => navigate("/signup")}
+                      >
+                        Get Started Free
+                      </Button>
+                    </VStack>
                   </VStack>
-                </VStack>
+                </Box>
               </Box>
-            </Box>
+
+              {/* Pro Plan */}
+              <Box
+                {...(prefersReducedMotion
+                  ? {}
+                  : {
+                      animation: `${fadeInUp} 0.8s ease-out 0.2s`,
+                      opacity: isVisible ? 1 : 0,
+                    })}
+              >
+                <Box
+                  bg={bgColor}
+                  borderRadius="2xl"
+                  boxShadow="2xl"
+                  overflow="hidden"
+                  border="2px solid"
+                  borderColor={accentColor}
+                  position="relative"
+                  h="full"
+                >
+                  {/* Popular Badge */}
+                  <Box
+                    position="absolute"
+                    top={4}
+                    right={4}
+                    bg={accentColor}
+                    color="black"
+                    px={3}
+                    py={1}
+                    borderRadius="full"
+                    fontSize="xs"
+                    fontWeight="bold"
+                    textTransform="uppercase"
+                    letterSpacing="wide"
+                  >
+                    Most Popular
+                  </Box>
+
+                  <VStack spacing={6} p={8}>
+                    <VStack spacing={2} textAlign="center">
+                      <Text fontSize="lg" color={"gray.300"}>
+                        Pro Plan
+                      </Text>
+                      <HStack align="baseline" spacing={1}>
+                        <Text
+                          fontSize="4xl"
+                          fontWeight="black"
+                          color={accentColor}
+                        >
+                          {billingPeriod === "monthly" ? "$9.99" : "$99.90"}
+                        </Text>
+                        <Text fontSize="lg" color={"gray.300"}>
+                          {billingPeriod === "monthly" ? "/month" : "/year"}
+                        </Text>
+                      </HStack>
+                      <Text
+                        fontSize="sm"
+                        color={useColorModeValue("gray.500", "gray.400")}
+                      >
+                        Billed {billingPeriod} • Cancel anytime
+                      </Text>
+                    </VStack>
+
+                    <VStack spacing={4} align="start" w="full">
+                      <HStack spacing={3}>
+                        <Icon
+                          as={CheckCircleIcon}
+                          color="green.500"
+                          w={5}
+                          h={5}
+                        />
+                        <Text fontSize="sm">Unlimited content plans</Text>
+                      </HStack>
+                      <HStack spacing={3}>
+                        <Icon
+                          as={CheckCircleIcon}
+                          color="green.500"
+                          w={5}
+                          h={5}
+                        />
+                        <Text fontSize="sm">AI-powered content generation</Text>
+                      </HStack>
+                      <HStack spacing={3}>
+                        <Icon
+                          as={CheckCircleIcon}
+                          color="green.500"
+                          w={5}
+                          h={5}
+                        />
+                        <Text fontSize="sm">Automated scheduling</Text>
+                      </HStack>
+                      <HStack spacing={3}>
+                        <Icon
+                          as={CheckCircleIcon}
+                          color="green.500"
+                          w={5}
+                          h={5}
+                        />
+                        <Text fontSize="sm">Team collaboration tools</Text>
+                      </HStack>
+                      <HStack spacing={3}>
+                        <Icon
+                          as={CheckCircleIcon}
+                          color="green.500"
+                          w={5}
+                          h={5}
+                        />
+                        <Text fontSize="sm">Analytics & insights</Text>
+                      </HStack>
+                      <HStack spacing={3}>
+                        <Icon
+                          as={CheckCircleIcon}
+                          color="green.500"
+                          w={5}
+                          h={5}
+                        />
+                        <Text fontSize="sm">Priority support</Text>
+                      </HStack>
+                    </VStack>
+
+                    <VStack spacing={4} w="full" mt="auto">
+                      <Box
+                        bg="grey.100"
+                        borderRadius="lg"
+                        p={4}
+                        w="full"
+                        textAlign="center"
+                      >
+                        <Text fontSize="sm" fontWeight="bold" color="grey.800">
+                          14-Day Free Trial
+                        </Text>
+                        <Text fontSize="xs" color="blue.700">
+                          No credit card required
+                        </Text>
+                      </Box>
+
+                      <Button
+                        bg={accentColor}
+                        color="black"
+                        size="lg"
+                        w="full"
+                        fontSize="lg"
+                        fontWeight="bold"
+                        _hover={{
+                          bg: accentColor,
+                          opacity: 0.8,
+                          transform: "translateY(-2px)",
+                        }}
+                        transition="all 0.3s"
+                        onClick={() => navigate("/signup")}
+                      >
+                        Start Free Trial
+                      </Button>
+                    </VStack>
+                  </VStack>
+                </Box>
+              </Box>
+
+              {/* Enterprise Plan */}
+              <Box
+                {...(prefersReducedMotion
+                  ? {}
+                  : {
+                      animation: `${fadeInUp} 0.8s ease-out 0.4s`,
+                      opacity: isVisible ? 1 : 0,
+                    })}
+              >
+                <Box
+                  bg={bgColor}
+                  borderRadius="2xl"
+                  boxShadow="2xl"
+                  overflow="hidden"
+                  h="full"
+                >
+                  <VStack spacing={6} p={8}>
+                    <VStack spacing={2} textAlign="center">
+                      <Text fontSize="lg" color={"gray.300"}>
+                        Enterprise Plan
+                      </Text>
+                      <HStack align="baseline" spacing={1}>
+                        <Text
+                          fontSize="4xl"
+                          fontWeight="black"
+                          color={textColor}
+                        >
+                          Custom
+                        </Text>
+                      </HStack>
+                      <Text
+                        fontSize="sm"
+                        color={useColorModeValue("gray.500", "gray.400")}
+                      >
+                        For large teams and agencies
+                      </Text>
+                    </VStack>
+
+                    <VStack spacing={4} align="start" w="full">
+                      <HStack spacing={3}>
+                        <Icon
+                          as={CheckCircleIcon}
+                          color="green.500"
+                          w={5}
+                          h={5}
+                        />
+                        <Text fontSize="sm">Everything in Pro</Text>
+                      </HStack>
+                      <HStack spacing={3}>
+                        <Icon
+                          as={CheckCircleIcon}
+                          color="green.500"
+                          w={5}
+                          h={5}
+                        />
+                        <Text fontSize="sm">Unlimited teams</Text>
+                      </HStack>
+                      <HStack spacing={3}>
+                        <Icon
+                          as={CheckCircleIcon}
+                          color="green.500"
+                          w={5}
+                          h={5}
+                        />
+                        <Text fontSize="sm">Advanced analytics</Text>
+                      </HStack>
+                      <HStack spacing={3}>
+                        <Icon
+                          as={CheckCircleIcon}
+                          color="green.500"
+                          w={5}
+                          h={5}
+                        />
+                        <Text fontSize="sm">White-label options</Text>
+                      </HStack>
+                      <HStack spacing={3}>
+                        <Icon
+                          as={CheckCircleIcon}
+                          color="green.500"
+                          w={5}
+                          h={5}
+                        />
+                        <Text fontSize="sm">Dedicated account manager</Text>
+                      </HStack>
+                      <HStack spacing={3}>
+                        <Icon
+                          as={CheckCircleIcon}
+                          color="green.500"
+                          w={5}
+                          h={5}
+                        />
+                        <Text fontSize="sm">Custom integrations</Text>
+                      </HStack>
+                    </VStack>
+
+                    <VStack spacing={4} w="full" mt="auto">
+                      <Button
+                        bg="gray.100"
+                        color="gray.700"
+                        size="lg"
+                        w="full"
+                        fontSize="lg"
+                        fontWeight="bold"
+                        _hover={{
+                          bg: "gray.200",
+                        }}
+                        transition="all 0.3s"
+                        onClick={() => navigate("/contact")}
+                      >
+                        Contact Sales
+                      </Button>
+                    </VStack>
+                  </VStack>
+                </Box>
+              </Box>
+            </Grid>
 
             <HStack spacing={8} flexWrap="wrap" justify="center">
               <VStack spacing={1} align="center">

@@ -23,6 +23,7 @@ import { socialMediaApi } from "../../services/socialMedia";
 import { aiApi } from "../../services/ai";
 import { plansApi } from "../../services/plans";
 import { FullPageLoader } from "../../components/FullPageLoader";
+import { CreateSocialMediaModal } from "../../components/modals/CreateSocialMediaModal";
 import { addDays, parseISO, getDay } from "date-fns";
 
 const availableDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -38,6 +39,7 @@ export const CreatePlanPage = () => {
   const [socialMedias, setSocialMedias] = useState<any[]>([]);
   const [selectedSocialMedias, setSelectedSocialMedias] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCreateSocialMediaModalOpen, setIsCreateSocialMediaModalOpen] = useState(false);
   const [schedule, setSchedule] = useState<ScheduleItem[]>(availableDays.map(day => ({ day, times: [] })));
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -108,7 +110,7 @@ export const CreatePlanPage = () => {
     });
   };
 
-  const handleGenerateWithAI = async (action: 'draft' | 'publish') => {
+  const handleGenerateWithAI = async (action: 'draft' | 'publish', generateAI: boolean = true) => {
     if (selectedSocialMedias.length === 0) {
       toast({
         title: "No social media selected",
@@ -122,20 +124,58 @@ export const CreatePlanPage = () => {
 
     setIsLoading(true);
     try {
-      const result = await aiApi.generateContentPlan({
-        topicPreferences: [], // TODO: add user preferences
-        postFrequency: `${schedule.reduce((sum, d) => sum + d.times.length, 0)} posts per week`,
-        title,
-        description,
-        tone: 'Professional',
-      });
-      if (result.posts && result.posts.length > 0) {
-        const scheduledPosts = generateScheduledPosts(result.posts);
+      let scheduledPosts: any[] = [];
+      if (generateAI) {
+        const result = await aiApi.generateContentPlan({
+          topicPreferences: [], // TODO: add user preferences
+          postFrequency: `${schedule.reduce((sum, d) => sum + d.times.length, 0)} posts per week`,
+          title,
+          description,
+          tone: 'Professional',
+        });
+        if (result.posts && result.posts.length > 0) {
+          scheduledPosts = generateScheduledPosts(result.posts);
+        } else {
+          toast({
+            title: "Error",
+            description: "Could not generate content. Please try again.",
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });
+          return;
+        }
+      }
 
-        if (action === 'publish') {
-          // Create and publish the plan directly
-          await plansApi.createPlan({
-            ...{
+      if (action === 'publish') {
+        // Create and publish the plan directly
+        await plansApi.createPlan({
+          ...{
+            title,
+            description,
+            startDate,
+            endDate,
+            tone: 'Professional',
+            teamId: activeTeam!.id,
+          },
+          status: 'published',
+          posts: scheduledPosts,
+        });
+
+        toast({
+          title: "Plan created successfully",
+          description: `Created plan with ${scheduledPosts.length} posts`,
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        navigate("/calendar");
+      } else {
+        // Navigate to preview page for draft
+        navigate("/content-planner/preview", {
+          state: {
+            posts: scheduledPosts,
+            planData: {
               title,
               description,
               startDate,
@@ -143,42 +183,8 @@ export const CreatePlanPage = () => {
               tone: 'Professional',
               teamId: activeTeam!.id,
             },
-            status: 'published',
-            posts: scheduledPosts,
-          });
-
-          toast({
-            title: "Plan created successfully",
-            description: `Created plan with ${scheduledPosts.length} posts`,
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-          });
-          navigate("/calendar");
-        } else {
-          // Navigate to preview page for draft
-          navigate("/content-planner/preview", {
-            state: {
-              posts: scheduledPosts,
-              planData: {
-                title,
-                description,
-                startDate,
-                endDate,
-                tone: 'Professional',
-                teamId: activeTeam!.id,
-              },
-              action: 'draft'
-            }
-          });
-        }
-      } else {
-        toast({
-          title: "Error",
-          description: "Could not generate content. Please try again.",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
+            action: 'draft'
+          }
         });
       }
     } catch (error: any) {
@@ -199,7 +205,7 @@ export const CreatePlanPage = () => {
 
   return (
     <Box p={8} maxW="4xl" mx="auto">
-      {isLoading && <FullPageLoader message="Generating content with AI..." />}
+      {isLoading && <FullPageLoader message="Creating content plan..." />}
       <Heading mb={6}>Create Content Plan</Heading>
       <Card>
         <CardBody>
@@ -225,23 +231,26 @@ export const CreatePlanPage = () => {
 
             <FormControl>
               <FormLabel>Social Media Accounts</FormLabel>
-              <VStack align="start" spacing={2}>
-                {socialMedias.map((sm) => (
-                  <Checkbox
-                    key={sm.id}
-                    isChecked={selectedSocialMedias.includes(sm.id)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedSocialMedias(prev => [...prev, sm.id]);
-                      } else {
-                        setSelectedSocialMedias(prev => prev.filter(id => id !== sm.id));
-                      }
-                    }}
-                  >
-                    {sm.accountName} ({sm.platform})
-                  </Checkbox>
-                ))}
-              </VStack>
+               <VStack align="start" spacing={2}>
+                 {socialMedias.map((sm) => (
+                   <Checkbox
+                     key={sm.id}
+                     isChecked={selectedSocialMedias.includes(sm.id)}
+                     onChange={(e) => {
+                       if (e.target.checked) {
+                         setSelectedSocialMedias(prev => [...prev, sm.id]);
+                       } else {
+                         setSelectedSocialMedias(prev => prev.filter(id => id !== sm.id));
+                       }
+                     }}
+                   >
+                     {sm.accountName} ({sm.platform})
+                   </Checkbox>
+                 ))}
+                 <Button size="sm" variant="outline" onClick={() => setIsCreateSocialMediaModalOpen(true)}>
+                   Add New Account
+                 </Button>
+               </VStack>
             </FormControl>
 
             <Divider />
@@ -310,16 +319,32 @@ export const CreatePlanPage = () => {
           </VStack>
         </CardBody>
         <CardFooter>
-           <HStack spacing={4}>
-             <Button onClick={() => handleGenerateWithAI('draft')} variant="outline" isLoading={isLoading}>
-               Save as Draft
-             </Button>
-             <Button onClick={() => handleGenerateWithAI('publish')} colorScheme="blue" isLoading={isLoading}>
-               Create & Publish
-             </Button>
-           </HStack>
+            <HStack spacing={4}>
+              <Button onClick={() => handleGenerateWithAI('draft', false)} variant="outline" isLoading={isLoading}>
+                Save Plan
+              </Button>
+              <Button onClick={() => handleGenerateWithAI('draft', true)} colorScheme="green" isLoading={isLoading}>
+                Plan with AI
+              </Button>
+              <Button onClick={() => handleGenerateWithAI('publish', true)} colorScheme="blue" isLoading={isLoading}>
+                Create & Publish
+              </Button>
+            </HStack>
          </CardFooter>
-      </Card>
-    </Box>
-  );
-};
+       </Card>
+
+       <CreateSocialMediaModal
+         isOpen={isCreateSocialMediaModalOpen}
+         onClose={() => setIsCreateSocialMediaModalOpen(false)}
+         onCreated={() => {
+           // Refresh social medias
+           if (activeTeam) {
+             socialMediaApi.getAllSocialMedia(1, 100, { teamId: activeTeam.id }).then(data => {
+               setSocialMedias(data.result);
+             });
+           }
+         }}
+       />
+     </Box>
+   );
+ };

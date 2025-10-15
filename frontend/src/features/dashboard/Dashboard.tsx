@@ -40,6 +40,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useTeam } from "../../contexts/TeamContext";
 import { postsApi } from "../../services/posts";
+import { userPreferenceApi } from "../../services/userPreferences";
 import { Post } from "../../types/schemas";
 import { format } from "date-fns";
 import { CreateTeamModal } from "../../components/modals/CreateTeamModal";
@@ -56,6 +57,20 @@ const Dashboard: React.FC = () => {
   const [recentActivity, setRecentActivity] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Check if user has preferences, if not redirect to onboarding
+  useEffect(() => {
+    const checkPreferences = async () => {
+      try {
+        await userPreferenceApi.getUserPreferences();
+      } catch (error: any) {
+        if (error.response?.status === 404) {
+          navigate('/onboarding');
+        }
+      }
+    };
+    checkPreferences();
+  }, [navigate]);
 
   // Filters
   const [scheduledPeriod, setScheduledPeriod] = useState<PeriodFilter>("month");

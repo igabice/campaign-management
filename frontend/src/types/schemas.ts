@@ -47,3 +47,35 @@ export interface Plan {
   creator: { id: string; name: string; email: string };
   team: { id: string; title: string };
 }
+
+export interface TopicPreference {
+  id: string;
+  topic: string;
+  weight: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UserPreference {
+  id: string;
+  userId: string;
+
+  // Notification Preferences
+  emailNotifications: boolean;
+  telegramEnabled: boolean;
+  telegramChatId?: string;
+  whatsappEnabled: boolean;
+  whatsappNumber?: string;
+
+  // Content Planning Preferences
+  postsPerDay?: number;
+  postsPerWeek?: number;
+  preferredPostTimes: string[];
+  preferredPostDays: string[];
+
+  // Content Topics
+  topics: TopicPreference[];
+
+  createdAt: string;
+  updatedAt: string;
+}

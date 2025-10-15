@@ -24,6 +24,7 @@ import { CustomImageUpload } from "../../components/CustomImageUpload";
 import { postsApi } from "../../services/posts";
 import { socialMediaApi } from "../../services/socialMedia";
 import { Team } from "../../types/commons";
+import { Post } from "../../types/schemas";
 
 const createPostSchema = z.object({
   title: z.string().optional(),
@@ -44,6 +45,7 @@ interface CreatePostModalProps {
   onClose: () => void;
   activeTeam: Team | null;
   onPostCreated: () => void;
+  post?: Post | null;
 }
 
 export const CreatePostModal: React.FC<CreatePostModalProps> = ({
@@ -51,7 +53,9 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   onClose,
   activeTeam,
   onPostCreated,
+  post,
 }) => {
+  const isEdit = !!post;
   const [socialMedias, setSocialMedias] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
@@ -90,8 +94,18 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
     if (isOpen && activeTeam) {
       fetchSocialMedias();
       setValue("teamId", activeTeam.id);
+      if (isEdit && post) {
+        setValue("title", post.title || "");
+        setValue("content", post.content);
+        setValue("image", post.image || "");
+        setValue("scheduledDate", new Date(post.scheduledDate).toISOString().slice(0, 16));
+        setValue("sendReminder", post.sendReminder || false);
+        setValue("socialMedias", post.socialMedias.map(sm => sm.id));
+      } else {
+        reset();
+      }
     }
-  }, [isOpen, activeTeam, setValue, fetchSocialMedias]);
+  }, [isOpen, activeTeam, setValue, fetchSocialMedias, isEdit, post, reset]);
 
   const onSubmit = async (data: CreatePostFormData) => {
     setIsLoading(true);
@@ -104,19 +118,29 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             ? data.scheduledDate + ":00"
             : data.scheduledDate,
       };
-      await postsApi.createPost(postData);
-      toast({
-        title: "Post created successfully",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
+      if (isEdit && post) {
+        await postsApi.updatePost(post.id, postData);
+        toast({
+          title: "Post updated successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      } else {
+        await postsApi.createPost(postData);
+        toast({
+          title: "Post created successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
       onPostCreated();
       onClose();
       reset();
     } catch (error: any) {
       toast({
-        title: "Failed to create post",
+        title: `Failed to ${isEdit ? 'update' : 'create'} post`,
         description: error.message,
         status: "error",
         duration: 3000,
@@ -143,7 +167,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Create New Post</ModalHeader>
+        <ModalHeader>{isEdit ? 'Edit Post' : 'Create New Post'}</ModalHeader>
         <ModalCloseButton />
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalBody>
@@ -206,9 +230,9 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             <Button variant="ghost" mr={3} onClick={onClose}>
               Cancel
             </Button>
-            <Button colorScheme="blue" type="submit" isLoading={isLoading}>
-              Create Post
-            </Button>
+             <Button colorScheme="blue" type="submit" isLoading={isLoading}>
+               {isEdit ? 'Update Post' : 'Create Post'}
+             </Button>
           </ModalFooter>
         </form>
       </ModalContent>

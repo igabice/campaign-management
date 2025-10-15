@@ -11,6 +11,7 @@ export const postsApi = {
       status?: string;
       startDate?: string;
       endDate?: string;
+      search?: string;
     }
   ) => {
     const response = await getPaginated(POSTS_BASE_URL, {

@@ -12,9 +12,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
     <Flex direction="column" minH="100vh">
       {/* Header */}
-      <Box position="fixed" top={0} left={0} right={0} zIndex={10}>
-        <AppHeader />
-      </Box>
+       <Box position="fixed" top={0} left={0} right={0} zIndex={10} bg="white" _dark={{ bg: "gray.900" }}>
+         <AppHeader />
+       </Box>
 
       {/* Main Content Area */}
       <Flex pt="80px" flex="1" minH="0">

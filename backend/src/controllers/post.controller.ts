@@ -78,10 +78,18 @@ const getPosts = asyncHandler(async (req, res) => {
     dateFilter.gte = new Date(req.query.startDate as string);
   if (req.query.endDate) dateFilter.lte = new Date(req.query.endDate as string);
 
+  const search = req.query.search as string;
+
   const filter = {
     ...(req.query.teamId && { teamId: req.query.teamId }),
     ...(req.query.status && { status: req.query.status }),
     ...(Object.keys(dateFilter).length > 0 && { scheduledDate: dateFilter }),
+    ...(search && {
+      OR: [
+        { title: { contains: search, mode: "insensitive" } },
+        { content: { contains: search, mode: "insensitive" } },
+      ],
+    }),
   };
 
   const posts = await postService.queryPosts(filter, options);

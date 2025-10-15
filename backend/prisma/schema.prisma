@@ -28,6 +28,7 @@ model User {
   posts         Post[]
   plans         Plan[]
   notifications Notification[]
+  preferences   UserPreference?
 
   stripeCustomerId String?
 
@@ -213,6 +214,47 @@ model Notification {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
+}
+
+model TopicPreference {
+  id             String   @id @default(cuid())
+  userPreferenceId String
+  topic          String
+  weight         Int      @default(1) // 1-5 scale for preference weight
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  userPreference UserPreference @relation(fields: [userPreferenceId], references: [id], onDelete: Cascade)
+
+  @@unique([userPreferenceId, topic])
+  @@map("topic_preferences")
+}
+
+model UserPreference {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Notification Preferences
+  emailNotifications Boolean @default(true)
+  telegramEnabled    Boolean @default(false)
+  telegramChatId     String?
+  whatsappEnabled    Boolean @default(false)
+  whatsappNumber     String?
+
+  // Content Planning Preferences
+  postsPerDay        Int?    @default(3)
+  postsPerWeek       Int?    @default(15)
+  preferredPostTimes String[] // Store as JSON array of preferred times ["09:00", "14:00", "19:00"]
+  preferredPostDays  String[] // Store as JSON array of preferred times ["MON", "TUES", "WED"]
+
+  // Content Topics
+  topics             TopicPreference[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("user_preferences")
 }
 
 model Subscription {

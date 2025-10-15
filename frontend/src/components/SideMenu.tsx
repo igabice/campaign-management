@@ -13,11 +13,12 @@ import {
   Button,
   Badge,
 } from "@chakra-ui/react";
-import { Link as RouterLink, useLocation } from "react-router-dom";
-import { ChevronDownIcon } from "@chakra-ui/icons";
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
+import { ChevronDownIcon, AddIcon } from "@chakra-ui/icons";
 import { useColorMode } from "@chakra-ui/react";
 import { useTeam } from "../contexts/TeamContext";
 import { CreateTeamModal } from "./modals/CreateTeamModal";
+import { CreatePostModal } from "./modals/CreatePostModal";
 import { subscriptionService } from "../services/subscription";
 import {
   LayoutDashboard,
@@ -26,6 +27,7 @@ import {
   User,
   FileText,
   CreditCard,
+  Settings,
 } from "lucide-react";
 
 interface SideMenuItem {
@@ -41,6 +43,7 @@ interface SideMenuProps {
 export const SideMenu: React.FC<SideMenuProps> = ({ onClose }) => {
   const location = useLocation();
   const { colorMode } = useColorMode();
+  const navigate = useNavigate();
   const {
     activeTeam,
     teams: teamList,
@@ -48,6 +51,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ onClose }) => {
     refreshTeams,
   } = useTeam();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
   const [activeSubscription, setActiveSubscription] = useState<any>(null);
 
   useEffect(() => {
@@ -56,7 +60,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ onClose }) => {
         const response = await subscriptionService.getActive();
         setActiveSubscription(response.subscription);
       } catch (error) {
-        console.error('Failed to fetch subscription:', error);
+        console.error("Failed to fetch subscription:", error);
       }
     };
 
@@ -69,6 +73,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ onClose }) => {
     { name: "Content Planner", path: "/content-planner", icon: FileText },
     { name: "Team", path: "/team", icon: Users },
     { name: "Subscription", path: "/subscription", icon: CreditCard },
+    { name: "Preferences", path: "/preferences", icon: Settings },
     { name: "Profile", path: "/profile", icon: User },
   ];
 
@@ -82,18 +87,16 @@ export const SideMenu: React.FC<SideMenuProps> = ({ onClose }) => {
           as={Button}
           rightIcon={<ChevronDownIcon />}
           variant="ghost"
-          size="sm"
+          size="md"
           w="full"
           justifyContent="flex-start"
+          bg="gray.100"
         >
           {activeTeam ? activeTeam.title : "Select Team"}
         </MenuButton>
         <MenuList zIndex={10000}>
           {teamList.map((team) => (
-            <MenuItem
-              key={team.id}
-              onClick={() => setActiveTeam(team)}
-            >
+            <MenuItem key={team.id} onClick={() => setActiveTeam(team)}>
               {team.title}
             </MenuItem>
           ))}
@@ -122,10 +125,20 @@ export const SideMenu: React.FC<SideMenuProps> = ({ onClose }) => {
           alignItems="center"
           onClick={onClose}
         >
-          <item.icon size={18} style={{ marginRight: 8 }} />
-          {item.name}
+          <item.icon size={20} style={{ marginRight: 8, color: "black.900" }} />
+          <Text fontSize="lg" color="black.800">
+            {item.name}
+          </Text>
         </ChakraLink>
       ))}
+      <VStack spacing={2} mt={4}>
+        <Button leftIcon={<AddIcon />} colorScheme="blue" size="sm" w="full" onClick={() => setIsCreatePostModalOpen(true)}>
+          Create Post
+        </Button>
+        <Button leftIcon={<AddIcon />} colorScheme="green" size="sm" w="full" onClick={() => navigate("/content-planner/create")}>
+          Create Plan
+        </Button>
+      </VStack>
       <Spacer />
       <Divider />
       <VStack spacing={1} align="start">
@@ -134,12 +147,14 @@ export const SideMenu: React.FC<SideMenuProps> = ({ onClose }) => {
         </Text>
         <HStack>
           <Text fontSize="sm" fontWeight="medium" color="white">
-            {activeSubscription ? activeSubscription.plan : 'Free'}
+            {activeSubscription ? activeSubscription.plan : "Free"}
           </Text>
           {activeSubscription && (
             <Badge
               size="sm"
-              colorScheme={activeSubscription.status === 'active' ? 'green' : 'yellow'}
+              colorScheme={
+                activeSubscription.status === "active" ? "green" : "yellow"
+              }
               fontSize="xs"
             >
               {activeSubscription.status}
@@ -148,14 +163,23 @@ export const SideMenu: React.FC<SideMenuProps> = ({ onClose }) => {
         </HStack>
       </VStack>
 
-      <CreateTeamModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onTeamCreated={(newTeam) => {
-          refreshTeams();
-          setActiveTeam(newTeam);
-        }}
-      />
+       <CreatePostModal
+         isOpen={isCreatePostModalOpen}
+         onClose={() => setIsCreatePostModalOpen(false)}
+         activeTeam={activeTeam}
+         onPostCreated={() => {
+           // Optionally refresh something, but since it's calendar, maybe not needed
+         }}
+       />
+
+       <CreateTeamModal
+         isOpen={isCreateModalOpen}
+         onClose={() => setIsCreateModalOpen(false)}
+         onTeamCreated={(newTeam) => {
+           refreshTeams();
+           setActiveTeam(newTeam);
+         }}
+       />
     </VStack>
   );
 };

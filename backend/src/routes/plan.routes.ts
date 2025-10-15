@@ -3,7 +3,6 @@ import validate from "../middlewares/validate";
 import planValidation from "../validations/plan.validation";
 import planController from "../controllers/plan.controller";
 import { requireAuth } from "../middlewares/auth";
-import { requireSubscription } from "../middlewares/subscription";
 
 const { publishPlan } = planController;
 
@@ -72,14 +71,13 @@ const router = express.Router();
  *       "403":
  *         $ref: '#/components/responses/Forbidden'
  */
-router
-  .route("/")
-  .post(
-    requireAuth,
-    requireSubscription,
-    validate(planValidation.createPlan),
-    planController.createPlan
-  )
+ router
+   .route("/")
+   .post(
+     requireAuth,
+     validate(planValidation.createPlan),
+     planController.createPlan
+   )
   /**
    * @swagger
    * /plans:
@@ -370,8 +368,8 @@ router
  *       "404":
  *         $ref: '#/components/responses/NotFound'
  */
-router
-  .route("/:id/publish")
-  .post(requireAuth, requireSubscription, validate(planValidation.publishPlan), planController.publishPlan);
+ router
+   .route("/:id/publish")
+   .post(requireAuth, validate(planValidation.publishPlan), planController.publishPlan);
 
 export default router;

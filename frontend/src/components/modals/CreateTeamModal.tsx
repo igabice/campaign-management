@@ -14,6 +14,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { teamsApi } from "../../services/teams";
+import { SubscriptionRequiredModal } from "./SubscriptionRequiredModal";
 
 interface CreateTeamModalProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ export const CreateTeamModal: React.FC<CreateTeamModalProps> = ({
 }) => {
   const [newTeamName, setNewTeamName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const toast = useToast();
 
   const handleCreateTeam = async () => {
@@ -44,49 +46,65 @@ export const CreateTeamModal: React.FC<CreateTeamModalProps> = ({
         duration: 3000,
         isClosable: true,
       });
-    } catch (error) {
-      toast({
-        title: "Failed to create team",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
+    } catch (error: any) {
+      if (
+        error.response?.status === 403 &&
+        error.response?.data?.message?.includes("limit exceeded")
+      ) {
+        onClose(); // Close the form modal
+        setShowUpgradeModal(true);
+      } else {
+        toast({
+          title: "Failed to create team",
+          description: error.response?.data?.message || "An error occurred",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
     } finally {
       setIsCreating(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Create New Team</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <FormControl>
-            <FormLabel>Team Name</FormLabel>
-            <Input
-              value={newTeamName}
-              onChange={(e) => setNewTeamName(e.target.value)}
-              placeholder="Enter team name"
-            />
-          </FormControl>
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            colorScheme="blue"
-            mr={3}
-            onClick={handleCreateTeam}
-            isDisabled={!newTeamName.trim() || isCreating}
-            isLoading={isCreating}
-          >
-            Create
-          </Button>
-          <Button variant="ghost" onClick={onClose}>
-            Cancel
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+    <>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Create New Team</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <FormControl>
+              <FormLabel>Team Name</FormLabel>
+              <Input
+                value={newTeamName}
+                onChange={(e) => setNewTeamName(e.target.value)}
+                placeholder="Enter team name"
+              />
+            </FormControl>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              colorScheme="blue"
+              mr={3}
+              onClick={handleCreateTeam}
+              isDisabled={!newTeamName.trim() || isCreating}
+              isLoading={isCreating}
+            >
+              Create
+            </Button>
+            <Button variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <SubscriptionRequiredModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+      />
+    </>
   );
 };

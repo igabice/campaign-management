@@ -63,7 +63,7 @@ export const AppHeader = () => {
     try {
       const data = await notificationsApi.getNotifications();
       setNotifications(data);
-      setUnreadCount(data.filter(n => !n.isRead).length);
+      setUnreadCount(data.filter((n) => !n.isRead).length);
     } catch (error) {
       console.error("Failed to fetch notifications:", error);
     }
@@ -72,8 +72,10 @@ export const AppHeader = () => {
   const markAsRead = async (id: string) => {
     try {
       await notificationsApi.markAsRead(id);
-      setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
-      setUnreadCount(prev => Math.max(0, prev - 1));
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
       console.error("Failed to mark as read:", error);
     }
@@ -97,7 +99,7 @@ export const AppHeader = () => {
         align="center"
         justify="space-between"
         p={4}
-        bg={colorMode === "light" ? "gray.100" : "gray.900"}
+        bg={colorMode === "light" ? "white" : "gray.900"}
         color={colorMode === "light" ? "black" : "whiteAlpha.900"}
         boxShadow="md"
         position="relative"
@@ -115,7 +117,7 @@ export const AppHeader = () => {
           </Show>
           <Hide below="md">
             <Box fontSize="2xl" fontWeight="bold">
-              <Heading> Manager</Heading>
+              <Heading> Dokahub</Heading>
             </Box>
           </Hide>
         </Flex>
@@ -170,13 +172,13 @@ export const AppHeader = () => {
               </MenuList>
             </Menu>
           )}
-          <IconButton
-            aria-label="Toggle color mode"
-            icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
-            onClick={toggleColorMode}
-            mr={4}
-            variant="ghost"
-          />
+           {/* <IconButton
+             aria-label="Toggle color mode"
+             icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+             onClick={toggleColorMode}
+             mr={4}
+             variant="ghost"
+           /> */}
           {session && (
             <Menu placement="bottom-end">
               <MenuButton

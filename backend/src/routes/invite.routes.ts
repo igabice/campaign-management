@@ -3,7 +3,6 @@ import validate from "../middlewares/validate";
 import inviteValidation from "../validations/invite.validation";
 import inviteController from "../controllers/invite.controller";
 import { requireAuth } from "../middlewares/auth";
-import { requireSubscription } from "../middlewares/subscription";
 
 const router = express.Router();
 
@@ -55,14 +54,13 @@ const router = express.Router();
  *       "403":
  *         $ref: '#/components/responses/Forbidden'
  */
-router
-  .route("/")
-  .post(
-    requireAuth,
-    requireSubscription,
-    validate(inviteValidation.createInvite),
-    inviteController.createInvite
-  )
+ router
+   .route("/")
+   .post(
+     requireAuth,
+     validate(inviteValidation.createInvite),
+     inviteController.createInvite
+   )
   /**
    * @swagger
    * /invites:
@@ -300,11 +298,10 @@ router.route("/:id/respond").post(
  *       "404":
  *         $ref: '#/components/responses/NotFound'
  */
-router.route("/:id/resend").post(
-  requireAuth,
-  requireSubscription,
-  validate(inviteValidation.getInvite),
-  inviteController.resendInvite
-);
+ router.route("/:id/resend").post(
+   requireAuth,
+   validate(inviteValidation.getInvite),
+   inviteController.resendInvite
+ );
 
 export default router;

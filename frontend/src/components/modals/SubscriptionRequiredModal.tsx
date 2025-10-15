@@ -28,8 +28,12 @@ const SubscriptionRequiredModal: React.FC<Props> = ({ isOpen, onClose }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered size="md">
       <ModalOverlay />
-      <ModalContent bg="gray.800" color="whiteAlpha.900" borderRadius="lg">
-        <ModalHeader textAlign="center" borderBottomWidth="1px" borderColor="gray.700">
+      <ModalContent bg="white" color="gray.800" borderRadius="lg">
+        <ModalHeader
+          textAlign="center"
+          borderBottomWidth="1px"
+          borderColor="gray.200"
+        >
           <VStack spacing={2}>
             <Text fontSize="3xl" color="yellow.400">
               👑
@@ -41,18 +45,20 @@ const SubscriptionRequiredModal: React.FC<Props> = ({ isOpen, onClose }) => {
         </ModalHeader>
         <ModalBody py={6} textAlign="center">
           <Text mb={4}>
-            This feature requires an active subscription. Upgrade your plan to unlock premium features and continue building amazing campaigns.
+            This feature requires an active subscription. Upgrade your plan to
+            unlock premium features and continue building amazing campaigns.
           </Text>
-          <Text fontSize="sm" color="gray.400">
-            Get started with our Pro plan for advanced team collaboration, unlimited posts, and AI-powered content generation.
+          <Text fontSize="sm" color="gray.600">
+            Get started with our Pro plan for advanced team collaboration,
+            unlimited posts, and AI-powered content generation.
           </Text>
         </ModalBody>
-        <ModalFooter borderTopWidth="1px" borderColor="gray.700" justifyContent="center">
-          <Button
-            colorScheme="yellow"
-            onClick={handleSubscribe}
-            size="lg"
-          >
+        <ModalFooter
+          borderTopWidth="1px"
+          borderColor="gray.200"
+          justifyContent="center"
+        >
+          <Button colorScheme="yellow" onClick={handleSubscribe} size="lg">
             👑 Upgrade to Pro
           </Button>
         </ModalFooter>

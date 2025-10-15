@@ -68,55 +68,40 @@ export const PreviewPlanPage = () => {
     setPosts(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (status: 'draft' | 'published') => {
     if (!activeTeam || !planData) return;
 
     setIsLoading(true);
     try {
-      if (action === 'publish') {
-        if (draftId) {
-          // Publishing an existing draft
-          await plansApi.publishPlan(draftId, { posts });
+      if (draftId && status === 'published') {
+        // Publishing an existing draft
+        await plansApi.publishPlan(draftId, { posts });
 
-          toast({
-            title: "Plan published successfully",
-            description: `Published plan with ${posts.length} posts`,
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-          });
-        } else {
-          // Creating a new published plan
-          await plansApi.createPlan({
-            ...planData,
-            status: 'published',
-            posts,
-          });
-
-          toast({
-            title: "Plan created successfully",
-            description: `Created plan with ${posts.length} posts`,
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-          });
-        }
+        toast({
+          title: "Plan published successfully",
+          description: `Published plan with ${posts.length} posts`,
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
       } else {
-        // Create draft plan without posts
+        // Creating a new plan
         await plansApi.createPlan({
           ...planData,
-          status: 'draft',
+          status,
+          posts: status === 'published' ? posts : posts,  // include posts for both
         });
 
         toast({
-          title: "Draft saved successfully",
-          description: "Your plan has been saved as a draft",
+          title: status === 'published' ? "Plan created successfully" : "Draft saved successfully",
+          description: status === 'published' ? `Created plan with ${posts.length} posts` : "Your plan has been saved as a draft",
           status: "success",
           duration: 3000,
           isClosable: true,
         });
       }
-      navigate("/calendar");
+
+      navigate(status === 'published' ? "/calendar" : "/content-planner");
     } catch (error: any) {
       toast({
         title: `Failed to ${action === 'publish' ? 'create' : 'save'} plan`,
@@ -213,13 +198,20 @@ export const PreviewPlanPage = () => {
               <Button variant="outline" onClick={() => navigate("/content-planner/create")}>
                 Back
               </Button>
-               <Button
-                 colorScheme="blue"
-                 onClick={handleSubmit}
-                 isLoading={isLoading}
-               >
-                 {action === 'publish' ? 'Schedule All Posts' : 'Save as Draft'}
-               </Button>
+              <Button
+                variant="outline"
+                onClick={() => handleSubmit('draft')}
+                isLoading={isLoading}
+              >
+                Save as Draft
+              </Button>
+              <Button
+                colorScheme="blue"
+                onClick={() => handleSubmit('published')}
+                isLoading={isLoading}
+              >
+                Publish Plan
+              </Button>
             </HStack>
           </CardFooter>
         </Card>

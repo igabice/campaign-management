@@ -18,7 +18,8 @@ export const theme = extendTheme({
     global: (props: { colorMode: 'light' | 'dark' }) => ({
       body: {
         bg: props.colorMode === "dark" ? "gray.900" : "white",
-        color: props.colorMode === "dark" ? "whiteAlpha.900" : "black",
+        color: props.colorMode === "dark" ? "whiteAlpha.900" : "gray.800",
+        fontSize: "115%",
       },
     }),
   },

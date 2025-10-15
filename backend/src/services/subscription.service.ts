@@ -8,6 +8,7 @@ interface UpgradeSubscriptionParams {
   annual?: boolean;
   referenceId: string;
   subscriptionId?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: Record<string, any>;
   seats?: number;
   successUrl: string;
@@ -19,6 +20,7 @@ interface SubscriptionLimits {
   teams: number;
   posts: number;
   plans: number;
+  invites: number;
 }
 
 export async function getActiveSubscription(userId: string) {
@@ -28,7 +30,9 @@ export async function getActiveSubscription(userId: string) {
       headers: {}, // Since it's server-side, no need for session headers
     });
 
-    return subscriptions.find(sub => sub.status === "active" || sub.status === "trialing");
+    return subscriptions.find(
+      (sub) => sub.status === "active" || sub.status === "trialing"
+    );
   } catch (error) {
     console.error("Failed to get active subscription:", error);
     // If subscription check fails, default to no active subscription (free plan)
@@ -36,12 +40,20 @@ export async function getActiveSubscription(userId: string) {
   }
 }
 
-export async function checkSubscriptionLimits(userId: string, action: 'team' | 'post' | 'plan'): Promise<void> {
+export async function checkSubscriptionLimits(
+  userId: string,
+  action: "team" | "post" | "plan" | "invite"
+): Promise<void> {
   const subscription = await getActiveSubscription(userId);
 
   if (!subscription) {
     // Free plan limits
-    const limits: SubscriptionLimits = { teams: 1, posts: 10, plans: 1 };
+    const limits: SubscriptionLimits = {
+      teams: 1,
+      posts: 10,
+      plans: 1,
+      invites: 1,
+    };
     await checkUsageLimits(userId, action, limits);
     return;
   }
@@ -55,7 +67,10 @@ export async function checkSubscriptionLimits(userId: string, action: 'team' | '
   await checkUsageLimits(userId, action, planLimits);
 }
 
-export async function upgradeSubscription(params: UpgradeSubscriptionParams, headers: Record<string, string>) {
+export async function upgradeSubscription(
+  params: UpgradeSubscriptionParams,
+  headers: Record<string, string>
+) {
   try {
     const data = await auth.api.upgradeSubscription({
       body: {
@@ -76,24 +91,41 @@ export async function upgradeSubscription(params: UpgradeSubscriptionParams, hea
     return data;
   } catch (error) {
     console.error("Failed to upgrade subscription:", error);
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to upgrade subscription");
+    throw new ApiError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      "Failed to upgrade subscription"
+    );
   }
 }
 
-async function checkUsageLimits(userId: string, action: 'team' | 'post' | 'plan', limits: SubscriptionLimits): Promise<void> {
+async function checkUsageLimits(
+  userId: string,
+  action: "team" | "post" | "plan" | "invite",
+  limits: SubscriptionLimits
+): Promise<void> {
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+  const endOfMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    0,
+    23,
+    59,
+    59
+  );
 
-  if (action === 'team') {
+  if (action === "team") {
     if (limits.teams === -1) return; // unlimited
     const teamCount = await prisma.team.count({
       where: { userId },
     });
     if (teamCount >= limits.teams) {
-      throw new ApiError(httpStatus.FORBIDDEN, `Team limit exceeded. Your plan allows ${limits.teams} teams.`);
+      throw new ApiError(
+        httpStatus.FORBIDDEN,
+        `Team limit exceeded. Your plan allows ${limits.teams} teams.`
+      );
     }
-  } else if (action === 'post') {
+  } else if (action === "post") {
     if (limits.posts === -1) return;
     const postCount = await prisma.post.count({
       where: {
@@ -105,9 +137,12 @@ async function checkUsageLimits(userId: string, action: 'team' | 'post' | 'plan'
       },
     });
     if (postCount >= limits.posts) {
-      throw new ApiError(httpStatus.FORBIDDEN, `Post limit exceeded. Your plan allows ${limits.posts} posts per month.`);
+      throw new ApiError(
+        httpStatus.FORBIDDEN,
+        `Post limit exceeded. Your plan allows ${limits.posts} posts per month.`
+      );
     }
-  } else if (action === 'plan') {
+  } else if (action === "plan") {
     if (limits.plans === -1) return;
     const planCount = await prisma.plan.count({
       where: {
@@ -119,7 +154,21 @@ async function checkUsageLimits(userId: string, action: 'team' | 'post' | 'plan'
       },
     });
     if (planCount >= limits.plans) {
-      throw new ApiError(httpStatus.FORBIDDEN, `Content plan limit exceeded. Your plan allows ${limits.plans} plans per month.`);
+      throw new ApiError(
+        httpStatus.FORBIDDEN,
+        `Content plan limit exceeded. Your plan allows ${limits.plans} plans per month.`
+      );
+    }
+  } else if (action === "invite") {
+    if (limits.invites === -1) return;
+    const inviteCount = await prisma.invite.count({
+      where: { inviterId: userId },
+    });
+    if (inviteCount >= limits.invites) {
+      throw new ApiError(
+        httpStatus.FORBIDDEN,
+        `Invite limit exceeded. Your plan allows ${limits.invites} invites.`
+      );
     }
   }
 }

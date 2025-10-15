@@ -88,11 +88,12 @@ export const auth = betterAuth({
   },
   // redirectTo: `${process.env.FRONTEND_URL || "http://localhost:3000"}/dashboard`,
   plugins: [
-    stripe({
-      stripeClient,
-      stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
-      createCustomerOnSignUp: true,
-      subscription: {
+     stripe({
+       stripeClient,
+       stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
+       createCustomerOnSignUp: true,
+       webhookPath: "/stripe/webhook",
+       subscription: {
         enabled: true,
         authorizeReference: async ({ user, action, session, referenceId }) => {
           logger.debug({ user, action, session, referenceId });

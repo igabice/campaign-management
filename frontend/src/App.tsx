@@ -23,14 +23,18 @@ import { MainLayout } from "./components/MainLayout";
 import { LandingOrDashboard } from "./components/LandingOrDashboard";
 import { NotificationsPage } from "./features/notifications/NotificationsPage";
 import SubscriptionPage from "./features/subscription/SubscriptionPage";
+import UserPreferencePage from "./features/userPreferences/UserPreferencePage";
+import OnboardingPage from "./features/onboarding/OnboardingPage";
 import { GlobalModalProvider } from "./contexts/GlobalModalContext";
+import { TeamProvider } from "./contexts/TeamContext";
 
 const App = () => {
   return (
     <ChakraProvider theme={theme}>
       <Router>
         <GlobalModalProvider>
-          <Routes>
+          <TeamProvider>
+            <Routes>
            <Route path="/" element={<LandingOrDashboard />} />
            <Route path="/home" element={<HomePage />} />
            <Route path="/login" element={<LoginPage />} />
@@ -112,17 +116,27 @@ const App = () => {
                         </MainLayout>
                       }
                     />
-                    <Route
-                      path="/subscription"
-                      element={
-                        <MainLayout>
-                          <SubscriptionPage />
-                        </MainLayout>
-                      }
-                    />
-              </Route>
-          </Routes>
-        </GlobalModalProvider>
+                     <Route
+                       path="/subscription"
+                       element={
+                         <MainLayout>
+                           <SubscriptionPage />
+                         </MainLayout>
+                       }
+                     />
+                      <Route
+                        path="/preferences"
+                        element={
+                          <MainLayout>
+                            <UserPreferencePage />
+                          </MainLayout>
+                        }
+                      />
+                      <Route path="/onboarding" element={<OnboardingPage />} />
+                </Route>
+           </Routes>
+          </TeamProvider>
+         </GlobalModalProvider>
       </Router>
     </ChakraProvider>
   );

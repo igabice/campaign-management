@@ -3,6 +3,7 @@ import httpStatus from "http-status";
 import ApiError from "../utils/ApiError";
 import prisma from "../config/prisma";
 import mailService from "./mail.service";
+import { checkSubscriptionLimits } from "./subscription.service";
 
 type InviteWithRelations = Invite & {
   team: { id: string; title: string };
@@ -55,6 +56,9 @@ async function createInvite(
   if (existingInvite) {
     throw new ApiError(httpStatus.BAD_REQUEST, "An invite has already been sent to this email for this team");
   }
+
+  // Check subscription limits
+  await checkSubscriptionLimits(inviterId, 'invite');
 
   // Get team details for email
   const team = await prisma.team.findUnique({
