@@ -21,6 +21,7 @@ import { authClient } from "../../lib/auth-client";
 import { useAuth } from "./AuthContext";
 import { useEffect } from "react";
 import { Spinner } from "@chakra-ui/react";
+import { FaGoogle, FaFacebook } from "react-icons/fa";
 
 type LoginFormInputs = z.infer<typeof loginSchema>;
 
@@ -65,7 +66,7 @@ export const LoginPage: React.FC = () => {
     localStorage.setItem("socialLoginInitiated", "true");
     const { error } = await authClient.signIn.social({
       provider: "google",
-      callbackURL: `${window.location.origin}/dashboard`
+      callbackURL: `${window.location.origin}/dashboard`,
     });
     if (error) {
       localStorage.removeItem("socialLoginInitiated");
@@ -83,7 +84,7 @@ export const LoginPage: React.FC = () => {
     localStorage.setItem("socialLoginInitiated", "true");
     const { error } = await authClient.signIn.social({
       provider: "facebook",
-      callbackURL: `${window.location.origin}/dashboard`
+      callbackURL: `${window.location.origin}/dashboard`,
     });
     if (error) {
       localStorage.removeItem("socialLoginInitiated");
@@ -140,12 +141,35 @@ export const LoginPage: React.FC = () => {
           </Button>
         </Stack>
       </Box>
-      <Stack spacing={2} mt={4}>
-        <Button onClick={handleGoogleLogin} colorScheme="red">
-          Login with Google
+      <Text textAlign="center" mt={4} mb={2}>
+        or
+      </Text>
+      <Stack spacing={2}>
+        <Button
+          onClick={handleGoogleLogin}
+          bg="white"
+          color="black"
+          border="1px"
+          borderColor="gray.300"
+          display="flex"
+          alignItems="center"
+          gap={2}
+        >
+          {/* @ts-ignore */}
+          <FaGoogle color="#e85252" /> Google
         </Button>
-        <Button onClick={handleFacebookLogin} colorScheme="facebook">
-          Login with Facebook
+        <Button
+          onClick={handleFacebookLogin}
+          bg="white"
+          color="black"
+          border="1px"
+          borderColor="gray.300"
+          display="flex"
+          alignItems="center"
+          gap={2}
+        >
+          {/* @ts-ignore */}
+          <FaFacebook color="#5858e7" /> Facebook
         </Button>
       </Stack>
       <Text mt={4} textAlign="center">

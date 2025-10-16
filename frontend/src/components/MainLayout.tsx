@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Hide, Flex } from "@chakra-ui/react";
 import { AppHeader } from "./AppHeader";
 import { SideMenu } from "./SideMenu";
-import { SlimFooter } from "./SlimFooter";
+
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -37,7 +37,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           <Box flex="1">
             {children}
           </Box>
-          <SlimFooter />
+
         </Box>
       </Flex>
     </Flex>

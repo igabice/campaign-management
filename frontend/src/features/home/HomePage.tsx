@@ -10,13 +10,23 @@ import {
   Icon,
   Grid,
   GridItem,
+  Link,
   useColorModeValue,
   usePrefersReducedMotion,
   Flex,
   Spacer,
+  IconButton,
+  useDisclosure,
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  DrawerBody,
+  Hide,
+  Show,
 } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import {
   CalendarIcon,
   TimeIcon,
@@ -24,6 +34,7 @@ import {
   CheckCircleIcon,
   SettingsIcon,
   ChatIcon,
+  HamburgerIcon,
 } from "@chakra-ui/icons";
 
 // Animation keyframes
@@ -75,6 +86,7 @@ const pulse = keyframes`
 export const HomePage = () => {
   const navigate = useNavigate();
   const prefersReducedMotion = usePrefersReducedMotion();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const bgColor = "white";
   const textColor = "gray.900";
@@ -172,45 +184,111 @@ export const HomePage = () => {
         bg={bgColor}
         boxShadow="md"
       >
-        <Flex as="nav" p={6} align="center" maxW="1200px" mx="auto">
+        <Flex as="nav" p={[4, 6]} align="center" maxW="1200px" mx="auto">
           <Heading size="lg" fontWeight="bold" color={accentColor}>
             Doka
             <span style={{ color: "black" }}>hub</span>
           </Heading>
           <Spacer />
-          <HStack spacing={4}>
-            <Button
+          <Hide below="md">
+            <HStack spacing={4}>
+              <Button
+                variant="ghost"
+                onClick={() => scrollToSection("features")}
+                _hover={{ color: accentColor }}
+              >
+                Features
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => scrollToSection("pricing")}
+                _hover={{ color: accentColor }}
+              >
+                Pricing
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => navigate("/login")}
+                _hover={{ color: accentColor }}
+              >
+                Login
+              </Button>
+              <Button
+                bg={accentColor}
+                color="black"
+                _hover={{ bg: accentColor, opacity: 0.8 }}
+                onClick={() => navigate("/signup")}
+              >
+                Get Started
+              </Button>
+            </HStack>
+          </Hide>
+          <Show below="md">
+            <IconButton
+              aria-label="Open menu"
+              icon={<HamburgerIcon />}
               variant="ghost"
-              onClick={() => scrollToSection("features")}
-              _hover={{ color: accentColor }}
-            >
-              Features
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => scrollToSection("pricing")}
-              _hover={{ color: accentColor }}
-            >
-              Pricing
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/login")}
-              _hover={{ color: accentColor }}
-            >
-              Login
-            </Button>
-            <Button
-              bg={accentColor}
-              color="black"
-              _hover={{ bg: accentColor, opacity: 0.8 }}
-              onClick={() => navigate("/signup")}
-            >
-              Get Started
-            </Button>
-          </HStack>
+              onClick={onOpen}
+            />
+          </Show>
         </Flex>
       </Box>
+
+      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerCloseButton />
+          <DrawerBody pt={16}>
+            <VStack spacing={6} align="start">
+              <Button
+                variant="ghost"
+                w="full"
+                justifyContent="start"
+                onClick={() => {
+                  scrollToSection("features");
+                  onClose();
+                }}
+              >
+                Features
+              </Button>
+              <Button
+                variant="ghost"
+                w="full"
+                justifyContent="start"
+                onClick={() => {
+                  scrollToSection("pricing");
+                  onClose();
+                }}
+              >
+                Pricing
+              </Button>
+              <Button
+                variant="ghost"
+                w="full"
+                justifyContent="start"
+                onClick={() => {
+                  navigate("/login");
+                  onClose();
+                }}
+              >
+                Login
+              </Button>
+              <Button
+                bg={accentColor}
+                color="black"
+                w="full"
+                _hover={{ bg: accentColor, opacity: 0.8 }}
+                onClick={() => {
+                  navigate("/signup");
+                  onClose();
+                }}
+              >
+                Get Started
+              </Button>
+            </VStack>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
 
       {/* Hero Section */}
       <Box
@@ -468,244 +546,174 @@ export const HomePage = () => {
         </Container>
       </Box>
 
-      {/* Features Section */}
-      <Box
-        id="features"
-        ref={featuresRef}
-        py={20}
-        opacity={featuresVisible ? 1 : 0}
-        transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
-      >
-        <Container maxW="1200px">
-          <VStack spacing={16}>
-            <Box textAlign="center">
-              <Heading
-                size="3xl"
-                fontWeight="black"
-                mb={4}
-                fontSize={["2xl", "3xl", "4xl"]}
-              >
-                Everything You Need for
-                <br />
-                <Text as="span" color={accentColor}>
-                  Content Success
-                </Text>
-              </Heading>
-              <Text
-                fontSize={["md", "lg", "xl"]}
-                color="gray.700"
-                maxW="600px"
-                mx="auto"
-              >
-                Powerful features designed to streamline your content creation
-                and amplify your social media presence.
-              </Text>
-            </Box>
+       {/* Features Section */}
+       <Box
+         id="features"
+         ref={featuresRef}
+         py={20}
+         opacity={featuresVisible ? 1 : 0}
+         transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+       >
+         <Container maxW="1200px">
+           <VStack spacing={16}>
+             <Box textAlign="center">
+               <Heading
+                 size="3xl"
+                 fontWeight="black"
+                 mb={4}
+                 fontSize={["2xl", "3xl", "4xl"]}
+               >
+                 Everything You Need for
+                 <br />
+                 <Text as="span" color={accentColor}>
+                   Content Success
+                 </Text>
+               </Heading>
+               <Text
+                 fontSize={["md", "lg", "xl"]}
+                 color="gray.700"
+                 maxW="600px"
+                 mx="auto"
+               >
+                 Powerful features designed to streamline your content creation
+                 and amplify your social media presence.
+               </Text>
+             </Box>
 
-            <Grid
-              templateColumns={[
-                "1fr",
-                "1fr",
-                "repeat(2, 1fr)",
-                "repeat(3, 1fr)",
-              ]}
-              gap={8}
-              w="full"
-            >
-              <GridItem>
-                <Box
-                  p={6}
-                  bg={bgColor}
-                  borderRadius="xl"
-                  boxShadow="lg"
-                  transition="all 0.3s"
-                  _hover={{
-                    transform: "translateY(-8px)",
-                    boxShadow: "xl",
-                  }}
-                  {...(prefersReducedMotion
-                    ? {}
-                    : {
-                        animation: `${fadeInUp} 0.8s ease-out 0.2s`,
-                        opacity: isVisible ? 1 : 0,
-                      })}
-                >
-                  <VStack spacing={4} align="start" h="full">
-                    <Icon as={CalendarIcon} w={10} h={10} color={accentColor} />
-                    <Heading size="md" fontWeight="bold">
-                      Smart Content Calendar
-                    </Heading>
-                    <Text color={featureTextColor} flex="1">
-                      AI-powered calendar that automatically schedules and
-                      organizes your content across all platforms.
-                    </Text>
-                  </VStack>
-                </Box>
-              </GridItem>
+             <VStack spacing={20} w="full">
+               {/* Feature 1 */}
+               <HStack
+                 spacing={8}
+                 align="center"
+                 flexDirection={["column", "column", "row"]}
+                 w="full"
+                 {...(prefersReducedMotion
+                   ? {}
+                   : {
+                       animation: `${fadeInUp} 0.8s ease-out 0.2s`,
+                       opacity: isVisible ? 1 : 0,
+                     })}
+               >
+                 <Box flex={1} textAlign="center">
+                   <Icon as={SettingsIcon} w={24} h={24} color={accentColor} />
+                 </Box>
+                 <Box flex={1}>
+                   <Heading size="lg" fontWeight="bold" mb={4}>
+                     Plan Your Content with AI
+                   </Heading>
+                   <Text color={featureTextColor} fontSize="lg">
+                     Plan your content for the next week, month with suggestions from AI to keep your social media strategy on track.
+                   </Text>
+                 </Box>
+               </HStack>
 
-              <GridItem>
-                <Box
-                  p={6}
-                  bg={bgColor}
-                  borderRadius="xl"
-                  boxShadow="lg"
-                  transition="all 0.3s"
-                  _hover={{
-                    transform: "translateY(-8px)",
-                    boxShadow: "xl",
-                  }}
-                  {...(prefersReducedMotion
-                    ? {}
-                    : {
-                        animation: `${fadeInUp} 0.8s ease-out 0.4s`,
-                        opacity: isVisible ? 1 : 0,
-                      })}
-                >
-                  <VStack spacing={4} align="start" h="full">
-                    <Icon as={SettingsIcon} w={10} h={10} color={accentColor} />
-                    <Heading size="md" fontWeight="bold">
-                      AI Content Generation
-                    </Heading>
-                    <Text color={featureTextColor} flex="1">
-                      Generate engaging posts, captions, and content ideas with
-                      advanced AI technology.
-                    </Text>
-                  </VStack>
-                </Box>
-              </GridItem>
+               {/* Feature 2 */}
+               <HStack
+                 spacing={8}
+                 align="center"
+                 flexDirection={["column", "column", "row-reverse"]}
+                 w="full"
+                 {...(prefersReducedMotion
+                   ? {}
+                   : {
+                       animation: `${fadeInUp} 0.8s ease-out 0.4s`,
+                       opacity: isVisible ? 1 : 0,
+                     })}
+               >
+                 <Box flex={1} textAlign="center">
+                   <Icon as={CalendarIcon} w={24} h={24} color={accentColor} />
+                 </Box>
+                 <Box flex={1}>
+                   <Heading size="lg" fontWeight="bold" mb={4}>
+                     Content Calendar View
+                   </Heading>
+                   <Text color={featureTextColor} fontSize="lg">
+                     View scheduled content in your content calendar to stay organized and never miss a post.
+                   </Text>
+                 </Box>
+               </HStack>
 
-              <GridItem>
-                <Box
-                  p={6}
-                  bg={bgColor}
-                  borderRadius="xl"
-                  boxShadow="lg"
-                  transition="all 0.3s"
-                  _hover={{
-                    transform: "translateY(-8px)",
-                    boxShadow: "xl",
-                  }}
-                  {...(prefersReducedMotion
-                    ? {}
-                    : {
-                        animation: `${fadeInUp} 0.8s ease-out 0.6s`,
-                        opacity: isVisible ? 1 : 0,
-                      })}
-                >
-                  <VStack spacing={4} align="start" h="full">
-                    <Icon as={ChatIcon} w={10} h={10} color={accentColor} />
-                    <Heading size="md" fontWeight="bold">
-                      Team Collaboration
-                    </Heading>
-                    <Text color={featureTextColor} flex="1">
-                      Work seamlessly with your team members, assign tasks, and
-                      track progress together.
-                    </Text>
-                  </VStack>
-                </Box>
-              </GridItem>
+               {/* Feature 3 */}
+               <HStack
+                 spacing={8}
+                 align="center"
+                 flexDirection={["column", "column", "row"]}
+                 w="full"
+                 {...(prefersReducedMotion
+                   ? {}
+                   : {
+                       animation: `${fadeInUp} 0.8s ease-out 0.6s`,
+                       opacity: isVisible ? 1 : 0,
+                     })}
+               >
+                 <Box flex={1} textAlign="center">
+                   <Icon as={ChatIcon} w={24} h={24} color={accentColor} />
+                 </Box>
+                 <Box flex={1}>
+                   <Heading size="lg" fontWeight="bold" mb={4}>
+                     Team Collaboration
+                   </Heading>
+                   <Text color={featureTextColor} fontSize="lg">
+                     Invite others to collaborate with you on contents, assign tasks, and work together seamlessly.
+                   </Text>
+                 </Box>
+               </HStack>
 
-              <GridItem>
-                <Box
-                  p={6}
-                  bg={bgColor}
-                  borderRadius="xl"
-                  boxShadow="lg"
-                  transition="all 0.3s"
-                  _hover={{
-                    transform: "translateY(-8px)",
-                    boxShadow: "xl",
-                  }}
-                  {...(prefersReducedMotion
-                    ? {}
-                    : {
-                        animation: `${fadeInUp} 0.8s ease-out 0.8s`,
-                        opacity: isVisible ? 1 : 0,
-                      })}
-                >
-                  <VStack spacing={4} align="start" h="full">
-                    <Icon as={StarIcon} w={10} h={10} color={accentColor} />
-                    <Heading size="md" fontWeight="bold">
-                      Analytics & Insights
-                    </Heading>
-                    <Text color={featureTextColor} flex="1">
-                      Track performance, engagement metrics, and optimize your
-                      content strategy.
-                    </Text>
-                  </VStack>
-                </Box>
-              </GridItem>
+               {/* Feature 4 */}
+               <HStack
+                 spacing={8}
+                 align="center"
+                 flexDirection={["column", "column", "row-reverse"]}
+                 w="full"
+                 {...(prefersReducedMotion
+                   ? {}
+                   : {
+                       animation: `${fadeInUp} 0.8s ease-out 0.8s`,
+                       opacity: isVisible ? 1 : 0,
+                     })}
+               >
+                 <Box flex={1} textAlign="center">
+                   <Icon as={TimeIcon} w={24} h={24} color={accentColor} />
+                 </Box>
+                 <Box flex={1}>
+                   <Heading size="lg" fontWeight="bold" mb={4}>
+                     Smart Reminders
+                   </Heading>
+                   <Text color={featureTextColor} fontSize="lg">
+                     Get reminded when content is due, so you never miss important posting times.
+                   </Text>
+                 </Box>
+               </HStack>
 
-              <GridItem>
-                <Box
-                  p={6}
-                  bg={bgColor}
-                  borderRadius="xl"
-                  boxShadow="lg"
-                  transition="all 0.3s"
-                  _hover={{
-                    transform: "translateY(-8px)",
-                    boxShadow: "xl",
-                  }}
-                  {...(prefersReducedMotion
-                    ? {}
-                    : {
-                        animation: `${fadeInUp} 0.8s ease-out 1.0s`,
-                        opacity: isVisible ? 1 : 0,
-                      })}
-                >
-                  <VStack spacing={4} align="start" h="full">
-                    <Icon as={TimeIcon} w={10} h={10} color={accentColor} />
-                    <Heading size="md" fontWeight="bold">
-                      Automated Posting
-                    </Heading>
-                    <Text color={featureTextColor} flex="1">
-                      Schedule posts to publish automatically across multiple
-                      social media platforms.
-                    </Text>
-                  </VStack>
-                </Box>
-              </GridItem>
-
-              <GridItem>
-                <Box
-                  p={6}
-                  bg={bgColor}
-                  borderRadius="xl"
-                  boxShadow="lg"
-                  transition="all 0.3s"
-                  _hover={{
-                    transform: "translateY(-8px)",
-                    boxShadow: "xl",
-                  }}
-                  {...(prefersReducedMotion
-                    ? {}
-                    : {
-                        animation: `${fadeInUp} 0.8s ease-out 1.2s`,
-                        opacity: isVisible ? 1 : 0,
-                      })}
-                >
-                  <VStack spacing={4} align="start" h="full">
-                    <Icon
-                      as={CheckCircleIcon}
-                      w={10}
-                      h={10}
-                      color={accentColor}
-                    />
-                    <Heading size="md" fontWeight="bold">
-                      Content Planning
-                    </Heading>
-                    <Text color={featureTextColor} flex="1">
-                      Create comprehensive content plans with AI assistance and
-                      strategic scheduling.
-                    </Text>
-                  </VStack>
-                </Box>
-              </GridItem>
-            </Grid>
-          </VStack>
-        </Container>
-      </Box>
+               {/* Feature 5 */}
+               <HStack
+                 spacing={8}
+                 align="center"
+                 flexDirection={["column", "column", "row"]}
+                 w="full"
+                 {...(prefersReducedMotion
+                   ? {}
+                   : {
+                       animation: `${fadeInUp} 0.8s ease-out 1.0s`,
+                       opacity: isVisible ? 1 : 0,
+                     })}
+               >
+                 <Box flex={1} textAlign="center">
+                   <Icon as={CheckCircleIcon} w={24} h={24} color={accentColor} />
+                 </Box>
+                 <Box flex={1}>
+                   <Heading size="lg" fontWeight="bold" mb={4}>
+                     Social Media Sharing
+                   </Heading>
+                   <Text color={featureTextColor} fontSize="lg">
+                     Share content to your social media accounts directly from the platform with one click.
+                   </Text>
+                 </Box>
+               </HStack>
+             </VStack>
+           </VStack>
+         </Container>
+       </Box>
 
       {/* Pricing Section */}
       <Box
@@ -1282,27 +1290,33 @@ export const HomePage = () => {
           >
             <Text color={"gray.300"}>© 2024 Dokahub. All rights reserved.</Text>
             <HStack spacing={6} mt={[4, 0]}>
-              <Text
-                cursor="pointer"
+              <Link
+                as={RouterLink}
+                to="/privacy"
+                color="gray.300"
                 _hover={{ color: accentColor }}
                 transition="color 0.3s"
               >
                 Privacy
-              </Text>
-              <Text
-                cursor="pointer"
+              </Link>
+              <Link
+                as={RouterLink}
+                to="/terms"
+                color="gray.300"
                 _hover={{ color: accentColor }}
                 transition="color 0.3s"
               >
                 Terms
-              </Text>
-              <Text
-                cursor="pointer"
+              </Link>
+              <Link
+                as={RouterLink}
+                to="/contact"
+                color="gray.300"
                 _hover={{ color: accentColor }}
                 transition="color 0.3s"
               >
                 Support
-              </Text>
+              </Link>
             </HStack>
           </Flex>
         </Container>

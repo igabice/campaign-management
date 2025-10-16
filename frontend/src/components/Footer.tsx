@@ -11,6 +11,7 @@ import {
   HStack,
   Divider,
 } from "@chakra-ui/react";
+import { Link as RouterLink } from "react-router-dom";
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -97,15 +98,15 @@ export const Footer: React.FC = () => {
               <Link href="#" color="gray.400" _hover={{ color: "blue.400" }} fontSize="sm">
                 Help Center
               </Link>
-              <Link href="#" color="gray.400" _hover={{ color: "blue.400" }} fontSize="sm">
-                Contact Us
-              </Link>
-              <Link href="#" color="gray.400" _hover={{ color: "blue.400" }} fontSize="sm">
-                Privacy Policy
-              </Link>
-              <Link href="#" color="gray.400" _hover={{ color: "blue.400" }} fontSize="sm">
-                Terms of Service
-              </Link>
+               <Link as={RouterLink} to="/contact" color="gray.400" _hover={{ color: "blue.400" }} fontSize="sm">
+                 Contact Us
+               </Link>
+               <Link as={RouterLink} to="/privacy" color="gray.400" _hover={{ color: "blue.400" }} fontSize="sm">
+                 Privacy Policy
+               </Link>
+               <Link as={RouterLink} to="/terms" color="gray.400" _hover={{ color: "blue.400" }} fontSize="sm">
+                 Terms of Service
+               </Link>
             </VStack>
           </GridItem>
         </Grid>
@@ -117,12 +118,12 @@ export const Footer: React.FC = () => {
             © {currentYear} Campaign Management. All rights reserved.
           </Text>
           <HStack spacing={6} flexWrap="wrap">
-            <Link href="#" color="gray.400" _hover={{ color: "blue.400" }} fontSize="sm">
-              Privacy Policy
-            </Link>
-            <Link href="#" color="gray.400" _hover={{ color: "blue.400" }} fontSize="sm">
-              Terms of Service
-            </Link>
+             <Link as={RouterLink} to="/privacy" color="gray.400" _hover={{ color: "blue.400" }} fontSize="sm">
+               Privacy Policy
+             </Link>
+             <Link as={RouterLink} to="/terms" color="gray.400" _hover={{ color: "blue.400" }} fontSize="sm">
+               Terms of Service
+             </Link>
             <Link href="#" color="gray.400" _hover={{ color: "blue.400" }} fontSize="sm">
               Cookie Policy
             </Link>

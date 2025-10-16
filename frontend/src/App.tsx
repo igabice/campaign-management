@@ -25,6 +25,9 @@ import { NotificationsPage } from "./features/notifications/NotificationsPage";
 import SubscriptionPage from "./features/subscription/SubscriptionPage";
 import UserPreferencePage from "./features/userPreferences/UserPreferencePage";
 import OnboardingPage from "./features/onboarding/OnboardingPage";
+import { PrivacyPage } from "./features/legal/PrivacyPage";
+import { TermsPage } from "./features/legal/TermsPage";
+import { ContactPage } from "./features/legal/ContactPage";
 import { GlobalModalProvider } from "./contexts/GlobalModalContext";
 import { TeamProvider } from "./contexts/TeamContext";
 
@@ -42,8 +45,11 @@ const App = () => {
            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
            <Route path="/reset-password" element={<ResetPasswordPage />} />
            <Route path="/verify-email" element={<VerifyEmailPage />} />
-           <Route path="/invites/:inviteId" element={<InviteResponsePage />} />
-            <Route element={<ProtectedRoute />}>
+            <Route path="/invites/:inviteId" element={<InviteResponsePage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+             <Route element={<ProtectedRoute />}>
               <Route
                 path="/dashboard"
                 element={

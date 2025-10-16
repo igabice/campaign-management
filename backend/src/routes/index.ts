@@ -9,6 +9,7 @@ import aiRoutes from "./ai.routes";
 import subscriptionRoutes from "./subscription.routes";
 import uploadRoutes from "./upload.routes";
 import userPreferenceRoutes from "./userPreference.routes";
+import contactRoutes from "./contact.routes";
 import docRoute from "../docs/swagger";
 
 const router = express.Router();
@@ -22,6 +23,7 @@ router.use("/notifications", notificationRoutes);
 router.use("/subscriptions", subscriptionRoutes);
 router.use("/upload", uploadRoutes);
 router.use("/user-preferences", userPreferenceRoutes);
+router.use("/contact", contactRoutes);
 router.use("/ai", aiRoutes);
 router.use("/docs", docRoute);
 
