@@ -79,3 +79,17 @@ export interface UserPreference {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface Blog {
+  id: string;
+  title: string;
+  content: string;
+  slug: string;
+  tags: string[];
+  published: boolean;
+  publishedAt?: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  creator: { id: string; name: string; email: string };
+}

@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { ContactInput } from "../validations/contact.validation";
-import { mailService } from "./mail.service";
+import mailService from "./mail.service";
 
 const prisma = new PrismaClient();
 

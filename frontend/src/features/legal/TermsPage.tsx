@@ -22,6 +22,7 @@ import {
 } from "@chakra-ui/react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { HamburgerIcon } from "@chakra-ui/icons";
+import { Helmet } from "react-helmet-async";
 
 export const TermsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -30,6 +31,18 @@ export const TermsPage: React.FC = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Terms of Service - Dokahub</title>
+        <meta name="description" content="Review Dokahub's terms of service to understand the rules and guidelines for using our platform." />
+        <meta name="keywords" content="terms of service, terms and conditions, dokahub terms" />
+        <meta property="og:title" content="Terms of Service - Dokahub" />
+        <meta property="og:description" content="Review Dokahub's terms of service to understand the rules and guidelines for using our platform." />
+        <meta property="og:url" content="https://dokahub.com/terms" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Terms of Service - Dokahub" />
+        <meta name="twitter:description" content="Review Dokahub's terms of service to understand the rules and guidelines for using our platform." />
+      </Helmet>
       {/* Navigation */}
       <Box
         position="fixed"

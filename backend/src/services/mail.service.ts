@@ -46,7 +46,7 @@ class MailService {
 
     try {
       await this.transporter.sendMail({
-        from: process.env.SMTP_FROM || "noreply@campaignapp.com",
+        from: process.env.SMTP_FROM || "noreply@dokahub.com",
         to: invite.email,
         subject: `Invitation to join ${team.title}`,
         html,
@@ -87,7 +87,7 @@ class MailService {
 
     try {
       await this.transporter.sendMail({
-        from: process.env.SMTP_FROM || "noreply@campaignapp.com",
+        from: process.env.SMTP_FROM || "noreply@dokahub.com",
         to: user.email,
         subject: "Welcome to Campaign Management!",
         html,
@@ -128,7 +128,7 @@ class MailService {
 
     try {
       await this.transporter.sendMail({
-        from: process.env.SMTP_FROM || "noreply@campaignapp.com",
+        from: process.env.SMTP_FROM || "noreply@dokahub.com",
         to: team.user.email,
         subject: `Team "${team.title}" Created Successfully!`,
         html,
@@ -210,7 +210,7 @@ class MailService {
 
     try {
       await this.transporter.sendMail({
-        from: process.env.SMTP_FROM || "noreply@campaignapp.com",
+        from: process.env.SMTP_FROM || "noreply@dokahub.com",
         to: user.email,
         subject: content.subject,
         html,
@@ -283,7 +283,7 @@ class MailService {
 
     try {
       await this.transporter.sendMail({
-        from: process.env.SMTP_FROM || "noreply@campaignapp.com",
+        from: process.env.SMTP_FROM || "noreply@dokahub.com",
         to: user.email,
         subject: campaign.subject,
         html,
@@ -318,23 +318,29 @@ class MailService {
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h3 style="margin-top: 0; color: #28a745;">🚀 What you can do now:</h3>
           <ul style="margin-bottom: 0;">
-            ${user.plan === 'pro' ? `
+            ${
+              user.plan === "pro"
+                ? `
               <li>Create up to 5 teams</li>
               <li>Schedule up to 100 posts per month</li>
               <li>Generate AI-powered content</li>
               <li>Access advanced analytics</li>
               <li>Collaborate with team members</li>
-            ` : user.plan === 'enterprise' ? `
+            `
+                : user.plan === "enterprise"
+                  ? `
               <li>Unlimited teams and posts</li>
               <li>All Pro features</li>
               <li>Custom integrations</li>
               <li>Dedicated support</li>
               <li>Advanced enterprise features</li>
-            ` : `
+            `
+                  : `
               <li>Create up to 1 team</li>
               <li>Schedule up to 10 posts per month</li>
               <li>Basic analytics</li>
-            `}
+            `
+            }
           </ul>
         </div>
 
@@ -352,7 +358,7 @@ class MailService {
 
     try {
       await this.transporter.sendMail({
-        from: process.env.SMTP_FROM || "noreply@campaignapp.com",
+        from: process.env.SMTP_FROM || "noreply@dokahub.com",
         to: user.email,
         subject: `Welcome to ${planName} Plan - Subscription Activated!`,
         html,
@@ -403,7 +409,7 @@ class MailService {
 
     try {
       await this.transporter.sendMail({
-        from: process.env.SMTP_FROM || "noreply@campaignapp.com",
+        from: process.env.SMTP_FROM || "noreply@dokahub.com",
         to: user.email,
         subject: `Subscription Activated - ${planName} Plan`,
         html,
@@ -464,7 +470,7 @@ class MailService {
 
     try {
       await this.transporter.sendMail({
-        from: process.env.SMTP_FROM || "noreply@campaignapp.com",
+        from: process.env.SMTP_FROM || "noreply@dokahub.com",
         to: user.email,
         subject: `Subscription Cancelled - ${planName} Plan`,
         html,
@@ -507,7 +513,7 @@ class MailService {
 
     try {
       await this.transporter.sendMail({
-        from: process.env.SMTP_FROM || "noreply@campaignapp.com",
+        from: process.env.SMTP_FROM || "noreply@dokahub.com",
         to: user.email,
         subject: "Reset Your Password - Campaign Management",
         html,
@@ -515,6 +521,25 @@ class MailService {
     } catch (error) {
       console.error("Failed to send reset password email:", error);
       throw error; // Re-throw for auth error handling
+    }
+  }
+
+  async sendMail(options: {
+    to: string;
+    subject: string;
+    html: string;
+    from?: string;
+  }): Promise<void> {
+    try {
+      await this.transporter.sendMail({
+        from: options.from || process.env.SMTP_FROM || "noreply@dokahub.com",
+        to: options.to,
+        subject: options.subject,
+        html: options.html,
+      });
+    } catch (error) {
+      console.error("Failed to send email:", error);
+      throw error;
     }
   }
 }

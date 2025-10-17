@@ -9,7 +9,6 @@ import {
   Button,
   Icon,
   Grid,
-  GridItem,
   Link,
   useColorModeValue,
   usePrefersReducedMotion,
@@ -27,10 +26,10 @@ import {
 } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import {
   CalendarIcon,
   TimeIcon,
-  StarIcon,
   CheckCircleIcon,
   SettingsIcon,
   ChatIcon,
@@ -172,7 +171,37 @@ export const HomePage = () => {
         animation: `${fadeInUp} 0.8s ease-out`,
       };
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Dokahub",
+    "url": "https://dokahub.com",
+    "description": "Automate your content calendar with AI-powered planning and scheduling.",
+    "logo": "https://dokahub.com/logo192.png",
+    "sameAs": [
+      // Add social media URLs if available
+    ]
+  };
+
   return (
+    <>
+      <Helmet>
+      <title>Dokahub - Automate Your Content Calendar with AI</title>
+      <meta name="description" content="Transform your social media strategy with AI-powered content planning, automated scheduling, and seamless team collaboration." />
+      <meta name="keywords" content="content calendar, social media automation, AI content planning, team collaboration, content scheduling" />
+      <meta property="og:title" content="Dokahub - Automate Your Content Calendar with AI" />
+      <meta property="og:description" content="Transform your social media strategy with AI-powered content planning, automated scheduling, and seamless team collaboration." />
+      <meta property="og:image" content="https://dokahub.com/logo192.png" />
+      <meta property="og:url" content="https://dokahub.com" />
+      <meta property="og:type" content="website" />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content="Dokahub - Automate Your Content Calendar with AI" />
+      <meta name="twitter:description" content="Transform your social media strategy with AI-powered content planning, automated scheduling, and seamless team collaboration." />
+      <meta name="twitter:image" content="https://dokahub.com/logo192.png" />
+      <script type="application/ld+json">
+        {JSON.stringify(structuredData)}
+      </script>
+    </Helmet>
     <Box bg={bgColor} color={textColor} minH="100vh" overflowX="hidden" pt="24">
       {/* Navigation */}
       <Box
@@ -205,6 +234,13 @@ export const HomePage = () => {
                 _hover={{ color: accentColor }}
               >
                 Pricing
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => navigate("/blog")}
+                _hover={{ color: accentColor }}
+              >
+                Blog
               </Button>
               <Button
                 variant="ghost"
@@ -261,6 +297,17 @@ export const HomePage = () => {
                 }}
               >
                 Pricing
+              </Button>
+              <Button
+                variant="ghost"
+                w="full"
+                justifyContent="start"
+                onClick={() => {
+                  navigate("/blog");
+                  onClose();
+                }}
+              >
+                Blog
               </Button>
               <Button
                 variant="ghost"
@@ -1292,6 +1339,15 @@ export const HomePage = () => {
             <HStack spacing={6} mt={[4, 0]}>
               <Link
                 as={RouterLink}
+                to="/blog"
+                color="gray.300"
+                _hover={{ color: accentColor }}
+                transition="color 0.3s"
+              >
+                Blog
+              </Link>
+              <Link
+                as={RouterLink}
                 to="/privacy"
                 color="gray.300"
                 _hover={{ color: accentColor }}
@@ -1322,5 +1378,6 @@ export const HomePage = () => {
         </Container>
       </Box>
     </Box>
+    </>
   );
 };

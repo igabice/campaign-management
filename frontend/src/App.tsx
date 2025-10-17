@@ -1,6 +1,7 @@
 import React from "react";
 import { ChakraProvider } from "@chakra-ui/react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import { theme } from "./theme";
 
 import { LoginPage } from "./features/auth/LoginPage";
@@ -28,13 +29,18 @@ import OnboardingPage from "./features/onboarding/OnboardingPage";
 import { PrivacyPage } from "./features/legal/PrivacyPage";
 import { TermsPage } from "./features/legal/TermsPage";
 import { ContactPage } from "./features/legal/ContactPage";
+import { BlogListPage } from "./features/blog/BlogListPage";
+import { BlogCreatePage } from "./features/blog/BlogCreatePage";
+import { BlogDetailPage } from "./features/blog/BlogDetailPage";
+import { BlogLayout } from "./components/BlogLayout";
 import { GlobalModalProvider } from "./contexts/GlobalModalContext";
 import { TeamProvider } from "./contexts/TeamContext";
 
 const App = () => {
   return (
     <ChakraProvider theme={theme}>
-      <Router>
+      <HelmetProvider>
+        <Router>
         <GlobalModalProvider>
           <TeamProvider>
             <Routes>
@@ -49,6 +55,9 @@ const App = () => {
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/contact" element={<ContactPage />} />
+             <Route path="/blog" element={<BlogLayout><BlogListPage /></BlogLayout>} />
+             <Route path="/blog/create" element={<BlogLayout><BlogCreatePage /></BlogLayout>} />
+             <Route path="/blog/:slug" element={<BlogLayout><BlogDetailPage /></BlogLayout>} />
              <Route element={<ProtectedRoute />}>
               <Route
                 path="/dashboard"
@@ -143,7 +152,8 @@ const App = () => {
            </Routes>
           </TeamProvider>
          </GlobalModalProvider>
-      </Router>
+        </Router>
+      </HelmetProvider>
     </ChakraProvider>
   );
 };

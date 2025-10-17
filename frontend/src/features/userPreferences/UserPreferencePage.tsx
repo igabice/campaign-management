@@ -279,14 +279,24 @@ const UserPreferencePage: React.FC = () => {
                   />
                 </HStack>
                 {preferences.telegramEnabled && (
-                  <Input
-                    mt={3}
-                    placeholder="Telegram Chat ID"
-                    value={preferences.telegramChatId || ""}
-                    onChange={(e) =>
-                      updatePreference("telegramChatId", e.target.value)
-                    }
-                  />
+                  <Box mt={3}>
+                    <Text fontSize="sm" color="gray.600" mb={2}>
+                      To enable Telegram notifications:
+                    </Text>
+                    <VStack align="start" spacing={2}>
+                      <Text fontSize="sm">
+                        1. Start a chat with our bot: <strong>@dokahub_bot</strong>
+                      </Text>
+                      <Text fontSize="sm">
+                        2. Send your user ID: <strong>{preferences.telegramChatId ? "Already connected!" : "Send your user ID to the bot"}</strong>
+                      </Text>
+                      {preferences.telegramChatId && (
+                        <Text fontSize="sm" color="green.500">
+                          ✅ Telegram notifications are active
+                        </Text>
+                      )}
+                    </VStack>
+                  </Box>
                 )}
               </FormControl>
 

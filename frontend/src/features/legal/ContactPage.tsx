@@ -1,6 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Helmet } from "react-helmet-async";
 import {
   Box,
   Container,
@@ -79,6 +80,18 @@ export const ContactPage: React.FC = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Contact Us - Dokahub</title>
+        <meta name="description" content="Get in touch with Dokahub for support, questions, or feedback about our content calendar automation platform." />
+        <meta name="keywords" content="contact dokahub, support, feedback, content calendar help" />
+        <meta property="og:title" content="Contact Us - Dokahub" />
+        <meta property="og:description" content="Get in touch with Dokahub for support, questions, or feedback about our content calendar automation platform." />
+        <meta property="og:url" content="https://dokahub.com/contact" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Contact Us - Dokahub" />
+        <meta name="twitter:description" content="Get in touch with Dokahub for support, questions, or feedback about our content calendar automation platform." />
+      </Helmet>
       {/* Navigation */}
       <Box
         position="fixed"

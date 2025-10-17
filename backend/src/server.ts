@@ -4,6 +4,7 @@ import config from "./config/config";
 import prisma from "./config/prisma";
 import logger from "./config/logger";
 import { startCronJobs, stopCronJobs } from "./scheduler";
+import TelegramService from "./services/telegram.service";
 
 // Determine app mode from environment variable (default: "app")
 const appMode = process.env.APP || "app";
@@ -48,8 +49,17 @@ const startApp = async () => {
       // Start HTTP server mode (default)
       logger.info("Starting in app mode");
 
+      app.get("/telegram-status", (req, res) => {
+        const isAvailable = TelegramService.getBot() !== null;
+        res.json({ telegramBotAvailable: isAvailable });
+      });
+
       const server: Server = app.listen(config.port, () => {
         logger.info(`HTTP server listening on port ${config.port}`);
+        logger.info(
+          "Telegram service initialized:",
+          TelegramService.getBot() !== null
+        );
       });
 
       process.on("SIGTERM", () => {

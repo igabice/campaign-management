@@ -50,7 +50,11 @@ export const PostDetailsModal: React.FC<PostDetailsModalProps> = ({
   };
 
   const handleShare = (platform: string) => {
-    const url = getShareUrl(platform, post.content);
+    let shareContent = post.content;
+    if (post.image) {
+      shareContent += ` ${post.image}`;
+    }
+    const url = getShareUrl(platform, shareContent);
     if (url) {
       window.open(url, '_blank');
     } else {

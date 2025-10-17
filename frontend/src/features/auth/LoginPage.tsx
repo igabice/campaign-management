@@ -100,14 +100,14 @@ export const LoginPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Box textAlign="center" mt={10}>
+      <Box textAlign="center" mt={10} px={4}>
         <Spinner size="xl" />
       </Box>
     );
   }
 
   return (
-    <Box maxW="md" mx="auto" mt={10}>
+    <Box maxW="md" mx="auto" mt={10} px={4}>
       <Box textAlign="center" mb={8}>
         <ChakraLink as={RouterLink} to="/" _hover={{ textDecoration: "none" }}>
           <Heading size="lg" color={accentColor} mb={2}>

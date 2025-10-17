@@ -29,6 +29,7 @@ model User {
   plans         Plan[]
   notifications Notification[]
   preferences   UserPreference?
+  blogs         Blog[]
 
   stripeCustomerId String?
 
@@ -282,4 +283,21 @@ model Contact {
   createdAt DateTime @default(now())
 
   @@map("contacts")
+}
+
+model Blog {
+  id          String   @id @default(uuid())
+  title       String
+  content     String   // Rich text content
+  slug        String   @unique
+  tags        String[] // Array of tags
+  published   Boolean  @default(false)
+  publishedAt DateTime?
+  createdBy   String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@map("blogs")
 }

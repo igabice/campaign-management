@@ -22,6 +22,7 @@ import {
 } from "@chakra-ui/react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { HamburgerIcon } from "@chakra-ui/icons";
+import { Helmet } from "react-helmet-async";
 
 export const PrivacyPage: React.FC = () => {
   const navigate = useNavigate();
@@ -30,6 +31,18 @@ export const PrivacyPage: React.FC = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Privacy Policy - Dokahub</title>
+        <meta name="description" content="Read Dokahub's privacy policy to understand how we collect, use, and protect your personal information." />
+        <meta name="keywords" content="privacy policy, data protection, dokahub privacy" />
+        <meta property="og:title" content="Privacy Policy - Dokahub" />
+        <meta property="og:description" content="Read Dokahub's privacy policy to understand how we collect, use, and protect your personal information." />
+        <meta property="og:url" content="https://dokahub.com/privacy" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Privacy Policy - Dokahub" />
+        <meta name="twitter:description" content="Read Dokahub's privacy policy to understand how we collect, use, and protect your personal information." />
+      </Helmet>
       {/* Navigation */}
       <Box
         position="fixed"
