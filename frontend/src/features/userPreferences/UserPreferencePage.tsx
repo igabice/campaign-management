@@ -278,26 +278,37 @@ const UserPreferencePage: React.FC = () => {
                     }
                   />
                 </HStack>
-                {preferences.telegramEnabled && (
-                  <Box mt={3}>
-                    <Text fontSize="sm" color="gray.600" mb={2}>
-                      To enable Telegram notifications:
-                    </Text>
-                    <VStack align="start" spacing={2}>
-                      <Text fontSize="sm">
-                        1. Start a chat with our bot: <strong>@dokahub_bot</strong>
-                      </Text>
-                      <Text fontSize="sm">
-                        2. Send your user ID: <strong>{preferences.telegramChatId ? "Already connected!" : "Send your user ID to the bot"}</strong>
-                      </Text>
-                      {preferences.telegramChatId && (
-                        <Text fontSize="sm" color="green.500">
-                          ✅ Telegram notifications are active
-                        </Text>
-                      )}
-                    </VStack>
-                  </Box>
-                )}
+                 {preferences.telegramEnabled && (
+                   <Box mt={3}>
+                     <Text fontSize="sm" color="gray.600" mb={2}>
+                       To enable Telegram notifications:
+                     </Text>
+                     <VStack align="start" spacing={2}>
+                       <Button
+                         as="a"
+                         href="https://t.me/dokahub_bot"
+                         target="_blank"
+                         rel="noopener noreferrer"
+                         size="sm"
+                         colorScheme="blue"
+                         mb={2}
+                       >
+                         Connect to Telegram Bot
+                       </Button>
+                       <Text fontSize="sm">
+                         1. Start a chat with our bot: <strong>@dokahub_bot</strong>
+                       </Text>
+                       <Text fontSize="sm">
+                         2. Send your user ID: <strong>{preferences.telegramChatId ? "Already connected!" : "Send your user ID to the bot"}</strong>
+                       </Text>
+                       {preferences.telegramChatId && (
+                         <Text fontSize="sm" color="green.500">
+                           ✅ Telegram notifications are active
+                         </Text>
+                       )}
+                     </VStack>
+                   </Box>
+                 )}
               </FormControl>
 
               <Divider />
