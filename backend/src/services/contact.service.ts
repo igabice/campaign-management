@@ -32,10 +32,16 @@ export class ContactService {
       <p>${data.message.replace(/\n/g, "<br>")}</p>
     `;
 
-    await mailService.sendMail({
+    // await mailService.sendMail({
+    //   to: supportEmail,
+    //   subject,
+    //   html,
+    // });
+    console.log({
       to: supportEmail,
       subject,
       html,
     });
+    
   }
 }
