@@ -10,7 +10,7 @@
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "build": "rimraf build && tsc -p tsconfig.json",
-    "start": "cross-env APP=app node dist/src/server.js",
+    "start": "node dist/src/server.js",
     "start:tasks": "cross-env APP=scheduler node dist/src/server.js",
     "db:seed": "ts-node prisma/seed.ts"
   },
