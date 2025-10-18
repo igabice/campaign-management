@@ -81,7 +81,7 @@ export const AppHeader = () => {
 
   const handleLogout = async () => {
     await authClient.signOut();
-    navigate("/login");
+    navigate("/");
   };
 
   const menuItems = [
@@ -117,39 +117,6 @@ export const AppHeader = () => {
             <Box fontSize="2xl" fontWeight="bold">
               <Heading> Dokahub</Heading>
             </Box>
-            <Flex ml={8} align="center" gap={6}>
-              <ChakraLink
-                as={RouterLink}
-                to="/dashboard"
-                color={
-                  location.pathname === "/dashboard" ? "blue.500" : "inherit"
-                }
-                _hover={{ color: "blue.500" }}
-                fontWeight="medium"
-              >
-                Dashboard
-              </ChakraLink>
-              <ChakraLink
-                as={RouterLink}
-                to="/calendar"
-                color={
-                  location.pathname === "/calendar" ? "blue.500" : "inherit"
-                }
-                _hover={{ color: "blue.500" }}
-                fontWeight="medium"
-              >
-                Calendar
-              </ChakraLink>
-              <ChakraLink
-                as={RouterLink}
-                to="/team"
-                color={location.pathname === "/team" ? "blue.500" : "inherit"}
-                _hover={{ color: "blue.500" }}
-                fontWeight="medium"
-              >
-                Team
-              </ChakraLink>
-            </Flex>
           </Hide>
         </Flex>
         <Spacer />

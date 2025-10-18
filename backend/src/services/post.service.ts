@@ -4,20 +4,24 @@ import ApiError from "../utils/ApiError";
 import prisma from "../config/prisma";
 import { checkSubscriptionLimits } from "./subscription.service";
 
+const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
+const ONE_WEEK_IN_MS = 7 * ONE_DAY_IN_MS;
+const ONE_MONTH_IN_MS = 30 * ONE_DAY_IN_MS;
+
 async function createPost(
-   userId: string,
-   postBody: {
-     title?: string;
-     content: string;
-     socialMedias: string[];
-     image?: string;
-     scheduledDate: string;
-     sendReminder?: boolean;
-     plannerId?: string;
-     teamId: string;
-   }
- ): Promise<Post> {
-   const { socialMedias, teamId, scheduledDate, ...postData } = postBody;
+  userId: string,
+  postBody: {
+    title?: string;
+    content: string;
+    socialMedias: string[];
+    image?: string;
+    scheduledDate: string;
+    sendReminder?: boolean;
+    plannerId?: string;
+    teamId: string;
+  }
+): Promise<Post> {
+  const { socialMedias, teamId, scheduledDate, ...postData } = postBody;
 
   // Check if user is a member of the team
   const membership = await prisma.member.findFirst({
@@ -29,10 +33,13 @@ async function createPost(
   });
 
   if (!membership) {
-    throw new ApiError(httpStatus.FORBIDDEN, "You are not a member of this team");
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      "You are not a member of this team"
+    );
   }
 
-  await checkSubscriptionLimits(userId, 'post');
+  await checkSubscriptionLimits(userId, "post");
 
   // Verify all social media accounts exist and belong to the team
   const socialMediaAccounts = await prisma.socialMedia.findMany({
@@ -44,19 +51,22 @@ async function createPost(
   });
 
   if (socialMediaAccounts.length !== socialMedias.length) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "One or more social media accounts not found or inactive");
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "One or more social media accounts not found or inactive"
+    );
   }
 
-   return prisma.post.create({
-     data: {
-       ...postData,
-       scheduledDate: new Date(scheduledDate),
-       createdBy: userId,
-       teamId,
-       socialMedias: {
-         connect: socialMedias.map(id => ({ id })),
-       },
-     },
+  return prisma.post.create({
+    data: {
+      ...postData,
+      scheduledDate: new Date(scheduledDate),
+      createdBy: userId,
+      teamId,
+      socialMedias: {
+        connect: socialMedias.map((id) => ({ id })),
+      },
+    },
     include: {
       socialMedias: true,
       creator: {
@@ -154,16 +164,20 @@ async function updatePostById(
   });
 
   if (!membership) {
-    throw new ApiError(httpStatus.FORBIDDEN, "You are not authorized to update this post");
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      "You are not authorized to update this post"
+    );
   }
 
-   const { socialMedias, ...postData } = updateBody;
+  const { socialMedias, ...postData } = updateBody;
 
-   let updateData: any = { ...postData };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const updateData: any = { ...postData };
 
-   if (updateData.scheduledDate) {
-     updateData.scheduledDate = new Date(updateData.scheduledDate);
-   }
+  if (updateData.scheduledDate) {
+    updateData.scheduledDate = new Date(updateData.scheduledDate);
+  }
 
   // Handle social media updates
   if (socialMedias) {
@@ -177,11 +191,14 @@ async function updatePostById(
     });
 
     if (socialMediaAccounts.length !== socialMedias.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, "One or more social media accounts not found or inactive");
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        "One or more social media accounts not found or inactive"
+      );
     }
 
     updateData.socialMedias = {
-      set: socialMedias.map(id => ({ id })),
+      set: socialMedias.map((id) => ({ id })),
     };
   }
 
@@ -223,7 +240,10 @@ async function deletePostById(id: string, userId: string): Promise<Post> {
   });
 
   if (!membership) {
-    throw new ApiError(httpStatus.FORBIDDEN, "You are not authorized to delete this post");
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      "You are not authorized to delete this post"
+    );
   }
 
   return prisma.post.delete({ where: { id } });
@@ -240,6 +260,86 @@ async function getDashboardAnalytics(teamId: string) {
   const publishedPosts = await prisma.post.count({
     where: { teamId, status: "Posted" },
   });
+
+  // Content Status Breakdown
+  const scheduledPosts = await prisma.post.count({
+    where: { teamId, status: "Draft" },
+  });
+
+  // Upcoming Content Timeline
+  const sevenDaysFromNow = new Date(now.getTime() + ONE_WEEK_IN_MS);
+  const thirtyDaysFromNow = new Date(now.getTime() + ONE_MONTH_IN_MS);
+
+  const postsNext7Days = await prisma.post.count({
+    where: {
+      teamId,
+      status: "Draft",
+      scheduledDate: {
+        gt: now,
+        lte: sevenDaysFromNow,
+      },
+    },
+  });
+
+  const postsNext30Days = await prisma.post.count({
+    where: {
+      teamId,
+      status: "Draft",
+      scheduledDate: {
+        gt: sevenDaysFromNow,
+        lte: thirtyDaysFromNow,
+      },
+    },
+  });
+
+  const postsBeyond30Days = await prisma.post.count({
+    where: {
+      teamId,
+      status: "Draft",
+      scheduledDate: {
+        gt: thirtyDaysFromNow,
+      },
+    },
+  });
+
+  // Platform Distribution - count posts per platform
+  const platformCounts = await prisma.socialMedia.findMany({
+    where: { teamId },
+    select: {
+      id: true,
+      platform: true,
+    },
+  });
+
+  // Count posts for each platform
+  const platformData = [];
+  for (const socialMedia of platformCounts) {
+    const postCount = await prisma.post.count({
+      where: {
+        teamId,
+        socialMedias: {
+          some: {
+            id: socialMedia.id,
+          },
+        },
+      },
+    });
+
+    platformData.push({
+      platform: socialMedia.platform,
+      count: postCount,
+    });
+  }
+
+  const totalScheduledPosts =
+    postsNext7Days + postsNext30Days + postsBeyond30Days;
+  const platformPercentages = platformData.map((item) => ({
+    platform: item.platform,
+    percentage:
+      totalScheduledPosts > 0
+        ? Math.round((item.count / totalScheduledPosts) * 100)
+        : 0,
+  }));
 
   // Get scheduled posts for different periods
   const thisYear = new Date(now.getFullYear(), 0, 1);
@@ -312,9 +412,9 @@ async function getDashboardAnalytics(teamId: string) {
   });
 
   // Calculate overdue posts for different periods
-  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-  const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
-  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const oneDayAgo = new Date(now.getTime() - ONE_DAY_IN_MS);
+  const threeDaysAgo = new Date(now.getTime() - 3 * ONE_DAY_IN_MS);
+  const sevenDaysAgo = new Date(now.getTime() - ONE_WEEK_IN_MS);
 
   const overdue24h = await prisma.post.count({
     where: {
@@ -341,9 +441,9 @@ async function getDashboardAnalytics(teamId: string) {
   });
 
   // Calculate previous period overdue for comparison
-  const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
-  const sixDaysAgo = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000);
-  const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+  const twoDaysAgo = new Date(now.getTime() - 2 * ONE_DAY_IN_MS);
+  const sixDaysAgo = new Date(now.getTime() - 6 * ONE_DAY_IN_MS);
+  const fourteenDaysAgo = new Date(now.getTime() - 14 * ONE_DAY_IN_MS);
 
   const overdue24hPrev = await prisma.post.count({
     where: {
@@ -372,38 +472,70 @@ async function getDashboardAnalytics(teamId: string) {
   return {
     totalPosts,
     publishedPosts,
+    contentStatusBreakdown: {
+      scheduled: scheduledPosts,
+      published: publishedPosts,
+    },
+    upcomingTimeline: {
+      next7Days: postsNext7Days,
+      next30Days: postsNext30Days,
+      beyond30Days: postsBeyond30Days,
+    },
+    platformDistribution: platformPercentages,
     scheduled: {
       year: {
         current: scheduledThisYear,
         previous: scheduledLastYear,
-        change: scheduledLastYear > 0 ? ((scheduledThisYear - scheduledLastYear) / scheduledLastYear) * 100 : 0,
+        change:
+          scheduledLastYear > 0
+            ? ((scheduledThisYear - scheduledLastYear) / scheduledLastYear) *
+              100
+            : 0,
       },
       month: {
         current: scheduledThisMonth,
         previous: scheduledLastMonth,
-        change: scheduledLastMonth > 0 ? ((scheduledThisMonth - scheduledLastMonth) / scheduledLastMonth) * 100 : 0,
+        change:
+          scheduledLastMonth > 0
+            ? ((scheduledThisMonth - scheduledLastMonth) / scheduledLastMonth) *
+              100
+            : 0,
       },
       threeMonths: {
         current: scheduledLast3Months,
         previous: scheduledPrevious3Months,
-        change: scheduledPrevious3Months > 0 ? ((scheduledLast3Months - scheduledPrevious3Months) / scheduledPrevious3Months) * 100 : 0,
+        change:
+          scheduledPrevious3Months > 0
+            ? ((scheduledLast3Months - scheduledPrevious3Months) /
+                scheduledPrevious3Months) *
+              100
+            : 0,
       },
     },
     overdue: {
       "24hours": {
         current: overdue24h,
         previous: overdue24hPrev,
-        change: overdue24hPrev > 0 ? ((overdue24h - overdue24hPrev) / overdue24hPrev) * 100 : 0,
+        change:
+          overdue24hPrev > 0
+            ? ((overdue24h - overdue24hPrev) / overdue24hPrev) * 100
+            : 0,
       },
       "3days": {
         current: overdue3d,
         previous: overdue3dPrev,
-        change: overdue3dPrev > 0 ? ((overdue3d - overdue3dPrev) / overdue3dPrev) * 100 : 0,
+        change:
+          overdue3dPrev > 0
+            ? ((overdue3d - overdue3dPrev) / overdue3dPrev) * 100
+            : 0,
       },
       "7days": {
         current: overdue7d,
         previous: overdue7dPrev,
-        change: overdue7dPrev > 0 ? ((overdue7d - overdue7dPrev) / overdue7dPrev) * 100 : 0,
+        change:
+          overdue7dPrev > 0
+            ? ((overdue7d - overdue7dPrev) / overdue7dPrev) * 100
+            : 0,
       },
     },
   };

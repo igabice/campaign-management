@@ -30,6 +30,14 @@ import {
   Spacer,
 } from "@chakra-ui/react";
 import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+} from "recharts";
+import {
   CalendarIcon,
   TimeIcon,
   CheckCircleIcon,
@@ -65,7 +73,7 @@ const Dashboard: React.FC = () => {
         await userPreferenceApi.getUserPreferences();
       } catch (error: any) {
         if (error.response?.status === 404) {
-          navigate('/onboarding');
+          navigate("/onboarding");
         }
       }
     };
@@ -104,8 +112,6 @@ const Dashboard: React.FC = () => {
       setLoading(false);
     }
   }, [activeTeam]);
-
-
 
   useEffect(() => {
     fetchDashboardData();
@@ -211,7 +217,8 @@ const Dashboard: React.FC = () => {
               Welcome to Campaign Management! 🎉
             </Heading>
             <Text fontSize="lg" color="gray.600" mb={6}>
-              Let's get you set up and ready to manage your social media campaigns like a pro.
+              Let's get you set up and ready to manage your social media
+              campaigns like a pro.
             </Text>
           </Box>
 
@@ -222,15 +229,15 @@ const Dashboard: React.FC = () => {
             </Heading>
 
             <VStack spacing={6} align="stretch">
-               {/* Step 1: Create Team */}
-               <Box
-                 bg="gray.50"
-                 p={6}
-                 borderRadius="lg"
-                 border="2px"
-                 borderColor="gray.200"
-                 position="relative"
-               >
+              {/* Step 1: Create Team */}
+              <Box
+                bg="gray.50"
+                p={6}
+                borderRadius="lg"
+                border="2px"
+                borderColor="gray.200"
+                position="relative"
+              >
                 <HStack spacing={4} align="start">
                   <Box
                     bg="blue.500"
@@ -252,9 +259,10 @@ const Dashboard: React.FC = () => {
                       Create Your First Team
                     </Heading>
                     <Text color="gray.700" mb={4}>
-                      Teams are the foundation of your campaign management. They help you organize
-                      social media accounts, content planning, and collaboration with team members.
-                      Think of it as your workspace for all marketing activities.
+                      Teams are the foundation of your campaign management. They
+                      help you organize social media accounts, content planning,
+                      and collaboration with team members. Think of it as your
+                      workspace for all marketing activities.
                     </Text>
                     <VStack align="start" spacing={2} mb={4}>
                       <Text fontSize="sm" color="gray.600">
@@ -309,19 +317,23 @@ const Dashboard: React.FC = () => {
                       Schedule Your First Posts
                     </Heading>
                     <Text color="gray.600" mb={4}>
-                      Once you have a team, you can start scheduling content. Choose between
-                      individual posts for quick updates or comprehensive content plans for
-                      strategic campaigns with multiple posts.
+                      Once you have a team, you can start scheduling content.
+                      Choose between individual posts for quick updates or
+                      comprehensive content plans for strategic campaigns with
+                      multiple posts.
                     </Text>
                     <VStack align="start" spacing={2} mb={4}>
                       <Text fontSize="sm" color="gray.500">
-                        • <strong>Quick Post:</strong> Schedule a single post to any connected social account
+                        • <strong>Quick Post:</strong> Schedule a single post to
+                        any connected social account
                       </Text>
                       <Text fontSize="sm" color="gray.500">
-                        • <strong>Content Plan:</strong> Create a series of posts with AI assistance for campaigns
+                        • <strong>Content Plan:</strong> Create a series of
+                        posts with AI assistance for campaigns
                       </Text>
                       <Text fontSize="sm" color="gray.500">
-                        • <strong>Goals & Targets:</strong> Set objectives like engagement, reach, or conversions
+                        • <strong>Goals & Targets:</strong> Set objectives like
+                        engagement, reach, or conversions
                       </Text>
                     </VStack>
                     <Text fontSize="sm" color="gray.500" fontStyle="italic">
@@ -344,24 +356,38 @@ const Dashboard: React.FC = () => {
                   <Heading size="md" color="green.700" textAlign="center">
                     Why Campaign Management?
                   </Heading>
-                  <Grid templateColumns={["1fr", "repeat(2, 1fr)", "repeat(3, 1fr)"]} gap={4} w="full">
+                  <Grid
+                    templateColumns={[
+                      "1fr",
+                      "repeat(2, 1fr)",
+                      "repeat(3, 1fr)",
+                    ]}
+                    gap={4}
+                    w="full"
+                  >
                     <VStack spacing={2} textAlign="center">
                       <Text fontSize="2xl">📅</Text>
-                      <Text fontWeight="medium" color="green.700">Smart Scheduling</Text>
+                      <Text fontWeight="medium" color="green.700">
+                        Smart Scheduling
+                      </Text>
                       <Text fontSize="sm" color="gray.600">
                         Post at optimal times automatically
                       </Text>
                     </VStack>
                     <VStack spacing={2} textAlign="center">
                       <Text fontSize="2xl">🤖</Text>
-                      <Text fontWeight="medium" color="green.700">AI Content Creation</Text>
+                      <Text fontWeight="medium" color="green.700">
+                        AI Content Creation
+                      </Text>
                       <Text fontSize="sm" color="gray.600">
                         Generate engaging posts with AI
                       </Text>
                     </VStack>
                     <VStack spacing={2} textAlign="center">
                       <Text fontSize="2xl">📊</Text>
-                      <Text fontWeight="medium" color="green.700">Performance Tracking</Text>
+                      <Text fontWeight="medium" color="green.700">
+                        Performance Tracking
+                      </Text>
                       <Text fontSize="sm" color="gray.600">
                         Monitor engagement and growth
                       </Text>
@@ -376,11 +402,21 @@ const Dashboard: React.FC = () => {
           <Box textAlign="center" pt={4}>
             <Text fontSize="sm" color="gray.500">
               Need help getting started? Check out our{" "}
-              <Text as="span" color="blue.500" cursor="pointer" _hover={{ textDecoration: "underline" }}>
+              <Text
+                as="span"
+                color="blue.500"
+                cursor="pointer"
+                _hover={{ textDecoration: "underline" }}
+              >
                 comprehensive guide
               </Text>{" "}
               or{" "}
-              <Text as="span" color="blue.500" cursor="pointer" _hover={{ textDecoration: "underline" }}>
+              <Text
+                as="span"
+                color="blue.500"
+                cursor="pointer"
+                _hover={{ textDecoration: "underline" }}
+              >
                 contact support
               </Text>
             </Text>
@@ -424,11 +460,10 @@ const Dashboard: React.FC = () => {
         </Box>
 
         {/* Analytics Cards */}
-        <Grid
+        {/* <Grid
           templateColumns={["1fr", "repeat(2, 1fr)", "repeat(4, 1fr)"]}
           gap={6}
         >
-          {/* Scheduled Posts */}
           <GridItem>
             <Card bg={bgColor} border="1px" borderColor={borderColor}>
               <CardBody>
@@ -462,7 +497,6 @@ const Dashboard: React.FC = () => {
             </Card>
           </GridItem>
 
-          {/* Total Posts */}
           <GridItem>
             <Card bg={bgColor} border="1px" borderColor={borderColor}>
               <CardBody>
@@ -478,8 +512,7 @@ const Dashboard: React.FC = () => {
               </CardBody>
             </Card>
           </GridItem>
-
-          {/* Published Posts */}
+`
           <GridItem>
             <Card bg={bgColor} border="1px" borderColor={borderColor}>
               <CardBody>
@@ -496,7 +529,6 @@ const Dashboard: React.FC = () => {
             </Card>
           </GridItem>
 
-          {/* Overdue Posts */}
           <GridItem>
             <Card bg={bgColor} border="1px" borderColor={borderColor}>
               <CardBody>
@@ -525,6 +557,145 @@ const Dashboard: React.FC = () => {
                     {getOverdueStats().change.toFixed(1)}% from previous period
                   </StatHelpText>
                 </Stat>
+              </CardBody>
+            </Card>
+          </GridItem>
+        </Grid> */}
+
+        {/* New Metrics Section */}
+        <Grid
+          templateColumns={["1fr", "repeat(2, 1fr)", "repeat(3, 1fr)"]}
+          gap={6}
+          mt={8}
+        >
+          {/* Content Status Breakdown */}
+          <GridItem>
+            <Card bg={bgColor} border="1px" borderColor={borderColor}>
+              <CardBody>
+                <Heading size="md" mb={4}>
+                  Content Status Breakdown
+                </Heading>
+                {analytics?.contentStatusBreakdown && (
+                  <Box height="200px">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={[
+                            {
+                              name: "Scheduled",
+                              value: analytics.contentStatusBreakdown.scheduled,
+                              color: "#3182ce",
+                            },
+                            {
+                              name: "Published",
+                              value: analytics.contentStatusBreakdown.published,
+                              color: "#38a169",
+                            },
+                          ]}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={40}
+                          outerRadius={80}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {[
+                            {
+                              name: "Scheduled",
+                              value: analytics.contentStatusBreakdown.scheduled,
+                              color: "#3182ce",
+                            },
+                            {
+                              name: "Published",
+                              value: analytics.contentStatusBreakdown.published,
+                              color: "#38a169",
+                            },
+                          ].map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </Box>
+                )}
+              </CardBody>
+            </Card>
+          </GridItem>
+
+          {/* Upcoming Content Timeline */}
+          <GridItem>
+            <Card bg={bgColor} border="1px" borderColor={borderColor}>
+              <CardBody>
+                <Heading size="md" mb={4}>
+                  Upcoming Content Timeline
+                </Heading>
+                <VStack spacing={3} align="stretch">
+                  <Box>
+                    <Flex justify="space-between" align="center">
+                      <Text fontSize="sm" color="gray.600">
+                        Next 7 days
+                      </Text>
+                      <Badge colorScheme="blue">
+                        {analytics?.upcomingTimeline?.next7Days || 0}
+                      </Badge>
+                    </Flex>
+                  </Box>
+                  <Box>
+                    <Flex justify="space-between" align="center">
+                      <Text fontSize="sm" color="gray.600">
+                        Next 30 days
+                      </Text>
+                      <Badge colorScheme="green">
+                        {analytics?.upcomingTimeline?.next30Days || 0}
+                      </Badge>
+                    </Flex>
+                  </Box>
+                  <Box>
+                    <Flex justify="space-between" align="center">
+                      <Text fontSize="sm" color="gray.600">
+                        Beyond 30 days
+                      </Text>
+                      <Badge colorScheme="purple">
+                        {analytics?.upcomingTimeline?.beyond30Days || 0}
+                      </Badge>
+                    </Flex>
+                  </Box>
+                </VStack>
+              </CardBody>
+            </Card>
+          </GridItem>
+
+          {/* Platform Distribution */}
+          <GridItem>
+            <Card bg={bgColor} border="1px" borderColor={borderColor}>
+              <CardBody>
+                <Heading size="md" mb={4}>
+                  Platform Distribution
+                </Heading>
+                <VStack spacing={3} align="stretch">
+                  {analytics?.platformDistribution?.map(
+                    (platform: any, index: number) => (
+                      <Box key={index}>
+                        <Flex justify="space-between" align="center">
+                          <Text fontSize="sm" color="gray.600">
+                            {platform.platform}
+                          </Text>
+                          <Badge colorScheme="orange">
+                            {platform.percentage}%
+                          </Badge>
+                        </Flex>
+                      </Box>
+                    )
+                  )}
+                  {(!analytics?.platformDistribution ||
+                    analytics.platformDistribution.length === 0) && (
+                    <Text fontSize="sm" color="gray.500">
+                      No platform data available
+                    </Text>
+                  )}
+                </VStack>
               </CardBody>
             </Card>
           </GridItem>

@@ -87,11 +87,14 @@ class FileUploadService {
 
       // Return the public URL for Contabo Object Storage
       // Format: https://{region}.contabostorage.com/{tenant-id}/{bucket}/{key}
-      const baseUrl = process.env.S3_PUBLIC_URL || process.env.S3_ENDPOINT || "https://eu2.contabostorage.com";
+      const baseUrl =
+        process.env.S3_PUBLIC_URL ||
+        process.env.S3_ENDPOINT ||
+        "https://eu2.contabostorage.com";
       const tenantId = process.env.S3_TENANT_ID;
       const publicUrl = tenantId
-        ? `${baseUrl}/${tenantId}/${targetBucket}/${key}`
-        : `${baseUrl}/${targetBucket}/${key}`;
+        ? `${baseUrl}/${tenantId}:${targetBucket}/${key}`
+        : `${baseUrl}:${targetBucket}/${key}`;
       return publicUrl;
     } catch (error) {
       console.error("Error uploading file to S3:", error);
