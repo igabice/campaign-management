@@ -34,8 +34,22 @@ class TelegramService {
 
       if (!text) return;
 
-      // Check if the message is a userId (assuming it's a UUID or similar)
-      const userId = text.trim();
+      let userId: string;
+
+      if (text.startsWith('/start ')) {
+        // Handle /start command with parameter
+        userId = text.substring(7).trim();
+      } else if (text.startsWith('/start')) {
+        // Just /start without parameter
+        await this.bot!.sendMessage(
+          chatId,
+          "Welcome! Please send your user ID to enable Telegram notifications."
+        );
+        return;
+      } else {
+        // Regular message, assume it's a userId
+        userId = text.trim();
+      }
 
       try {
         // Validate if it's a valid userId by checking if user exists

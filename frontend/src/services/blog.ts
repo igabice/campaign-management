@@ -17,12 +17,12 @@ export const blogService = {
     return response.data;
   },
 
-  async createBlog(data: { title: string; content: string; slug: string; tags?: string[]; published?: boolean }) {
+  async createBlog(data: { title: string; content: string; slug: string; tags?: string[]; image?: string; published?: boolean }) {
     const response = await http.post('/blogs', data);
     return response.data;
   },
 
-  async updateBlog(id: string, data: Partial<{ title: string; content: string; slug: string; tags: string[]; published: boolean }>) {
+  async updateBlog(id: string, data: Partial<{ title: string; content: string; slug: string; tags: string[]; image?: string; published: boolean }>) {
     const response = await http.patch(`/blogs/${id}`, data);
     return response.data;
   },

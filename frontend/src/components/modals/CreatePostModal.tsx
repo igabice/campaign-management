@@ -16,6 +16,7 @@ import {
   VStack,
   Text,
   useToast,
+  Link,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,6 +26,7 @@ import { postsApi } from "../../services/posts";
 import { socialMediaApi } from "../../services/socialMedia";
 import { Team } from "../../types/commons";
 import { Post } from "../../types/schemas";
+import { CreateSocialMediaModal } from "./CreateSocialMediaModal";
 
 const createPostSchema = z.object({
   title: z.string().optional(),
@@ -58,6 +60,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   const isEdit = !!post;
   const [socialMedias, setSocialMedias] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCreateSocialMediaOpen, setIsCreateSocialMediaOpen] = useState(false);
   const toast = useToast();
 
   const {
@@ -67,11 +70,13 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
     reset,
     setValue,
     watch,
+    trigger,
   } = useForm<CreatePostFormData>({
     resolver: zodResolver(createPostSchema),
     defaultValues: {
       sendReminder: false,
       socialMedias: [],
+      teamId: activeTeam?.id || "",
     },
   });
 
@@ -98,26 +103,47 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
         setValue("title", post.title || "");
         setValue("content", post.content);
         setValue("image", post.image || "");
-        setValue("scheduledDate", new Date(post.scheduledDate).toISOString().slice(0, 16));
+        setValue(
+          "scheduledDate",
+          new Date(post.scheduledDate).toISOString().slice(0, 16)
+        );
         setValue("sendReminder", post.sendReminder || false);
-        setValue("socialMedias", post.socialMedias.map(sm => sm.id));
+        setValue(
+          "socialMedias",
+          post.socialMedias.map((sm) => sm.id)
+        );
       } else {
-        reset();
+        reset({
+          sendReminder: false,
+          socialMedias: [],
+          teamId: activeTeam.id,
+        });
       }
     }
   }, [isOpen, activeTeam, setValue, fetchSocialMedias, isEdit, post, reset]);
 
   const onSubmit = async (data: CreatePostFormData) => {
+    if (!activeTeam) {
+      toast({
+        title: "Error",
+        description: "No active team selected",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       const postData = {
         ...data,
-        scheduledDate:
-          data.scheduledDate.includes(":") &&
-          data.scheduledDate.split(":").length === 2
-            ? data.scheduledDate + ":00"
-            : data.scheduledDate,
+        teamId: activeTeam.id,
+        scheduledDate: data.scheduledDate.includes("T")
+          ? data.scheduledDate
+          : `${data.scheduledDate}T00:00:00`,
       };
+
       if (isEdit && post) {
         await postsApi.updatePost(post.id, postData);
         toast({
@@ -140,7 +166,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
       reset();
     } catch (error: any) {
       toast({
-        title: `Failed to ${isEdit ? 'update' : 'create'} post`,
+        title: `Failed to ${isEdit ? "update" : "create"} post`,
         description: error.message,
         status: "error",
         duration: 3000,
@@ -151,91 +177,158 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
     }
   };
 
-  const handleSocialMediaChange = (id: string, checked: boolean) => {
+  const handleSocialMediaChange = async (id: string, checked: boolean) => {
     const current = watchedSocialMedias || [];
+    let newSocialMedias: string[];
+
     if (checked) {
-      setValue("socialMedias", [...current, id]);
+      newSocialMedias = [...current, id];
     } else {
-      setValue(
-        "socialMedias",
-        current.filter((sm) => sm !== id)
-      );
+      newSocialMedias = current.filter((sm) => sm !== id);
     }
+
+    setValue("socialMedias", newSocialMedias);
+    await trigger("socialMedias");
+  };
+
+  const handleSocialMediaCreated = () => {
+    fetchSocialMedias();
+    setIsCreateSocialMediaOpen(false);
+  };
+
+  const handleClose = () => {
+    reset();
+    onClose();
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>{isEdit ? 'Edit Post' : 'Create New Post'}</ModalHeader>
-        <ModalCloseButton />
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <ModalBody>
-            <VStack spacing={4} align="stretch">
-              <FormControl isInvalid={!!errors.title}>
-                <FormLabel>Title (Optional)</FormLabel>
-                <Input {...register("title")} placeholder="Post title" />
-              </FormControl>
+    <>
+      <Modal isOpen={isOpen} onClose={handleClose} size="lg">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>{isEdit ? "Edit Post" : "Create New Post"}</ModalHeader>
+          <ModalCloseButton />
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <ModalBody>
+              <VStack spacing={4} align="stretch">
+                <FormControl isInvalid={!!errors.title}>
+                  <FormLabel>Title (Optional)</FormLabel>
+                  <Input {...register("title")} placeholder="Post title" />
+                  {errors.title && (
+                    <Text color="red.500" fontSize="sm">
+                      {errors.title.message}
+                    </Text>
+                  )}
+                </FormControl>
 
-              <FormControl isInvalid={!!errors.content}>
-                <FormLabel>Content</FormLabel>
-                <Textarea {...register("content")} placeholder="Post content" />
-                {errors.content && (
-                  <Text color="red.500">{errors.content.message}</Text>
-                )}
-              </FormControl>
+                <FormControl isInvalid={!!errors.content}>
+                  <FormLabel>Content</FormLabel>
+                  <Textarea
+                    {...register("content")}
+                    placeholder="Post content"
+                    minH="100px"
+                  />
+                  {errors.content && (
+                    <Text color="red.500" fontSize="sm">
+                      {errors.content.message}
+                    </Text>
+                  )}
+                </FormControl>
 
-              <FormControl isInvalid={!!errors.socialMedias}>
-                <FormLabel>Social Media Accounts</FormLabel>
-                <VStack align="start" spacing={2}>
-                  {socialMedias.map((sm) => (
-                    <Checkbox
-                      key={sm.id}
-                      isChecked={watchedSocialMedias?.includes(sm.id)}
-                      onChange={(e) =>
-                        handleSocialMediaChange(sm.id, e.target.checked)
-                      }
-                    >
-                      {sm.accountName} ({sm.platform})
-                    </Checkbox>
-                  ))}
-                </VStack>
-                {errors.socialMedias && (
-                  <Text color="red.500">{errors.socialMedias.message}</Text>
-                )}
-              </FormControl>
+                <FormControl isInvalid={!!errors.socialMedias}>
+                  <FormLabel>Social Media Accounts</FormLabel>
+                  {socialMedias.length === 0 ? (
+                    <VStack align="start" spacing={2}>
+                      <Text color="gray.500" fontSize="sm">
+                        No social media accounts found.{" "}
+                        <Link
+                          color="blue.500"
+                          cursor="pointer"
+                          onClick={() => setIsCreateSocialMediaOpen(true)}
+                        >
+                          Add a social media account
+                        </Link>{" "}
+                        to get started.
+                      </Text>
+                    </VStack>
+                  ) : (
+                    <VStack align="start" spacing={2}>
+                      {socialMedias.map((sm) => (
+                        <Checkbox
+                          key={sm.id}
+                          isChecked={watchedSocialMedias?.includes(sm.id)}
+                          onChange={(e) =>
+                            handleSocialMediaChange(sm.id, e.target.checked)
+                          }
+                        >
+                          {sm.accountName} ({sm.platform})
+                        </Checkbox>
+                      ))}
+                    </VStack>
+                  )}
+                  {errors.socialMedias && (
+                    <Text color="red.500" fontSize="sm">
+                      {errors.socialMedias.message}
+                    </Text>
+                  )}
+                </FormControl>
 
-               <FormControl isInvalid={!!errors.image}>
-                 <FormLabel>Image (Optional)</FormLabel>
-                 <CustomImageUpload
-                   value={watch("image") || ""}
-                   onChange={(value) => setValue("image", value)}
-                 />
-               </FormControl>
+                <FormControl isInvalid={!!errors.image}>
+                  <FormLabel>Image (Optional)</FormLabel>
+                  <CustomImageUpload
+                    value={watch("image") || ""}
+                    onChange={(value) => setValue("image", value)}
+                  />
+                  {errors.image && (
+                    <Text color="red.500" fontSize="sm">
+                      {errors.image.message}
+                    </Text>
+                  )}
+                </FormControl>
 
-              <FormControl isInvalid={!!errors.scheduledDate}>
-                <FormLabel>Scheduled Date</FormLabel>
-                <Input {...register("scheduledDate")} type="datetime-local" />
-                {errors.scheduledDate && (
-                  <Text color="red.500">{errors.scheduledDate.message}</Text>
-                )}
-              </FormControl>
+                <FormControl isInvalid={!!errors.scheduledDate}>
+                  <FormLabel>Scheduled Date</FormLabel>
+                  <Input
+                    {...register("scheduledDate")}
+                    type="datetime-local"
+                    min={new Date().toISOString().slice(0, 16)}
+                  />
+                  {errors.scheduledDate && (
+                    <Text color="red.500" fontSize="sm">
+                      {errors.scheduledDate.message}
+                    </Text>
+                  )}
+                </FormControl>
 
-              <FormControl>
-                <Checkbox {...register("sendReminder")}>Send reminder</Checkbox>
-              </FormControl>
-            </VStack>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={onClose}>
-              Cancel
-            </Button>
-             <Button colorScheme="blue" type="submit" isLoading={isLoading}>
-               {isEdit ? 'Update Post' : 'Create Post'}
-             </Button>
-          </ModalFooter>
-        </form>
-      </ModalContent>
-    </Modal>
+                <FormControl>
+                  <Checkbox {...register("sendReminder")}>
+                    Send reminder
+                  </Checkbox>
+                </FormControl>
+              </VStack>
+            </ModalBody>
+            <ModalFooter>
+              <Button variant="ghost" mr={3} onClick={handleClose}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                colorScheme="blue"
+                isLoading={isLoading}
+                isDisabled={socialMedias.length === 0}
+              >
+                {isEdit ? "Update Post" : "Create Post"}
+              </Button>
+            </ModalFooter>
+          </form>
+        </ModalContent>
+      </Modal>
+
+      <CreateSocialMediaModal
+        isOpen={isCreateSocialMediaOpen}
+        onClose={() => setIsCreateSocialMediaOpen(false)}
+        onCreated={handleSocialMediaCreated}
+      />
+    </>
   );
 };

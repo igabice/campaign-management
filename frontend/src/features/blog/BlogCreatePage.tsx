@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -11,23 +11,48 @@ import {
   useToast,
   Checkbox,
   Text,
-} from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
-import { Editor } from 'react-draft-wysiwyg';
-import { EditorState, convertToRaw, ContentState, convertFromHTML } from 'draft-js';
-import draftToHtml from 'draftjs-to-html';
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-import { blogService } from '../../services/blog';
+  Spinner,
+} from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
+import { Editor } from "react-draft-wysiwyg";
+import { EditorState, convertToRaw } from "draft-js";
+import draftToHtml from "draftjs-to-html";
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import { blogService } from "../../services/blog";
+import { authService } from "../../services/auth";
+import { CustomImageUpload } from "../../components/CustomImageUpload";
 
 export const BlogCreatePage: React.FC = () => {
-  const [title, setTitle] = useState('');
-  const [slug, setSlug] = useState('');
-  const [tags, setTags] = useState('');
+  const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [tags, setTags] = useState("");
+  const [image, setImage] = useState("");
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [published, setPublished] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [checkingAdmin, setCheckingAdmin] = useState(true);
   const toast = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const isAdmin = await authService.checkAdminStatus();
+      if (!isAdmin) {
+        toast({
+          title: "Access Denied",
+          description:
+            "You do not have permission to create blog posts. Admin access required.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        navigate("/blog");
+      } else {
+        setCheckingAdmin(false);
+      }
+    };
+    checkAdmin();
+  }, [toast, navigate]);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value;
@@ -35,9 +60,9 @@ export const BlogCreatePage: React.FC = () => {
     // Auto-generate slug from title
     const generatedSlug = newTitle
       .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
       .trim();
     setSlug(generatedSlug);
   };
@@ -47,9 +72,9 @@ export const BlogCreatePage: React.FC = () => {
 
     if (!title.trim()) {
       toast({
-        title: 'Error',
-        description: 'Title is required',
-        status: 'error',
+        title: "Error",
+        description: "Title is required",
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -58,9 +83,9 @@ export const BlogCreatePage: React.FC = () => {
 
     if (!slug.trim()) {
       toast({
-        title: 'Error',
-        description: 'Slug is required',
-        status: 'error',
+        title: "Error",
+        description: "Slug is required",
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -69,11 +94,11 @@ export const BlogCreatePage: React.FC = () => {
 
     const content = draftToHtml(convertToRaw(editorState.getCurrentContent()));
 
-    if (!content || content === '<p></p>') {
+    if (!content || content === "<p></p>") {
       toast({
-        title: 'Error',
-        description: 'Content is required',
-        status: 'error',
+        title: "Error",
+        description: "Content is required",
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -81,9 +106,9 @@ export const BlogCreatePage: React.FC = () => {
     }
 
     const tagsArray = tags
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0);
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter((tag) => tag.length > 0);
 
     setLoading(true);
     try {
@@ -92,23 +117,37 @@ export const BlogCreatePage: React.FC = () => {
         content,
         slug: slug.trim(),
         tags: tagsArray,
+        image,
         published,
       });
 
       toast({
-        title: 'Success',
-        description: 'Blog post created successfully',
-        status: 'success',
+        title: "Success",
+        description: "Blog post created successfully",
+        status: "success",
         duration: 5000,
         isClosable: true,
       });
 
-      navigate('/blog');
+      navigate("/blog");
     } catch (error: any) {
+      if (error.response?.status === 403) {
+        toast({
+          title: "Access Denied",
+          description:
+            "You do not have permission to create blog posts. Admin access required.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        navigate("/blog");
+        return;
+      }
       toast({
-        title: 'Error',
-        description: error.response?.data?.message || 'Failed to create blog post',
-        status: 'error',
+        title: "Error",
+        description:
+          error.response?.data?.message || "Failed to create blog post",
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -116,6 +155,22 @@ export const BlogCreatePage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  if (checkingAdmin) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minH="400px"
+      >
+        <VStack spacing={4}>
+          <Spinner size="xl" color="blue.500" />
+          <Text>Loading...</Text>
+        </VStack>
+      </Box>
+    );
+  }
 
   return (
     <Container maxW="4xl" py={8}>
@@ -146,6 +201,11 @@ export const BlogCreatePage: React.FC = () => {
             </FormControl>
 
             <FormControl>
+              <FormLabel>Featured Image</FormLabel>
+              <CustomImageUpload value={image} onChange={setImage} />
+            </FormControl>
+
+            <FormControl>
               <FormLabel>Tags</FormLabel>
               <Input
                 value={tags}
@@ -164,14 +224,39 @@ export const BlogCreatePage: React.FC = () => {
                   editorState={editorState}
                   onEditorStateChange={setEditorState}
                   toolbar={{
-                    options: ['inline', 'blockType', 'fontSize', 'list', 'textAlign', 'colorPicker', 'link', 'embedded', 'emoji', 'image', 'history'],
-                    inline: { options: ['bold', 'italic', 'underline', 'strikethrough'] },
-                    blockType: { options: ['Normal', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'Blockquote'] },
-                    list: { options: ['unordered', 'ordered'] },
+                    options: [
+                      "inline",
+                      "blockType",
+                      "fontSize",
+                      "list",
+                      "textAlign",
+                      "colorPicker",
+                      "link",
+                      "embedded",
+                      "emoji",
+                      "image",
+                      "history",
+                    ],
+                    inline: {
+                      options: ["bold", "italic", "underline", "strikethrough"],
+                    },
+                    blockType: {
+                      options: [
+                        "Normal",
+                        "H1",
+                        "H2",
+                        "H3",
+                        "H4",
+                        "H5",
+                        "H6",
+                        "Blockquote",
+                      ],
+                    },
+                    list: { options: ["unordered", "ordered"] },
                   }}
                   editorStyle={{
-                    minHeight: '400px',
-                    padding: '10px',
+                    minHeight: "400px",
+                    padding: "10px",
                   }}
                 />
               </Box>

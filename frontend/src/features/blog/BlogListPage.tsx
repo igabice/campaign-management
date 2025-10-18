@@ -14,26 +14,21 @@ import {
   useToast,
   Link,
 } from '@chakra-ui/react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
+import { useCallback } from 'react';
 import { format } from 'date-fns';
 import { blogService } from '../../services/blog';
 import { Blog } from '../../types/schemas';
-import { useAuth } from '../auth/AuthContext';
+
+import { authService } from '../../services/auth';
 
 export const BlogListPage: React.FC = () => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const toast = useToast();
-  const navigate = useNavigate();
-  const { session } = useAuth();
 
-  useEffect(() => {
-    fetchBlogs();
-    checkAdminStatus();
-  }, []);
-
-  const fetchBlogs = async () => {
+  const fetchBlogs = useCallback(async () => {
     try {
       const response = await blogService.getBlogs({ published: true });
       setBlogs(response.result);
@@ -48,13 +43,16 @@ export const BlogListPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchBlogs();
+    checkAdminStatus();
+  }, [fetchBlogs]);
 
   const checkAdminStatus = async () => {
-    // Check if user is admin (simplified - in real app, check membership in admin team)
-    // For now, assume admin if user exists and has admin role or something
-    // This would need proper implementation based on your auth system
-    setIsAdmin(!!session?.user); // Placeholder
+    const adminStatus = await authService.checkAdminStatus();
+    setIsAdmin(adminStatus);
   };
 
   if (loading) {
@@ -85,18 +83,23 @@ export const BlogListPage: React.FC = () => {
           <VStack spacing={6} align="stretch">
             {blogs.map((blog) => (
               <Card key={blog.id} _hover={{ shadow: 'md' }}>
-                <CardBody>
-                  <VStack align="start" spacing={3}>
-                     <HStack>
-                       <Heading size="md">
-                         <Link as={RouterLink} to={`/blog/${blog.slug}`} _hover={{ color: 'blue.500' }}>
-                           {blog.title}
-                         </Link>
-                       </Heading>
-                       {blog.published && (
-                         <Badge colorScheme="green">Published</Badge>
-                       )}
-                     </HStack>
+                 <CardBody>
+                   <VStack align="start" spacing={3}>
+                      {blog.image && (
+                        <Box>
+                          <img src={blog.image} alt={blog.title} style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', borderRadius: '8px' }} />
+                        </Box>
+                      )}
+                      <HStack>
+                        <Heading size="md">
+                          <Link as={RouterLink} to={`/blog/${blog.slug}`} _hover={{ color: 'blue.500' }}>
+                            {blog.title}
+                          </Link>
+                        </Heading>
+                        {blog.published && (
+                          <Badge colorScheme="green">Published</Badge>
+                        )}
+                      </HStack>
                      {blog.tags && blog.tags.length > 0 && (
                        <HStack spacing={2} flexWrap="wrap">
                          {blog.tags.map((tag) => (
@@ -109,10 +112,20 @@ export const BlogListPage: React.FC = () => {
                     <Text color="gray.600" noOfLines={3}>
                       {blog.content.replace(/<[^>]*>/g, '').substring(0, 200)}...
                     </Text>
-                    <HStack spacing={4} color="gray.500" fontSize="sm">
-                      <Text>By {blog.creator.name}</Text>
-                      <Text>{format(new Date(blog.createdAt), 'PPP')}</Text>
-                    </HStack>
+                     <HStack spacing={4} color="gray.500" fontSize="sm">
+                       <Text>By {blog.creator.name}</Text>
+                       <Text>{format(new Date(blog.createdAt), 'PPP')}</Text>
+                     </HStack>
+                     {isAdmin && (
+                       <HStack spacing={2} mt={2}>
+                         <Button size="sm" colorScheme="blue" variant="outline" as={RouterLink} to={`/blog/edit/${blog.id}`}>
+                           Edit
+                         </Button>
+                         <Button size="sm" colorScheme="red" variant="outline">
+                           Delete
+                         </Button>
+                       </HStack>
+                     )}
                   </VStack>
                 </CardBody>
               </Card>

@@ -31,6 +31,7 @@ import {
   CardHeader,
   CardBody,
   Grid,
+  useClipboard,
 } from "@chakra-ui/react";
 import { userPreferenceApi } from "../../services/userPreferences";
 import { UserPreference } from "../../types/schemas";
@@ -51,6 +52,9 @@ const UserPreferencePage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [newTopic, setNewTopic] = useState("");
   const toast = useToast();
+  const { onCopy: copyUserId, hasCopied: hasCopiedUserId } = useClipboard(
+    preferences?.userId || ""
+  );
 
   const loadPreferences = useCallback(async () => {
     try {
@@ -120,28 +124,24 @@ const UserPreferencePage: React.FC = () => {
 
     setSaving(true);
     try {
-      const {
-        id,
-        userId,
-        createdAt,
-        updatedAt,
-        topics,
-        ...updateData
-      } = preferences;
-      const updatedPreferences = await userPreferenceApi.updateUserPreferences(updateData);
+      const { id, userId, createdAt, updatedAt, topics, ...updateData } =
+        preferences;
+      const updatedPreferences = await userPreferenceApi.updateUserPreferences(
+        updateData
+      );
       setPreferences(updatedPreferences);
       toast({
-        title: 'Success',
-        description: 'Preferences saved successfully',
-        status: 'success',
+        title: "Success",
+        description: "Preferences saved successfully",
+        status: "success",
         duration: 3000,
       });
     } catch (error) {
-      console.error('Error saving preferences:', error);
+      console.error("Error saving preferences:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to save preferences',
-        status: 'error',
+        title: "Error",
+        description: "Failed to save preferences",
+        status: "error",
         duration: 5000,
       });
     } finally {
@@ -278,37 +278,54 @@ const UserPreferencePage: React.FC = () => {
                     }
                   />
                 </HStack>
-                 {preferences.telegramEnabled && (
-                   <Box mt={3}>
-                     <Text fontSize="sm" color="gray.600" mb={2}>
-                       To enable Telegram notifications:
-                     </Text>
-                     <VStack align="start" spacing={2}>
-                       <Button
-                         as="a"
-                         href="https://t.me/dokahub_bot"
-                         target="_blank"
-                         rel="noopener noreferrer"
-                         size="sm"
-                         colorScheme="blue"
-                         mb={2}
-                       >
-                         Connect to Telegram Bot
-                       </Button>
-                       <Text fontSize="sm">
-                         1. Start a chat with our bot: <strong>@dokahub_bot</strong>
-                       </Text>
-                       <Text fontSize="sm">
-                         2. Send your user ID: <strong>{preferences.telegramChatId ? "Already connected!" : "Send your user ID to the bot"}</strong>
-                       </Text>
-                       {preferences.telegramChatId && (
-                         <Text fontSize="sm" color="green.500">
-                           ✅ Telegram notifications are active
-                         </Text>
-                       )}
-                     </VStack>
-                   </Box>
-                 )}
+                {preferences.telegramEnabled && (
+                  <Box mt={3}>
+                    <Text fontSize="sm" color="gray.600" mb={2}>
+                      To enable Telegram notifications:
+                    </Text>
+                    <VStack align="start" spacing={2}>
+                      {!preferences.telegramChatId && (
+                        <Button
+                          as="a"
+                          href={`https://t.me/dokahub_bot?start=${preferences.userId}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          size="sm"
+                          colorScheme="blue"
+                          mb={2}
+                        >
+                          Connect to Telegram
+                        </Button>
+                      )}
+                      <Text fontSize="sm">
+                        1. Start a chat with our bot:{" "}
+                        <strong>@dokahub_bot</strong>
+                      </Text>
+                      <Text fontSize="sm">
+                        2. Send your user ID:{" "}
+                        {preferences.telegramChatId ? (
+                          "Already connected!"
+                        ) : (
+                          <HStack spacing={2} align="center">
+                            <Text>Send this ID to the bot:</Text>
+                            <Button
+                              size="xs"
+                              onClick={copyUserId}
+                              colorScheme="gray"
+                            >
+                              {hasCopiedUserId ? "Copied!" : preferences.userId}
+                            </Button>
+                          </HStack>
+                        )}
+                      </Text>
+                      {preferences.telegramChatId && (
+                        <Text fontSize="sm" color="green.500">
+                          ✅ Telegram notifications are active
+                        </Text>
+                      )}
+                    </VStack>
+                  </Box>
+                )}
               </FormControl>
 
               <Divider />

@@ -4,67 +4,31 @@ import ApiError from "../utils/ApiError";
 import postService from "../services/post.service";
 import fileUploadService from "../services/file-upload.service";
 import prisma from "../config/prisma";
-import multer from "multer";
 
-// Configure multer for memory storage
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
-  },
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(
-        new Error(
-          "Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed."
-        )
-      );
+const createPost = asyncHandler(async (req, res) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const session = (req as any).session;
+
+  const postData = { ...req.body };
+
+  // Handle image upload if provided
+  try {
+    const imageUrl = await fileUploadService.processImageUpload(req, postData.image, "posts");
+    if (imageUrl) {
+      postData.image = imageUrl;
     }
-  },
+  } catch (error) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      error instanceof Error ? error.message : "Failed to upload image"
+    );
+  }
+
+  const post = await postService.createPost(session.user.id, postData);
+  res.status(httpStatus.CREATED).send(post);
 });
 
-const createPost = [
-  upload.single("image"),
-  asyncHandler(async (req, res) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const session = (req as any).session;
-
-    let imageUrl: string | undefined;
-
-    // Handle image upload if provided
-    if (req.file) {
-      try {
-        fileUploadService.validateImageFile(req.file);
-        imageUrl = await fileUploadService.uploadFile(
-          req.file.buffer,
-          req.file.originalname,
-          req.file.mimetype,
-          "posts"
-        );
-      } catch (error) {
-        throw new ApiError(
-          httpStatus.BAD_REQUEST,
-          error instanceof Error ? error.message : "Failed to upload image"
-        );
-      }
-    }
-
-    // Merge uploaded image URL with request body
-    const postData = {
-      ...req.body,
-      ...(imageUrl && { image: imageUrl }),
-    };
-
-    const post = await postService.createPost(session.user.id, postData);
-    res.status(httpStatus.CREATED).send(post);
-  }),
-];
-
 const getPosts = asyncHandler(async (req, res) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const options = {
     sortBy: req.query.sortBy as string,
     limit: req.query.limit ? parseInt(req.query.limit as string) : 20,
@@ -112,10 +76,26 @@ const updatePost = asyncHandler(async (req, res) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const session = (req as any).session;
   const postId = req.params.id;
+
+  const updateData = { ...req.body };
+
+  // Handle image upload if provided
+  try {
+    const imageUrl = await fileUploadService.processImageUpload(req, updateData.image, "posts");
+    if (imageUrl) {
+      updateData.image = imageUrl;
+    }
+  } catch (error) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      error instanceof Error ? error.message : "Failed to upload image"
+    );
+  }
+
   const post = await postService.updatePostById(
     postId,
     session.user.id,
-    req.body
+    updateData
   );
   res.send(post);
 });

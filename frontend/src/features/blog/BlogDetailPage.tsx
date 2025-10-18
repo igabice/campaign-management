@@ -12,10 +12,12 @@ import {
   Badge,
 } from '@chakra-ui/react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useCallback } from 'react';
 import { format } from 'date-fns';
 import { blogService } from '../../services/blog';
 import { Blog } from '../../types/schemas';
-import { useAuth } from '../auth/AuthContext';
+
+import { authService } from '../../services/auth';
 
 export const BlogDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -24,16 +26,9 @@ export const BlogDetailPage: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
-  const { session } = useAuth();
 
-  useEffect(() => {
-    if (slug) {
-      fetchBlog();
-    }
-    checkAdminStatus();
-  }, [slug]);
 
-  const fetchBlog = async () => {
+  const fetchBlog = useCallback(async () => {
     if (!slug) return;
 
     try {
@@ -51,11 +46,18 @@ export const BlogDetailPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [slug, toast, navigate]);
+
+  useEffect(() => {
+    if (slug) {
+      fetchBlog();
+    }
+    checkAdminStatus();
+  }, [slug, fetchBlog]);
 
   const checkAdminStatus = async () => {
-    // Check if user is admin (simplified)
-    setIsAdmin(!!session?.user); // Placeholder
+    const adminStatus = await authService.checkAdminStatus();
+    setIsAdmin(adminStatus);
   };
 
   const handlePublishToggle = async () => {
@@ -129,25 +131,30 @@ export const BlogDetailPage: React.FC = () => {
   return (
     <Container maxW="4xl" py={8}>
       <VStack spacing={6} align="stretch">
-          <VStack align="start" spacing={4}>
-            <Heading size="xl">{blog.title}</Heading>
-            <HStack spacing={4}>
-              <Text color="gray.600">By {blog.creator.name}</Text>
-              <Text color="gray.600">{format(new Date(blog.createdAt), 'PPP')}</Text>
-              <Badge colorScheme={blog.published ? 'green' : 'gray'}>
-                {blog.published ? 'Published' : 'Draft'}
-              </Badge>
-            </HStack>
-            {blog.tags && blog.tags.length > 0 && (
-              <HStack spacing={2} flexWrap="wrap">
-                {blog.tags.map((tag) => (
-                  <Badge key={tag} colorScheme="blue" variant="subtle">
-                    {tag}
-                  </Badge>
-                ))}
-              </HStack>
-            )}
-          </VStack>
+           <VStack align="start" spacing={4}>
+             {blog.image && (
+               <Box>
+                 <img src={blog.image} alt={blog.title} style={{ width: '100%', maxHeight: '400px', objectFit: 'cover', borderRadius: '8px' }} />
+               </Box>
+             )}
+             <Heading size="xl">{blog.title}</Heading>
+             <HStack spacing={4}>
+               <Text color="gray.600">By {blog.creator.name}</Text>
+               <Text color="gray.600">{format(new Date(blog.createdAt), 'PPP')}</Text>
+               <Badge colorScheme={blog.published ? 'green' : 'gray'}>
+                 {blog.published ? 'Published' : 'Draft'}
+               </Badge>
+             </HStack>
+             {blog.tags && blog.tags.length > 0 && (
+               <HStack spacing={2} flexWrap="wrap">
+                 {blog.tags.map((tag) => (
+                   <Badge key={tag} colorScheme="blue" variant="subtle">
+                     {tag}
+                   </Badge>
+                 ))}
+               </HStack>
+             )}
+           </VStack>
 
         {isAdmin && (
           <HStack>

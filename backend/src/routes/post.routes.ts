@@ -3,6 +3,7 @@ import validate from "../middlewares/validate";
 import postValidation from "../validations/post.validation";
 import postController from "../controllers/post.controller";
 import { requireAuth } from "../middlewares/auth";
+import { upload } from "../services/file-upload.service";
 
 const router = express.Router();
 
@@ -77,12 +78,13 @@ const router = express.Router();
  *       "403":
  *         $ref: '#/components/responses/Forbidden'
  */
-router
-  .route("/")
-  .post(
-    requireAuth,
-    postController.createPost
-  )
+ router
+   .route("/")
+   .post(
+     requireAuth,
+     upload.single('image'),
+     postController.createPost
+   )
   /**
    * @swagger
    * /posts:
@@ -228,7 +230,7 @@ router
  *       "404":
  *         $ref: '#/components/responses/NotFound'
  */
-  .patch(requireAuth, validate(postValidation.updatePost), postController.updatePost)
+   .patch(requireAuth, upload.single('image'), validate(postValidation.updatePost), postController.updatePost)
   /**
    * @swagger
    * /posts/{id}:

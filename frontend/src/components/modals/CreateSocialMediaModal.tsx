@@ -91,64 +91,65 @@ export const CreateSocialMediaModal: React.FC<CreateSocialMediaModalProps> = ({
       <ModalContent>
         <ModalHeader>Add Social Media Account</ModalHeader>
         <ModalCloseButton />
-        <ModalBody as="form" id="create-social-media-form" onSubmit={handleSubmit(onSubmit)}>
-          <FormControl mb={4} isInvalid={!!errors.accountName}>
-            <FormLabel>Account Name</FormLabel>
-            <Input
-              {...register("accountName", { required: "Account name is required" })}
-              placeholder="Enter account name"
-            />
-            <FormErrorMessage>{errors.accountName?.message}</FormErrorMessage>
-          </FormControl>
-          <FormControl mb={4} isInvalid={!!errors.platform}>
-            <FormLabel>Platform</FormLabel>
-            <Select
-              {...register("platform", { required: "Platform is required" })}
-              placeholder="Select platform"
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <ModalBody>
+            <FormControl mb={4} isInvalid={!!errors.accountName}>
+              <FormLabel>Account Name</FormLabel>
+              <Input
+                {...register("accountName", { required: "Account name is required" })}
+                placeholder="Enter account name"
+              />
+              <FormErrorMessage>{errors.accountName?.message}</FormErrorMessage>
+            </FormControl>
+            <FormControl mb={4} isInvalid={!!errors.platform}>
+              <FormLabel>Platform</FormLabel>
+              <Select
+                {...register("platform", { required: "Platform is required" })}
+                placeholder="Select platform"
+              >
+                <option value="facebook">Facebook</option>
+                <option value="twitter">Twitter</option>
+                <option value="tiktok">TikTok</option>
+                <option value="linkedin">LinkedIn</option>
+              </Select>
+              <FormErrorMessage>{errors.platform?.message}</FormErrorMessage>
+            </FormControl>
+            <FormControl mb={4} isInvalid={!!errors.profileLink}>
+              <FormLabel>Profile Link</FormLabel>
+              <Input
+                {...register("profileLink", {
+                  required: "Profile link is required",
+                  pattern: {
+                    value: /^https?:\/\/.+/,
+                    message: "Invalid URL"
+                  }
+                })}
+                placeholder="Enter profile link"
+              />
+              <FormErrorMessage>{errors.profileLink?.message}</FormErrorMessage>
+            </FormControl>
+            <FormControl mb={4}>
+              <FormLabel>Image URL (optional)</FormLabel>
+              <Input
+                {...register("image")}
+                placeholder="Enter image URL"
+              />
+            </FormControl>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              colorScheme="blue"
+              mr={3}
+              type="submit"
+              isLoading={isSubmitting}
             >
-              <option value="facebook">Facebook</option>
-              <option value="twitter">Twitter</option>
-              <option value="tiktok">TikTok</option>
-              <option value="linkedin">LinkedIn</option>
-            </Select>
-            <FormErrorMessage>{errors.platform?.message}</FormErrorMessage>
-          </FormControl>
-          <FormControl mb={4} isInvalid={!!errors.profileLink}>
-            <FormLabel>Profile Link</FormLabel>
-            <Input
-              {...register("profileLink", {
-                required: "Profile link is required",
-                pattern: {
-                  value: /^https?:\/\/.+/,
-                  message: "Invalid URL"
-                }
-              })}
-              placeholder="Enter profile link"
-            />
-            <FormErrorMessage>{errors.profileLink?.message}</FormErrorMessage>
-          </FormControl>
-          <FormControl mb={4}>
-            <FormLabel>Image URL (optional)</FormLabel>
-            <Input
-              {...register("image")}
-              placeholder="Enter image URL"
-            />
-          </FormControl>
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            colorScheme="blue"
-            mr={3}
-            type="submit"
-            form="create-social-media-form"
-            isLoading={isSubmitting}
-          >
-            Create
-          </Button>
-          <Button variant="ghost" onClick={onClose}>
-            Cancel
-          </Button>
-        </ModalFooter>
+              Create
+            </Button>
+            <Button variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </form>
       </ModalContent>
     </Modal>
   );

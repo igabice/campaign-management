@@ -14,22 +14,23 @@ import {
   Checkbox,
   CheckboxGroup,
   Switch,
-  InputGroup,
-  InputLeftAddon,
   Progress,
   FormControl,
   FormLabel,
   FormHelperText,
   useToast,
-  Spinner,
+  useClipboard,
+  IconButton,
+  Tooltip,
 } from "@chakra-ui/react";
+import { CopyIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 import { teamsApi } from "../../services/teams";
 import { userPreferenceApi } from "../../services/userPreferences";
 import { useAuth } from "../../features/auth/AuthContext";
 import { UserPreference } from "../../types/schemas";
-import PhoneInput from 'react-phone-input-2'
-import 'react-phone-input-2/lib/style.css'
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 const DAYS_OF_WEEK = [
   { value: "MON", label: "Monday" },
@@ -58,7 +59,7 @@ const POPULAR_TOPICS = [
   "Cybersecurity",
   "Podcasting",
   "Career Development",
-  "Personal Branding"
+  "Personal Branding",
 ];
 
 const OnboardingPage: React.FC = () => {
@@ -96,6 +97,10 @@ const OnboardingPage: React.FC = () => {
   const [whatsappEnabled, setWhatsappEnabled] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState("");
 
+  // Telegram setup
+  const userId = session?.user?.id || "";
+  const { onCopy, hasCopied } = useClipboard(userId);
+
   useEffect(() => {
     if (session?.user?.name) {
       setTeamName(`${session.user.name}'s Profile`);
@@ -118,9 +123,10 @@ const OnboardingPage: React.FC = () => {
     setNewTopic(value);
     if (value.trim()) {
       setSuggestions(
-        POPULAR_TOPICS.filter(topic =>
-          topic.toLowerCase().includes(value.toLowerCase()) &&
-          !topics.includes(topic)
+        POPULAR_TOPICS.filter(
+          (topic) =>
+            topic.toLowerCase().includes(value.toLowerCase()) &&
+            !topics.includes(topic)
         )
       );
     } else {
@@ -135,8 +141,6 @@ const OnboardingPage: React.FC = () => {
     setNewTopic("");
     setSuggestions([]);
   };
-
-
 
   const addTime = () => {
     const newTime = "09:00";
@@ -191,18 +195,18 @@ const OnboardingPage: React.FC = () => {
 
       await userPreferenceApi.createUserPreferences(preferencesData);
 
-       toast({
-         title: "Welcome!",
-         description: "Your account has been set up successfully.",
-         status: "success",
-         duration: 5000,
-       });
+      toast({
+        title: "Welcome!",
+        description: "Your account has been set up successfully.",
+        status: "success",
+        duration: 5000,
+      });
 
-       // Small delay to ensure data is committed
-       await new Promise(resolve => setTimeout(resolve, 500));
+      // Small delay to ensure data is committed
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-       // Redirect to dashboard
-       navigate("/dashboard");
+      // Redirect to dashboard
+      navigate("/dashboard");
     } catch (error) {
       console.error("Error during onboarding:", error);
       toast({
@@ -386,12 +390,71 @@ const OnboardingPage: React.FC = () => {
           />
         </HStack>
         {telegramEnabled && (
-          <Input
-            mt={3}
-            placeholder="Telegram Chat ID"
-            value={telegramChatId}
-            onChange={(e) => setTelegramChatId(e.target.value)}
-          />
+          <VStack spacing={3} mt={3} align="stretch">
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={2}>
+                Step 1: Copy your User ID
+              </Text>
+              <HStack>
+                <Input
+                  value={userId}
+                  isReadOnly
+                  placeholder="Your User ID will appear here"
+                />
+                <Tooltip label={hasCopied ? "Copied!" : "Copy User ID"}>
+                  <IconButton
+                    aria-label="Copy User ID"
+                    icon={<CopyIcon />}
+                    onClick={onCopy}
+                    colorScheme={hasCopied ? "green" : "gray"}
+                  />
+                </Tooltip>
+              </HStack>
+              <Text fontSize="xs" color="gray.600" mt={1}>
+                This is your unique identifier needed to link your Telegram
+                account.
+              </Text>
+            </Box>
+
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={2}>
+                Step 2: Start Telegram Chat
+              </Text>
+              <Button
+                colorScheme="blue"
+                size="sm"
+                onClick={() => {
+                  const botUsername =
+                    process.env.REACT_APP_TELEGRAM_BOT_USERNAME ||
+                    "dokahub_bot";
+                  const telegramUrl = `https://t.me/${botUsername}?start=${userId}`;
+                  window.open(telegramUrl, "_blank");
+                }}
+                leftIcon={<Text>📱</Text>}
+              >
+                Open Telegram Chat
+              </Button>
+              <Text fontSize="xs" color="gray.600" mt={1}>
+                Click to open Telegram and send your User ID to enable
+                notifications.
+              </Text>
+            </Box>
+
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={2}>
+                Step 3: Confirm Setup
+              </Text>
+              <Input
+                placeholder="Telegram Chat ID (will be auto-filled)"
+                value={telegramChatId}
+                onChange={(e) => setTelegramChatId(e.target.value)}
+              />
+              <Text fontSize="xs" color="gray.600" mt={1}>
+                This will be automatically filled once you complete the Telegram
+                setup.
+              </Text>
+            </Box>
+          </VStack>
         )}
       </FormControl>
 
@@ -412,8 +475,8 @@ const OnboardingPage: React.FC = () => {
             <PhoneInput
               value={whatsappNumber}
               onChange={(value) => setWhatsappNumber(value)}
-              country={'us'}
-              inputStyle={{ width: '100%' }}
+              country={"us"}
+              inputStyle={{ width: "100%" }}
             />
           </Box>
         )}

@@ -28,8 +28,6 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import {
-  SunIcon,
-  MoonIcon,
   ChevronDownIcon,
   HamburgerIcon,
   ViewIcon,
@@ -46,7 +44,7 @@ import { useState, useEffect } from "react";
 export const AppHeader = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
-  const { colorMode, toggleColorMode } = useColorMode();
+  const { colorMode } = useColorMode();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const location = useLocation();
 

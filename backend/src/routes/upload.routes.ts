@@ -1,6 +1,7 @@
 import express from "express";
 import { requireAuth } from "../middlewares/auth";
 import uploadController from "../controllers/upload.controller";
+import { upload } from "../services/file-upload.service";
 
 const router = express.Router();
 
@@ -58,7 +59,7 @@ const router = express.Router();
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
  */
-router.route("/image").post(requireAuth, uploadController.uploadImage);
+router.route("/image").post(requireAuth, upload.single("image"), uploadController.uploadImage);
 
 /**
  * @swagger

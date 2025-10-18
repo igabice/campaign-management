@@ -2,7 +2,8 @@ import express from "express";
 import validate from "../middlewares/validate";
 import blogValidation from "../validations/blog.validation";
 import blogController from "../controllers/blog.controller";
-import { requireAuth } from "../middlewares/auth";
+import { requireAuth, requireAdmin } from "../middlewares/auth";
+import { upload } from "../services/file-upload.service";
 
 const router = express.Router();
 
@@ -63,7 +64,13 @@ const router = express.Router();
  */
 router
   .route("/")
-  .post(requireAuth, validate(blogValidation.createBlog), blogController.createBlog)
+  .post(
+    requireAuth,
+    requireAdmin,
+    upload.single("image"),
+    validate(blogValidation.createBlog),
+    blogController.createBlog
+  )
   /**
    * @swagger
    * /blogs:
@@ -97,19 +104,19 @@ router
    *         description: Page number
    *     responses:
    *       "200":
- *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 results:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Blog'
- *       "401":
- *         $ref: '#/components/responses/Unauthorized'
- */
+   *         description: OK
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 results:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/Blog'
+   *       "401":
+   *         $ref: '#/components/responses/Unauthorized'
+   */
   .get(validate(blogValidation.getBlogs), blogController.getBlogs);
 
 /**
@@ -147,74 +154,84 @@ router
    *     description: Update a blog by its id (admin only).
    *     tags: [Blog]
    *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Blog id
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               title:
- *                 type: string
- *               content:
- *                 type: string
- *               slug:
- *                 type: string
- *               published:
- *                 type: boolean
- *             example:
- *               title: "Updated Blog Post"
- *               published: true
- *     responses:
- *       "200":
- *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *                $ref: '#/components/schemas/Blog'
- *       "401":
- *         $ref: '#/components/responses/Unauthorized'
- *       "403":
- *         $ref: '#/components/responses/Forbidden'
- *       "404":
- *         $ref: '#/components/responses/NotFound'
- */
-  .patch(requireAuth, validate(blogValidation.updateBlog), blogController.updateBlog)
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Blog id
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               title:
+   *                 type: string
+   *               content:
+   *                 type: string
+   *               slug:
+   *                 type: string
+   *               published:
+   *                 type: boolean
+   *             example:
+   *               title: "Updated Blog Post"
+   *               published: true
+   *     responses:
+   *       "200":
+   *         description: OK
+   *         content:
+   *           application/json:
+   *             schema:
+   *                $ref: '#/components/schemas/Blog'
+   *       "401":
+   *         $ref: '#/components/responses/Unauthorized'
+   *       "403":
+   *         $ref: '#/components/responses/Forbidden'
+   *       "404":
+   *         $ref: '#/components/responses/NotFound'
+   */
+  .patch(
+    requireAuth,
+    requireAdmin,
+    validate(blogValidation.updateBlog),
+    blogController.updateBlog
+  )
   /**
    * @swagger
- * /blogs/{id}:
- *   delete:
- *     summary: Delete a blog
- *     description: Delete a blog by its id (admin only).
- *     tags: [Blog]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Blog id
- *     responses:
- *       "204":
- *         description: No content
- *       "401":
- *         $ref: '#/components/responses/Unauthorized'
- *       "403":
- *         $ref: '#/components/responses/Forbidden'
- *       "404":
- *         $ref: '#/components/responses/NotFound'
- */
-  .delete(requireAuth, validate(blogValidation.deleteBlog), blogController.deleteBlog);
+   * /blogs/{id}:
+   *   delete:
+   *     summary: Delete a blog
+   *     description: Delete a blog by its id (admin only).
+   *     tags: [Blog]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Blog id
+   *     responses:
+   *       "204":
+   *         description: No content
+   *       "401":
+   *         $ref: '#/components/responses/Unauthorized'
+   *       "403":
+   *         $ref: '#/components/responses/Forbidden'
+   *       "404":
+   *         $ref: '#/components/responses/NotFound'
+   */
+  .delete(
+    requireAuth,
+    requireAdmin,
+    validate(blogValidation.deleteBlog),
+    blogController.deleteBlog
+  );
 
 /**
  * @swagger
@@ -240,6 +257,8 @@ router
  *       "404":
  *         $ref: '#/components/responses/NotFound'
  */
-router.route("/slug/:slug").get(validate(blogValidation.getBlogBySlug), blogController.getBlogBySlug);
+router
+  .route("/slug/:slug")
+  .get(validate(blogValidation.getBlogBySlug), blogController.getBlogBySlug);
 
 export default router;

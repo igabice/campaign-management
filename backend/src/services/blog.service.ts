@@ -10,6 +10,7 @@ async function createBlog(
     content: string;
     slug: string;
     tags?: string[];
+    image?: string;
     published?: boolean;
   }
 ): Promise<Blog> {
@@ -110,6 +111,7 @@ async function updateBlogById(
     content?: string;
     slug?: string;
     tags?: string[];
+    image?: string;
     published?: boolean;
   }
 ): Promise<Blog> {

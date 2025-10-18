@@ -20,6 +20,7 @@ import { useTeam } from "../contexts/TeamContext";
 import { CreateTeamModal } from "./modals/CreateTeamModal";
 import { CreatePostModal } from "./modals/CreatePostModal";
 import { subscriptionService } from "../services/subscription";
+import { authService } from "../services/auth";
 import {
   LayoutDashboard,
   Calendar,
@@ -53,6 +54,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ onClose }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
   const [activeSubscription, setActiveSubscription] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const fetchSubscription = async () => {
@@ -64,7 +66,13 @@ export const SideMenu: React.FC<SideMenuProps> = ({ onClose }) => {
       }
     };
 
+    const checkAdmin = async () => {
+      const adminStatus = await authService.checkAdminStatus();
+      setIsAdmin(adminStatus);
+    };
+
     fetchSubscription();
+    checkAdmin();
   }, []);
 
   const menuItems: SideMenuItem[] = [
@@ -75,6 +83,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ onClose }) => {
     { name: "Subscription", path: "/subscription", icon: CreditCard },
     { name: "Preferences", path: "/preferences", icon: Settings },
     { name: "Profile", path: "/profile", icon: User },
+    ...(isAdmin ? [{ name: "Blog Management", path: "/blog", icon: FileText }] : []),
   ];
 
   return (

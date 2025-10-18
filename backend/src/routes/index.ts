@@ -11,6 +11,7 @@ import uploadRoutes from "./upload.routes";
 import userPreferenceRoutes from "./userPreference.routes";
 import contactRoutes from "./contact.routes";
 import blogRoutes from "./blog.routes";
+import authRoutes from "./auth.routes";
 import docRoute from "../docs/swagger";
 
 const router = express.Router();
@@ -26,6 +27,7 @@ router.use("/upload", uploadRoutes);
 router.use("/user-preferences", userPreferenceRoutes);
 router.use("/contact", contactRoutes);
 router.use("/blogs", blogRoutes);
+router.use("/auth", authRoutes);
 router.use("/ai", aiRoutes);
 router.use("/docs", docRoute);
 

@@ -3,6 +3,7 @@ import { auth } from "../config/auth";
 import asyncHandler from "express-async-handler";
 import httpStatus from "http-status";
 import ApiError from "../utils/ApiError";
+import prisma from "../config/prisma";
 
 // Middleware to handle Better-Auth routes
 export const authMiddleware = async (
@@ -59,6 +60,35 @@ export const requireAuth = asyncHandler(
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (req as any).session = session;
+    next();
+  }
+);
+
+// Middleware to require admin access (membership in admin team)
+export const requireAdmin = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const session = (req as any).session;
+    if (!session) {
+      throw new ApiError(httpStatus.UNAUTHORIZED, "Unauthorized");
+    }
+
+    const adminTeamId = process.env.ADMIN_TEAM_ID;
+    if (!adminTeamId) {
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, "Admin team not configured");
+    }
+
+    const membership = await prisma.member.findFirst({
+      where: {
+        userId: session.user.id,
+        teamId: adminTeamId,
+      },
+    });
+
+    if (!membership) {
+      throw new ApiError(httpStatus.FORBIDDEN, "Admin access required");
+    }
+
     next();
   }
 );

@@ -2,11 +2,30 @@ import httpStatus from "http-status";
 import asyncHandler from "express-async-handler";
 import ApiError from "../utils/ApiError";
 import blogService from "../services/blog.service";
+import fileUploadService from "../services/file-upload.service";
 
 const createBlog = asyncHandler(async (req, res) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const session = (req as any).session;
-  const blog = await blogService.createBlog(session.user.id, req.body);
+  const blogBody = { ...req.body };
+
+  try {
+    const imageUrl = await fileUploadService.processImageUpload(
+      req,
+      blogBody.image,
+      "BLOG_IMAGE"
+    );
+    if (imageUrl) {
+      blogBody.image = imageUrl;
+    }
+  } catch (error) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      error instanceof Error ? error.message : "Failed to upload image"
+    );
+  }
+
+  const blog = await blogService.createBlog(session.user.id, blogBody);
   res.status(httpStatus.CREATED).send(blog);
 });
 
@@ -19,7 +38,9 @@ const getBlogs = asyncHandler(async (req, res) => {
   };
 
   const filter = {
-    ...(req.query.published !== undefined && { published: req.query.published === "true" }),
+    ...(req.query.published !== undefined && {
+      published: req.query.published === "true",
+    }),
   };
 
   const blogs = await blogService.queryBlogs(filter, options);
@@ -52,7 +73,29 @@ const updateBlog = asyncHandler(async (req, res) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const session = (req as any).session;
   const blogId = req.params.id;
-  const blog = await blogService.updateBlogById(blogId, session.user.id, req.body);
+  const updateBody = { ...req.body };
+
+  try {
+    const imageUrl = await fileUploadService.processImageUpload(
+      req,
+      updateBody.image,
+      "BLOG_IMAGE"
+    );
+    if (imageUrl) {
+      updateBody.image = imageUrl;
+    }
+  } catch (error) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      error instanceof Error ? error.message : "Failed to upload image"
+    );
+  }
+
+  const blog = await blogService.updateBlogById(
+    blogId,
+    session.user.id,
+    updateBody
+  );
   res.send(blog);
 });
 

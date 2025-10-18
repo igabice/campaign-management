@@ -28,6 +28,12 @@ axiosInstance.interceptors.response.use(
           // Dispatch custom event to show subscription modal
           window.dispatchEvent(new CustomEvent('show-subscription-modal'));
         }
+        // Check for unauthorized error
+        if (error.response.status === 401) {
+          // Redirect to login page
+          window.location.href = '/login';
+          return Promise.reject(error);
+        }
       }
     }
     return Promise.reject(error);
@@ -54,7 +60,14 @@ export const post = async <T = any, D = any, R = AxiosResponse<T>>(
   data?: D,
   config?: AxiosRequestConfig
 ): Promise<R> => {
-  return axiosInstance.post<T, R, D>(url, data, config);
+  // If data is FormData, don't set Content-Type header (let browser set it)
+  const requestConfig = { ...config };
+  if (data instanceof FormData) {
+    if (requestConfig.headers) {
+      delete requestConfig.headers['Content-Type'];
+    }
+  }
+  return axiosInstance.post<T, R, D>(url, data, requestConfig);
 };
 
 

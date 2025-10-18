@@ -6,6 +6,7 @@ const createBlog = z.object({
     content: z.string().min(1, "Content is required"),
     slug: z.string().min(1, "Slug is required").regex(/^[a-z0-9-]+$/, "Slug must be lowercase letters, numbers, and hyphens only"),
     tags: z.array(z.string()).optional(),
+    image: z.string().optional(),
     published: z.boolean().optional(),
   }),
 });
@@ -41,6 +42,7 @@ const updateBlog = z.object({
     content: z.string().min(1, "Content is required").optional(),
     slug: z.string().min(1, "Slug is required").regex(/^[a-z0-9-]+$/, "Slug must be lowercase letters, numbers, and hyphens only").optional(),
     tags: z.array(z.string()).optional(),
+    image: z.string().optional(),
     published: z.boolean().optional(),
   }),
 });
