@@ -41,14 +41,20 @@ class FileUploadService {
   constructor() {
     this.bucketName = process.env.S3_BUCKET_NAME || "campaign-management";
 
+    // For Contabo Object Storage, we need to configure the endpoint properly
+    const endpoint = process.env.S3_ENDPOINT;
+    if (!endpoint) {
+      throw new Error("S3_ENDPOINT environment variable is required");
+    }
+
     this.s3Client = new S3Client({
-      region: process.env.S3_REGION || "default",
-      endpoint: process.env.S3_ENDPOINT,
+      region: process.env.S3_REGION || undefined, // Let SDK determine region from endpoint
+      endpoint: endpoint,
       credentials: {
         accessKeyId: process.env.S3_ACCESS_KEY_ID!,
         secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
       },
-      forcePathStyle: true, // Required for some S3-compatible services like Contabo
+      forcePathStyle: true, // Required for Contabo
     });
   }
 
@@ -79,8 +85,13 @@ class FileUploadService {
 
       await this.s3Client.send(command);
 
-      // Return the public URL
-      const publicUrl = `${process.env.S3_PUBLIC_URL || process.env.S3_ENDPOINT}/${process.env.S3_TENANT_ID}:${targetBucket}/${key}`;
+      // Return the public URL for Contabo Object Storage
+      // Format: https://{region}.contabostorage.com/{tenant-id}/{bucket}/{key}
+      const baseUrl = process.env.S3_PUBLIC_URL || process.env.S3_ENDPOINT || "https://eu2.contabostorage.com";
+      const tenantId = process.env.S3_TENANT_ID;
+      const publicUrl = tenantId
+        ? `${baseUrl}/${tenantId}/${targetBucket}/${key}`
+        : `${baseUrl}/${targetBucket}/${key}`;
       return publicUrl;
     } catch (error) {
       console.error("Error uploading file to S3:", error);
