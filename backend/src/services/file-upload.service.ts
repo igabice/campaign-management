@@ -43,9 +43,9 @@ class FileUploadService {
 
     // For Contabo Object Storage, we need to configure the endpoint properly
     const endpoint = process.env.S3_ENDPOINT;
-    if (!endpoint) {
-      throw new Error("S3_ENDPOINT environment variable is required");
-    }
+    // if (!endpoint) {
+    //   throw new Error("S3_ENDPOINT environment variable is required");
+    // }
 
     this.s3Client = new S3Client({
       region: process.env.S3_REGION || undefined, // Let SDK determine region from endpoint

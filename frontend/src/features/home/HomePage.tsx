@@ -23,17 +23,20 @@ import {
   DrawerBody,
   Hide,
   Show,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalBody,
+  ModalCloseButton,
 } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import {
-  CalendarIcon,
-  TimeIcon,
   CheckCircleIcon,
-  SettingsIcon,
-  ChatIcon,
   HamburgerIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
 } from "@chakra-ui/icons";
 
 // Animation keyframes
@@ -116,6 +119,39 @@ export const HomePage = () => {
     "monthly"
   );
 
+  // Image viewer modal state
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Feature images data
+  const featureImages = [
+    {
+      src: "/images/features/content-plan.png",
+      alt: "Plan Your Content with AI",
+      title: "Plan Your Content with AI",
+    },
+    {
+      src: "/images/features/content-calendar.png",
+      alt: "Content Calendar View",
+      title: "Content Calendar View",
+    },
+    {
+      src: "/images/features/team-invite.png",
+      alt: "Team Collaboration",
+      title: "Team Collaboration",
+    },
+    {
+      src: "/images/features/dashboard-analytics.png",
+      alt: "Smart Reminders",
+      title: "Smart Reminders",
+    },
+    {
+      src: "/images/features/social-sharing.png",
+      alt: "Social Media Sharing",
+      title: "Social Media Sharing",
+    },
+  ];
+
   useEffect(() => {
     setIsVisible(true);
   }, []);
@@ -165,6 +201,26 @@ export const HomePage = () => {
     if (element) element.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Image viewer functions
+  const openImageViewer = (index: number) => {
+    setCurrentImageIndex(index);
+    setIsImageViewerOpen(true);
+  };
+
+  const closeImageViewer = () => {
+    setIsImageViewerOpen(false);
+  };
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % featureImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex(
+      (prev) => (prev - 1 + featureImages.length) % featureImages.length
+    );
+  };
+
   const animationProps = prefersReducedMotion
     ? {}
     : {
@@ -174,1210 +230,1433 @@ export const HomePage = () => {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "Dokahub",
-    "url": "https://dokahub.com",
-    "description": "Automate your content calendar with AI-powered planning and scheduling.",
-    "logo": "https://dokahub.com/logo192.png",
-    "sameAs": [
+    name: "Dokahub",
+    url: "https://dokahub.com",
+    description:
+      "Automate your content calendar with AI-powered planning and scheduling.",
+    logo: "https://dokahub.com/logo192.png",
+    sameAs: [
       // Add social media URLs if available
-    ]
+    ],
   };
 
   return (
     <>
       <Helmet>
-      <title>Dokahub - Automate Your Content Calendar with AI</title>
-      <meta name="description" content="Transform your social media strategy with AI-powered content planning, automated scheduling, and seamless team collaboration." />
-      <meta name="keywords" content="content calendar, social media automation, AI content planning, team collaboration, content scheduling" />
-      <meta property="og:title" content="Dokahub - Automate Your Content Calendar with AI" />
-      <meta property="og:description" content="Transform your social media strategy with AI-powered content planning, automated scheduling, and seamless team collaboration." />
-      <meta property="og:image" content="https://dokahub.com/logo192.png" />
-      <meta property="og:url" content="https://dokahub.com" />
-      <meta property="og:type" content="website" />
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content="Dokahub - Automate Your Content Calendar with AI" />
-      <meta name="twitter:description" content="Transform your social media strategy with AI-powered content planning, automated scheduling, and seamless team collaboration." />
-      <meta name="twitter:image" content="https://dokahub.com/logo192.png" />
-      <script type="application/ld+json">
-        {JSON.stringify(structuredData)}
-      </script>
-    </Helmet>
-    <Box bg={bgColor} color={textColor} minH="100vh" overflowX="hidden" pt="24">
-      {/* Navigation */}
+        <title>Dokahub - Automate Your Content Calendar with AI</title>
+        <meta
+          name="description"
+          content="Transform your social media strategy with AI-powered content planning, automated scheduling, and seamless team collaboration."
+        />
+        <meta
+          name="keywords"
+          content="content calendar, social media automation, AI content planning, team collaboration, content scheduling"
+        />
+        <meta
+          property="og:title"
+          content="Dokahub - Automate Your Content Calendar with AI"
+        />
+        <meta
+          property="og:description"
+          content="Transform your social media strategy with AI-powered content planning, automated scheduling, and seamless team collaboration."
+        />
+        <meta property="og:image" content="https://dokahub.com/logo192.png" />
+        <meta property="og:url" content="https://dokahub.com" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+          name="twitter:title"
+          content="Dokahub - Automate Your Content Calendar with AI"
+        />
+        <meta
+          name="twitter:description"
+          content="Transform your social media strategy with AI-powered content planning, automated scheduling, and seamless team collaboration."
+        />
+        <meta name="twitter:image" content="https://dokahub.com/logo192.png" />
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
+      </Helmet>
       <Box
-        position="fixed"
-        top={0}
-        left={0}
-        right={0}
-        zIndex={10}
         bg={bgColor}
-        boxShadow="md"
+        color={textColor}
+        minH="100vh"
+        overflowX="hidden"
+        pt="24"
       >
-        <Flex as="nav" p={[4, 6]} align="center" maxW="1200px" mx="auto">
-          <Heading size="lg" fontWeight="bold" color={accentColor}>
-            Doka
-            <span style={{ color: "black" }}>hub</span>
-          </Heading>
-          <Spacer />
-          <Hide below="md">
-            <HStack spacing={4}>
-              <Button
-                variant="ghost"
-                onClick={() => scrollToSection("features")}
-                _hover={{ color: accentColor }}
-              >
-                Features
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => scrollToSection("pricing")}
-                _hover={{ color: accentColor }}
-              >
-                Pricing
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => navigate("/blog")}
-                _hover={{ color: accentColor }}
-              >
-                Blog
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => navigate("/login")}
-                _hover={{ color: accentColor }}
-              >
-                Login
-              </Button>
-              <Button
-                bg={accentColor}
-                color="black"
-                _hover={{ bg: accentColor, opacity: 0.8 }}
-                onClick={() => navigate("/signup")}
-              >
-                Get Started
-              </Button>
-            </HStack>
-          </Hide>
-          <Show below="md">
-            <IconButton
-              aria-label="Open menu"
-              icon={<HamburgerIcon />}
-              variant="ghost"
-              onClick={onOpen}
-            />
-          </Show>
-        </Flex>
-      </Box>
-
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerCloseButton />
-          <DrawerBody pt={16}>
-            <VStack spacing={6} align="start">
-              <Button
-                variant="ghost"
-                w="full"
-                justifyContent="start"
-                onClick={() => {
-                  scrollToSection("features");
-                  onClose();
-                }}
-              >
-                Features
-              </Button>
-              <Button
-                variant="ghost"
-                w="full"
-                justifyContent="start"
-                onClick={() => {
-                  scrollToSection("pricing");
-                  onClose();
-                }}
-              >
-                Pricing
-              </Button>
-              <Button
-                variant="ghost"
-                w="full"
-                justifyContent="start"
-                onClick={() => {
-                  navigate("/blog");
-                  onClose();
-                }}
-              >
-                Blog
-              </Button>
-              <Button
-                variant="ghost"
-                w="full"
-                justifyContent="start"
-                onClick={() => {
-                  navigate("/login");
-                  onClose();
-                }}
-              >
-                Login
-              </Button>
-              <Button
-                bg={accentColor}
-                color="black"
-                w="full"
-                _hover={{ bg: accentColor, opacity: 0.8 }}
-                onClick={() => {
-                  navigate("/signup");
-                  onClose();
-                }}
-              >
-                Get Started
-              </Button>
-            </VStack>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
-
-      {/* Hero Section */}
-      <Box
-        ref={heroRef}
-        // bgGradient="linear(to-br, purple.200, pink.200)"
-        py={20}
-        position="relative"
-        opacity={heroVisible ? 1 : 0}
-        // transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
-        // _before={{
-        //   content: '""',
-        //   position: "absolute",
-        //   top: 0,
-        //   left: 0,
-        //   right: 0,
-        //   bottom: 0,
-        //   bg: "rgba(255, 255, 255, 0.2)",
-        //   zIndex: 1,
-        // }}
-      >
-        <Container maxW="1200px" position="relative" zIndex={2}>
-          <VStack spacing={8} textAlign="center">
-            <Box {...animationProps} opacity={isVisible ? 1 : 0}>
-              <Heading
-                size="4xl"
-                fontWeight="black"
-                lineHeight="0.9"
-                mb={6}
-                fontSize={["4xl", "5xl", "6xl", "7xl"]}
-              >
-                Automate Your
-                <br />
-                <Text as="span" color={accentColor}>
-                  Content Calendar
-                </Text>
-              </Heading>
-
-              <Text
-                fontSize={["lg", "xl", "2xl"]}
-                // color="white"
-                maxW="600px"
-                mx="auto"
-                mb={8}
-                lineHeight="1.6"
-                // textShadow="0 2px 4px rgba(0,0,0,0.3)"
-              >
-                Transform your social media strategy with AI-powered content
-                planning, automated scheduling, and seamless team collaboration.
-              </Text>
-
-              <HStack spacing={4} justify="center" flexWrap="wrap">
+        {/* Navigation */}
+        <Box
+          position="fixed"
+          top={0}
+          left={0}
+          right={0}
+          zIndex={10}
+          bg={bgColor}
+          boxShadow="md"
+        >
+          <Flex as="nav" p={[4, 6]} align="center" maxW="1200px" mx="auto">
+            <Heading size="lg" fontWeight="bold" color={accentColor}>
+              Doka
+              <span style={{ color: "black" }}>hub</span>
+            </Heading>
+            <Spacer />
+            <Hide below="md">
+              <HStack spacing={4}>
                 <Button
-                  size="lg"
-                  bg="black"
-                  color="white"
-                  px={8}
-                  py={4}
-                  fontSize="lg"
-                  fontWeight="bold"
-                  _hover={{
-                    bg: "white",
-                    opacity: 0.9,
-                    color: "black",
-                    transform: "translateY(-2px)",
-                    animation: prefersReducedMotion
-                      ? undefined
-                      : `${pulse} 0.3s ease-in-out`,
-                  }}
-                  transition="all 0.3s"
+                  variant="ghost"
+                  onClick={() => scrollToSection("features")}
+                  _hover={{ color: accentColor }}
+                >
+                  Features
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => scrollToSection("pricing")}
+                  _hover={{ color: accentColor }}
+                >
+                  Pricing
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate("/blog")}
+                  _hover={{ color: accentColor }}
+                >
+                  Blog
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate("/login")}
+                  _hover={{ color: accentColor }}
+                >
+                  Login
+                </Button>
+                <Button
+                  bg={accentColor}
+                  color="black"
+                  _hover={{ bg: accentColor, opacity: 0.8 }}
                   onClick={() => navigate("/signup")}
                 >
-                  Start Free Trial
-                </Button>
-                <Button
-                  size="lg"
-                  bg={accentColor}
-                  variant="outline"
-                  borderColor="white"
-                  color="white"
-                  px={8}
-                  py={4}
-                  fontSize="lg"
-                  _hover={{
-                    bg: "white",
-                    color: "black",
-                    transform: "translateY(-2px)",
-                  }}
-                  transition="all 0.3s"
-                  onClick={() => navigate("/login")}
-                >
-                  View Demo
+                  Get Started
                 </Button>
               </HStack>
-            </Box>
-          </VStack>
-        </Container>
-      </Box>
+            </Hide>
+            <Show below="md">
+              <IconButton
+                aria-label="Open menu"
+                icon={<HamburgerIcon />}
+                variant="ghost"
+                onClick={onOpen}
+              />
+            </Show>
+          </Flex>
+        </Box>
 
-      {/* Demo Video Section */}
-      <Box
-        id="demo"
-        ref={demoRef}
-        bg="gray.100"
-        py={20}
-        opacity={demoVisible ? 1 : 0}
-        transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
-      >
-        <Container maxW="1200px">
-          <VStack spacing={12}>
-            <Box textAlign="center" maxW="800px" mx="auto">
-              <Heading
-                size="3xl"
-                fontWeight="black"
-                mb={4}
-                fontSize={["2xl", "3xl", "4xl"]}
-              >
-                See Dokahub in Action
-              </Heading>
-              <Text fontSize={["md", "lg", "xl"]} color="gray.600" mb={8}>
-                Watch how our AI-powered content calendar automation transforms
-                your social media strategy and saves you hours of manual work
-                every week.
-              </Text>
-            </Box>
+        <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+          <DrawerOverlay />
+          <DrawerContent>
+            <DrawerCloseButton />
+            <DrawerBody pt={16}>
+              <VStack spacing={6} align="start">
+                <Button
+                  variant="ghost"
+                  w="full"
+                  justifyContent="start"
+                  onClick={() => {
+                    scrollToSection("features");
+                    onClose();
+                  }}
+                >
+                  Features
+                </Button>
+                <Button
+                  variant="ghost"
+                  w="full"
+                  justifyContent="start"
+                  onClick={() => {
+                    scrollToSection("pricing");
+                    onClose();
+                  }}
+                >
+                  Pricing
+                </Button>
+                <Button
+                  variant="ghost"
+                  w="full"
+                  justifyContent="start"
+                  onClick={() => {
+                    navigate("/blog");
+                    onClose();
+                  }}
+                >
+                  Blog
+                </Button>
+                <Button
+                  variant="ghost"
+                  w="full"
+                  justifyContent="start"
+                  onClick={() => {
+                    navigate("/login");
+                    onClose();
+                  }}
+                >
+                  Login
+                </Button>
+                <Button
+                  bg={accentColor}
+                  color="black"
+                  w="full"
+                  _hover={{ bg: accentColor, opacity: 0.8 }}
+                  onClick={() => {
+                    navigate("/signup");
+                    onClose();
+                  }}
+                >
+                  Get Started
+                </Button>
+              </VStack>
+            </DrawerBody>
+          </DrawerContent>
+        </Drawer>
 
-            <Box
-              w="full"
-              maxW="900px"
-              mx="auto"
-              borderRadius="xl"
-              overflow="hidden"
-              boxShadow="2xl"
-              {...(prefersReducedMotion
-                ? {}
-                : {
-                    animation: `${slideInLeft} 0.8s ease-out`,
-                    opacity: isVisible ? 1 : 0,
-                  })}
-            >
-              {/* Demo Video Placeholder */}
+        {/* Hero Section */}
+        <Box
+          ref={heroRef}
+          // bgGradient="linear(to-br, purple.200, pink.200)"
+          py={20}
+          position="relative"
+          opacity={heroVisible ? 1 : 0}
+          // transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+          // _before={{
+          //   content: '""',
+          //   position: "absolute",
+          //   top: 0,
+          //   left: 0,
+          //   right: 0,
+          //   bottom: 0,
+          //   bg: "rgba(255, 255, 255, 0.2)",
+          //   zIndex: 1,
+          // }}
+        >
+          <Container maxW="1200px" position="relative" zIndex={2}>
+            <VStack spacing={8} textAlign="center">
+              <Box {...animationProps} opacity={isVisible ? 1 : 0}>
+                <Heading
+                  size="4xl"
+                  fontWeight="black"
+                  lineHeight="0.9"
+                  mb={6}
+                  fontSize={["4xl", "5xl", "6xl", "7xl"]}
+                >
+                  Automate Your
+                  <br />
+                  <Text as="span" color={accentColor}>
+                    Content Calendar
+                  </Text>
+                </Heading>
+
+                <Text
+                  fontSize={["lg", "xl", "2xl"]}
+                  // color="white"
+                  maxW="600px"
+                  mx="auto"
+                  mb={8}
+                  lineHeight="1.6"
+                  // textShadow="0 2px 4px rgba(0,0,0,0.3)"
+                >
+                  Transform your social media strategy with AI-powered content
+                  planning, automated scheduling, and seamless team
+                  collaboration.
+                </Text>
+
+                <HStack spacing={4} justify="center" flexWrap="wrap">
+                  <Button
+                    size="lg"
+                    bg="black"
+                    color="white"
+                    px={8}
+                    py={4}
+                    fontSize="lg"
+                    fontWeight="bold"
+                    _hover={{
+                      bg: "white",
+                      opacity: 0.9,
+                      color: "black",
+                      transform: "translateY(-2px)",
+                      animation: prefersReducedMotion
+                        ? undefined
+                        : `${pulse} 0.3s ease-in-out`,
+                    }}
+                    transition="all 0.3s"
+                    onClick={() => navigate("/signup")}
+                  >
+                    Start Free Trial
+                  </Button>
+                  <Button
+                    size="lg"
+                    bg={accentColor}
+                    variant="outline"
+                    borderColor="white"
+                    color="white"
+                    px={8}
+                    py={4}
+                    fontSize="lg"
+                    _hover={{
+                      bg: "white",
+                      color: "black",
+                      transform: "translateY(-2px)",
+                    }}
+                    transition="all 0.3s"
+                    onClick={() => navigate("/login")}
+                  >
+                    View Demo
+                  </Button>
+                </HStack>
+              </Box>
+            </VStack>
+          </Container>
+        </Box>
+
+        {/* Demo Video Section */}
+        <Box
+          id="demo"
+          ref={demoRef}
+          bg="gray.100"
+          py={20}
+          opacity={demoVisible ? 1 : 0}
+          transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+        >
+          <Container maxW="1200px">
+            <VStack spacing={12}>
+              <Box textAlign="center" maxW="800px" mx="auto">
+                <Heading
+                  size="3xl"
+                  fontWeight="black"
+                  mb={4}
+                  fontSize={["2xl", "3xl", "4xl"]}
+                >
+                  See Dokahub in Action
+                </Heading>
+                <Text fontSize={["md", "lg", "xl"]} color="gray.600" mb={8}>
+                  Watch how our AI-powered content calendar automation
+                  transforms your social media strategy and saves you hours of
+                  manual work every week.
+                </Text>
+              </Box>
+
               <Box
-                bg="gray.200"
-                h={["250px", "400px", "500px"]}
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                position="relative"
-                _hover={{
-                  "& > .play-button": {
-                    transform: "scale(1.1)",
-                  },
-                }}
-                transition="all 0.3s"
-                cursor="pointer"
-                onClick={() => {
-                  // Replace "#" with your actual demo video URL (YouTube, Vimeo, etc.)
-                  const demoVideoUrl = "#"; // e.g., "https://www.youtube.com/watch?v=YOUR_VIDEO_ID"
-                  window.open(demoVideoUrl, "_blank");
-                }}
+                w="full"
+                maxW="900px"
+                mx="auto"
+                borderRadius="xl"
+                overflow="hidden"
+                boxShadow="2xl"
+                {...(prefersReducedMotion
+                  ? {}
+                  : {
+                      animation: `${slideInLeft} 0.8s ease-out`,
+                      opacity: isVisible ? 1 : 0,
+                    })}
               >
-                {/* Video Thumbnail Placeholder */}
+                {/* Demo Video Placeholder */}
                 <Box
-                  position="absolute"
-                  top={0}
-                  left={0}
-                  right={0}
-                  bottom={0}
-                  bgGradient="linear(to-br, purple.200, blue.200)"
-                  opacity={0.8}
-                />
-
-                {/* Play Button */}
-                <Box
-                  className="play-button"
-                  w={20}
-                  h={20}
-                  bg="white"
-                  borderRadius="full"
+                  bg="gray.200"
+                  h={["250px", "400px", "500px"]}
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  boxShadow="lg"
-                  transition="all 0.3s"
                   position="relative"
-                  zIndex={2}
+                  _hover={{
+                    "& > .play-button": {
+                      transform: "scale(1.1)",
+                    },
+                  }}
+                  transition="all 0.3s"
+                  cursor="pointer"
+                  onClick={() => {
+                    // Replace "#" with your actual demo video URL (YouTube, Vimeo, etc.)
+                    const demoVideoUrl = "#"; // e.g., "https://www.youtube.com/watch?v=YOUR_VIDEO_ID"
+                    window.open(demoVideoUrl, "_blank");
+                  }}
+                >
+                  {/* Video Thumbnail Placeholder */}
+                  <Box
+                    position="absolute"
+                    top={0}
+                    left={0}
+                    right={0}
+                    bottom={0}
+                    bgGradient="linear(to-br, purple.200, blue.200)"
+                    opacity={0.8}
+                  />
+
+                  {/* Play Button */}
+                  <Box
+                    className="play-button"
+                    w={20}
+                    h={20}
+                    bg="white"
+                    borderRadius="full"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    boxShadow="lg"
+                    transition="all 0.3s"
+                    position="relative"
+                    zIndex={2}
+                  >
+                    <Box
+                      w={0}
+                      h={0}
+                      borderLeft="12px solid"
+                      borderLeftColor="black"
+                      borderTop="8px solid transparent"
+                      borderBottom="8px solid transparent"
+                      ml={1}
+                    />
+                  </Box>
+
+                  {/* Video Title Overlay */}
+                  <VStack
+                    position="absolute"
+                    bottom={6}
+                    left={6}
+                    right={6}
+                    align="start"
+                    spacing={2}
+                    zIndex={2}
+                  >
+                    <Text
+                      color="white"
+                      fontSize="lg"
+                      fontWeight="bold"
+                      textShadow="0 2px 4px rgba(0,0,0,0.5)"
+                    >
+                      Dokahub Demo
+                    </Text>
+                    <Text
+                      color="white"
+                      fontSize="sm"
+                      opacity={0.9}
+                      textShadow="0 2px 4px rgba(0,0,0,0.5)"
+                    >
+                      2:34 • See how it works
+                    </Text>
+                  </VStack>
+                </Box>
+              </Box>
+
+              <HStack spacing={6} flexWrap="wrap" justify="center">
+                <VStack spacing={2} align="center" minW="150px">
+                  <Text fontSize="3xl" fontWeight="bold" color={accentColor}>
+                    5x
+                  </Text>
+                  <Text fontSize="sm" color={"gray.300"} textAlign="center">
+                    Faster content creation
+                  </Text>
+                </VStack>
+                <VStack spacing={2} align="center" minW="150px">
+                  <Text fontSize="3xl" fontWeight="bold" color={accentColor}>
+                    80%
+                  </Text>
+                  <Text fontSize="sm" color={"gray.300"} textAlign="center">
+                    Time saved on scheduling
+                  </Text>
+                </VStack>
+                <VStack spacing={2} align="center" minW="150px">
+                  <Text fontSize="3xl" fontWeight="bold" color={accentColor}>
+                    3x
+                  </Text>
+                  <Text fontSize="sm" color={"gray.300"} textAlign="center">
+                    More engagement
+                  </Text>
+                </VStack>
+              </HStack>
+            </VStack>
+          </Container>
+        </Box>
+
+        {/* Features Section */}
+        <Box
+          id="features"
+          ref={featuresRef}
+          py={20}
+          opacity={featuresVisible ? 1 : 0}
+          transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+        >
+          <Container maxW="1200px">
+            <VStack spacing={16}>
+              <Box textAlign="center">
+                <Heading
+                  size="3xl"
+                  fontWeight="black"
+                  mb={4}
+                  fontSize={["2xl", "3xl", "4xl"]}
+                >
+                  Everything You Need for
+                  <br />
+                  <Text as="span" color={accentColor}>
+                    Content Success
+                  </Text>
+                </Heading>
+                <Text
+                  fontSize={["md", "lg", "xl"]}
+                  color="gray.700"
+                  maxW="600px"
+                  mx="auto"
+                >
+                  Powerful features designed to streamline your content creation
+                  and amplify your social media presence.
+                </Text>
+              </Box>
+
+              <VStack spacing={20} w="full">
+                {/* Feature 1 */}
+                <HStack
+                  spacing={8}
+                  align="center"
+                  flexDirection={["column", "column", "row"]}
+                  w="full"
+                  minH="350px"
+                  {...(prefersReducedMotion
+                    ? {}
+                    : {
+                        animation: `${fadeInUp} 0.8s ease-out 0.2s`,
+                        opacity: isVisible ? 1 : 0,
+                      })}
                 >
                   <Box
-                    w={0}
-                    h={0}
-                    borderLeft="12px solid"
-                    borderLeftColor="black"
-                    borderTop="8px solid transparent"
-                    borderBottom="8px solid transparent"
-                    ml={1}
-                  />
+                    flex={1}
+                    textAlign="center"
+                    minH="300px"
+                    display="flex"
+                    alignItems="center"
+                  >
+                    <img
+                      src="/images/features/content-plan.png"
+                      alt="Plan Your Content with AI"
+                      style={{
+                        width: "100%",
+                        height: "280px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        border: "2px solid #E2E8F0",
+                      }}
+                      onClick={() => openImageViewer(0)}
+                    />
+                  </Box>
+                  <Box flex={1}>
+                    <Heading size="lg" fontWeight="bold" mb={4}>
+                      Plan Your Content with AI
+                    </Heading>
+                    <Text color={featureTextColor} fontSize="lg">
+                      Plan your content for the next week, month with
+                      suggestions from AI to keep your social media strategy on
+                      track.
+                    </Text>
+                  </Box>
+                </HStack>
+
+                {/* Feature 2 */}
+                <HStack
+                  spacing={8}
+                  align="center"
+                  flexDirection={["column", "column", "row-reverse"]}
+                  w="full"
+                  minH="350px"
+                  {...(prefersReducedMotion
+                    ? {}
+                    : {
+                        animation: `${fadeInUp} 0.8s ease-out 0.4s`,
+                        opacity: isVisible ? 1 : 0,
+                      })}
+                >
+                  <Box
+                    flex={1}
+                    textAlign="center"
+                    minH="300px"
+                    display="flex"
+                    alignItems="center"
+                  >
+                    <img
+                      src="/images/features/content-calendar.png"
+                      alt="Content Calendar View"
+                      style={{
+                        width: "100%",
+                        height: "280px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        border: "2px solid #E2E8F0",
+                      }}
+                      onClick={() => openImageViewer(1)}
+                    />
+                  </Box>
+                  <Box flex={1}>
+                    <Heading size="lg" fontWeight="bold" mb={4}>
+                      Content Calendar View
+                    </Heading>
+                    <Text color={featureTextColor} fontSize="lg">
+                      View scheduled content in your content calendar to stay
+                      organized and never miss a post.
+                    </Text>
+                  </Box>
+                </HStack>
+
+                {/* Feature 3 */}
+                <HStack
+                  spacing={8}
+                  align="center"
+                  flexDirection={["column", "column", "row"]}
+                  w="full"
+                  minH="350px"
+                  {...(prefersReducedMotion
+                    ? {}
+                    : {
+                        animation: `${fadeInUp} 0.8s ease-out 0.6s`,
+                        opacity: isVisible ? 1 : 0,
+                      })}
+                >
+                  <Box
+                    flex={1}
+                    textAlign="center"
+                    minH="300px"
+                    display="flex"
+                    alignItems="center"
+                  >
+                    <img
+                      src="/images/features/team-invite.png"
+                      alt="Team Collaboration"
+                      style={{
+                        width: "100%",
+                        height: "280px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        border: "2px solid #E2E8F0",
+                      }}
+                      onClick={() => openImageViewer(2)}
+                    />
+                  </Box>
+                  <Box flex={1}>
+                    <Heading size="lg" fontWeight="bold" mb={4}>
+                      Team Collaboration
+                    </Heading>
+                    <Text color={featureTextColor} fontSize="lg">
+                      Invite others to collaborate with you on contents, assign
+                      tasks, and work together seamlessly.
+                    </Text>
+                  </Box>
+                </HStack>
+
+                {/* Feature 4 */}
+                <HStack
+                  spacing={8}
+                  align="center"
+                  flexDirection={["column", "column", "row-reverse"]}
+                  w="full"
+                  minH="350px"
+                  {...(prefersReducedMotion
+                    ? {}
+                    : {
+                        animation: `${fadeInUp} 0.8s ease-out 0.8s`,
+                        opacity: isVisible ? 1 : 0,
+                      })}
+                >
+                  <Box
+                    flex={1}
+                    textAlign="center"
+                    minH="300px"
+                    display="flex"
+                    alignItems="center"
+                  >
+                    <img
+                      src="/images/features/dashboard-analytics.png"
+                      alt="Smart Reminders"
+                      style={{
+                        width: "100%",
+                        height: "280px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        border: "2px solid #E2E8F0",
+                      }}
+                      onClick={() => openImageViewer(3)}
+                    />
+                  </Box>
+                  <Box flex={1}>
+                    <Heading size="lg" fontWeight="bold" mb={4}>
+                      Smart Reminders
+                    </Heading>
+                    <Text color={featureTextColor} fontSize="lg">
+                      Get reminded when content is due, so you never miss
+                      important posting times.
+                    </Text>
+                  </Box>
+                </HStack>
+
+                {/* Feature 5 */}
+                <HStack
+                  spacing={8}
+                  align="center"
+                  flexDirection={["column", "column", "row"]}
+                  w="full"
+                  minH="350px"
+                  {...(prefersReducedMotion
+                    ? {}
+                    : {
+                        animation: `${fadeInUp} 0.8s ease-out 1.0s`,
+                        opacity: isVisible ? 1 : 0,
+                      })}
+                >
+                  <Box
+                    flex={1}
+                    textAlign="center"
+                    minH="300px"
+                    display="flex"
+                    alignItems="center"
+                  >
+                    <img
+                      src="/images/features/social-sharing.png"
+                      alt="Social Media Sharing"
+                      style={{
+                        width: "100%",
+                        height: "280px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        border: "2px solid #E2E8F0",
+                      }}
+                      onClick={() => openImageViewer(4)}
+                    />
+                  </Box>
+                  <Box flex={1}>
+                    <Heading size="lg" fontWeight="bold" mb={4}>
+                      Social Media Sharing
+                    </Heading>
+                    <Text color={featureTextColor} fontSize="lg">
+                      Share content to your social media accounts directly from
+                      the platform with one click.
+                    </Text>
+                  </Box>
+                </HStack>
+              </VStack>
+            </VStack>
+          </Container>
+        </Box>
+
+        {/* Pricing Section */}
+        <Box
+          id="pricing"
+          ref={pricingRef}
+          py={20}
+          bg="gray.100"
+          opacity={pricingVisible ? 1 : 0}
+          transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+        >
+          <Container maxW="1200px">
+            <VStack spacing={12}>
+              <Box textAlign="center" maxW="600px" mx="auto">
+                <Heading
+                  size="3xl"
+                  fontWeight="black"
+                  mb={4}
+                  fontSize={["2xl", "3xl", "4xl"]}
+                >
+                  Simple, Transparent Pricing
+                </Heading>
+                <Text fontSize={["md", "lg", "xl"]} color={"gray.700"}>
+                  Start automating your content calendar today with our flexible
+                  pricing.
+                </Text>
+              </Box>
+
+              {/* Billing Toggle */}
+              <HStack
+                spacing={0}
+                bg="gray.200"
+                p={1}
+                borderRadius="full"
+                maxW="300px"
+                mx="auto"
+              >
+                <Button
+                  flex={1}
+                  variant={billingPeriod === "monthly" ? "solid" : "ghost"}
+                  bg={billingPeriod === "monthly" ? "white" : "transparent"}
+                  color={billingPeriod === "monthly" ? "black" : "gray.600"}
+                  _hover={{
+                    bg: billingPeriod === "monthly" ? "white" : "gray.100",
+                  }}
+                  onClick={() => setBillingPeriod("monthly")}
+                  borderRadius="full"
+                >
+                  Monthly
+                </Button>
+                <Button
+                  flex={1}
+                  variant={billingPeriod === "annual" ? "solid" : "ghost"}
+                  bg={billingPeriod === "annual" ? "white" : "transparent"}
+                  color={billingPeriod === "annual" ? "black" : "gray.600"}
+                  _hover={{
+                    bg: billingPeriod === "annual" ? "white" : "gray.100",
+                  }}
+                  onClick={() => setBillingPeriod("annual")}
+                  borderRadius="full"
+                >
+                  Annual
+                </Button>
+              </HStack>
+
+              <Grid
+                templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }}
+                gap={8}
+                maxW="1200px"
+                w="full"
+                mx="auto"
+              >
+                {/* Free Plan */}
+                <Box
+                  {...(prefersReducedMotion
+                    ? {}
+                    : {
+                        animation: `${fadeInUp} 0.8s ease-out`,
+                        opacity: isVisible ? 1 : 0,
+                      })}
+                >
+                  <Box
+                    bg={bgColor}
+                    borderRadius="2xl"
+                    boxShadow="2xl"
+                    overflow="hidden"
+                    h="full"
+                  >
+                    <VStack spacing={6} p={8}>
+                      <VStack spacing={2} textAlign="center">
+                        <Text fontSize="lg" color={"gray.300"}>
+                          Free Plan
+                        </Text>
+                        <HStack align="baseline" spacing={1}>
+                          <Text
+                            fontSize="4xl"
+                            fontWeight="black"
+                            color={textColor}
+                          >
+                            $0
+                          </Text>
+                          <Text fontSize="lg" color={"gray.300"}>
+                            /forever
+                          </Text>
+                        </HStack>
+                        <Text
+                          fontSize="sm"
+                          color={useColorModeValue("gray.500", "gray.400")}
+                        >
+                          Perfect for getting started
+                        </Text>
+                      </VStack>
+
+                      <VStack spacing={4} align="start" w="full">
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">1 team</Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">10 posts per month</Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">1 content plan per month</Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">1 team invite</Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">Basic scheduling</Text>
+                        </HStack>
+                      </VStack>
+
+                      <VStack spacing={4} w="full" mt="auto">
+                        <Button
+                          bg="gray.100"
+                          color="gray.700"
+                          size="lg"
+                          w="full"
+                          fontSize="lg"
+                          fontWeight="bold"
+                          _hover={{
+                            bg: "gray.200",
+                          }}
+                          transition="all 0.3s"
+                          onClick={() => navigate("/signup")}
+                        >
+                          Get Started Free
+                        </Button>
+                      </VStack>
+                    </VStack>
+                  </Box>
                 </Box>
 
-                {/* Video Title Overlay */}
-                <VStack
-                  position="absolute"
-                  bottom={6}
-                  left={6}
-                  right={6}
-                  align="start"
-                  spacing={2}
-                  zIndex={2}
+                {/* Pro Plan */}
+                <Box
+                  {...(prefersReducedMotion
+                    ? {}
+                    : {
+                        animation: `${fadeInUp} 0.8s ease-out 0.2s`,
+                        opacity: isVisible ? 1 : 0,
+                      })}
                 >
+                  <Box
+                    bg={bgColor}
+                    borderRadius="2xl"
+                    boxShadow="2xl"
+                    overflow="hidden"
+                    border="2px solid"
+                    borderColor={accentColor}
+                    position="relative"
+                    h="full"
+                  >
+                    {/* Popular Badge */}
+                    <Box
+                      position="absolute"
+                      top={4}
+                      right={4}
+                      bg={accentColor}
+                      color="black"
+                      px={3}
+                      py={1}
+                      borderRadius="full"
+                      fontSize="xs"
+                      fontWeight="bold"
+                      textTransform="uppercase"
+                      letterSpacing="wide"
+                    >
+                      Most Popular
+                    </Box>
+
+                    <VStack spacing={6} p={8}>
+                      <VStack spacing={2} textAlign="center">
+                        <Text fontSize="lg" color={"gray.300"}>
+                          Pro Plan
+                        </Text>
+                        <HStack align="baseline" spacing={1}>
+                          <Text
+                            fontSize="4xl"
+                            fontWeight="black"
+                            color={accentColor}
+                          >
+                            {billingPeriod === "monthly" ? "$9.99" : "$99.90"}
+                          </Text>
+                          <Text fontSize="lg" color={"gray.300"}>
+                            {billingPeriod === "monthly" ? "/month" : "/year"}
+                          </Text>
+                        </HStack>
+                        <Text
+                          fontSize="sm"
+                          color={useColorModeValue("gray.500", "gray.400")}
+                        >
+                          Billed {billingPeriod} • Cancel anytime
+                        </Text>
+                      </VStack>
+
+                      <VStack spacing={4} align="start" w="full">
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">Unlimited content plans</Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">
+                            AI-powered content generation
+                          </Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">Automated scheduling</Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">Team collaboration tools</Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">Analytics & insights</Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">Priority support</Text>
+                        </HStack>
+                      </VStack>
+
+                      <VStack spacing={4} w="full" mt="auto">
+                        <Box
+                          bg="grey.100"
+                          borderRadius="lg"
+                          p={4}
+                          w="full"
+                          textAlign="center"
+                        >
+                          <Text
+                            fontSize="sm"
+                            fontWeight="bold"
+                            color="grey.800"
+                          >
+                            14-Day Free Trial
+                          </Text>
+                          <Text fontSize="xs" color="blue.700">
+                            No credit card required
+                          </Text>
+                        </Box>
+
+                        <Button
+                          bg={accentColor}
+                          color="black"
+                          size="lg"
+                          w="full"
+                          fontSize="lg"
+                          fontWeight="bold"
+                          _hover={{
+                            bg: accentColor,
+                            opacity: 0.8,
+                            transform: "translateY(-2px)",
+                          }}
+                          transition="all 0.3s"
+                          onClick={() => navigate("/signup")}
+                        >
+                          Start Free Trial
+                        </Button>
+                      </VStack>
+                    </VStack>
+                  </Box>
+                </Box>
+
+                {/* Enterprise Plan */}
+                <Box
+                  {...(prefersReducedMotion
+                    ? {}
+                    : {
+                        animation: `${fadeInUp} 0.8s ease-out 0.4s`,
+                        opacity: isVisible ? 1 : 0,
+                      })}
+                >
+                  <Box
+                    bg={bgColor}
+                    borderRadius="2xl"
+                    boxShadow="2xl"
+                    overflow="hidden"
+                    h="full"
+                  >
+                    <VStack spacing={6} p={8}>
+                      <VStack spacing={2} textAlign="center">
+                        <Text fontSize="lg" color={"gray.300"}>
+                          Enterprise Plan
+                        </Text>
+                        <HStack align="baseline" spacing={1}>
+                          <Text
+                            fontSize="4xl"
+                            fontWeight="black"
+                            color={textColor}
+                          >
+                            Custom
+                          </Text>
+                        </HStack>
+                        <Text
+                          fontSize="sm"
+                          color={useColorModeValue("gray.500", "gray.400")}
+                        >
+                          For large teams and agencies
+                        </Text>
+                      </VStack>
+
+                      <VStack spacing={4} align="start" w="full">
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">Everything in Pro</Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">Unlimited teams</Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">Advanced analytics</Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">White-label options</Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">Dedicated account manager</Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">Custom integrations</Text>
+                        </HStack>
+                      </VStack>
+
+                      <VStack spacing={4} w="full" mt="auto">
+                        <Button
+                          bg="gray.100"
+                          color="gray.700"
+                          size="lg"
+                          w="full"
+                          fontSize="lg"
+                          fontWeight="bold"
+                          _hover={{
+                            bg: "gray.200",
+                          }}
+                          transition="all 0.3s"
+                          onClick={() => navigate("/contact")}
+                        >
+                          Contact Sales
+                        </Button>
+                      </VStack>
+                    </VStack>
+                  </Box>
+                </Box>
+              </Grid>
+
+              <HStack spacing={8} flexWrap="wrap" justify="center">
+                <VStack spacing={1} align="center">
+                  <Icon as={CheckCircleIcon} color="green.500" w={6} h={6} />
+                  <Text fontSize="sm" fontWeight="medium">
+                    30-day money back
+                  </Text>
+                </VStack>
+                <VStack spacing={1} align="center">
+                  <Icon as={CheckCircleIcon} color="green.500" w={6} h={6} />
+                  <Text fontSize="sm" fontWeight="medium">
+                    Cancel anytime
+                  </Text>
+                </VStack>
+                <VStack spacing={1} align="center">
+                  <Icon as={CheckCircleIcon} color="green.500" w={6} h={6} />
+                  <Text fontSize="sm" fontWeight="medium">
+                    Secure payment
+                  </Text>
+                </VStack>
+              </HStack>
+            </VStack>
+          </Container>
+        </Box>
+
+        {/* CTA Section */}
+        <Box
+          id="cta"
+          ref={ctaRef}
+          py={20}
+          opacity={ctaVisible ? 1 : 0}
+          transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+        >
+          <Container maxW="800px" textAlign="center">
+            <VStack spacing={8}>
+              <Box
+                {...(prefersReducedMotion
+                  ? {}
+                  : {
+                      animation: `${slideInLeft} 0.8s ease-out`,
+                      opacity: isVisible ? 1 : 0,
+                    })}
+              >
+                <Heading
+                  size="3xl"
+                  fontWeight="black"
+                  mb={4}
+                  fontSize={["2xl", "3xl", "4xl"]}
+                >
+                  Ready to Transform Your
+                  <br />
+                  <Text as="span" color={accentColor}>
+                    Content Strategy?
+                  </Text>
+                </Heading>
+                <Text fontSize={["md", "lg", "xl"]} color={"gray.600"} mb={8}>
+                  Join thousands of creators and marketers who have automated
+                  their content calendar and boosted their engagement.
+                </Text>
+              </Box>
+
+              <Box
+                {...(prefersReducedMotion
+                  ? {}
+                  : {
+                      animation: `${slideInRight} 0.8s ease-out 0.2s both`,
+                      opacity: isVisible ? 1 : 0,
+                    })}
+              >
+                <HStack spacing={4} justify="center" flexWrap="wrap">
+                  <Button
+                    size="lg"
+                    bg={accentColor}
+                    color="black"
+                    px={10}
+                    py={4}
+                    fontSize="lg"
+                    fontWeight="bold"
+                    leftIcon={<CheckCircleIcon />}
+                    _hover={{
+                      bg: accentColor,
+                      opacity: 0.8,
+                      transform: "translateY(-2px)",
+                    }}
+                    transition="all 0.3s"
+                    onClick={() => navigate("/signup")}
+                  >
+                    Start Your Free Trial
+                  </Button>
+                </HStack>
+
+                <Text
+                  fontSize="sm"
+                  color={useColorModeValue("gray.500", "gray.400")}
+                  mt={4}
+                >
+                  No credit card required • 14-day free trial • Cancel anytime
+                </Text>
+              </Box>
+            </VStack>
+          </Container>
+        </Box>
+
+        {/* Footer */}
+        <Box
+          id="footer"
+          ref={footerRef}
+          py={8}
+          borderTop="1px"
+          borderColor="gray.300"
+          opacity={footerVisible ? 1 : 0}
+          transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+        >
+          <Container maxW="1200px">
+            <Flex
+              direction={["column", "row"]}
+              align={["center", "center"]}
+              justify="space-between"
+              textAlign={["center", "left"]}
+            >
+              <Text color={"gray.300"}>
+                © 2024 Dokahub. All rights reserved.
+              </Text>
+              <HStack spacing={6} mt={[4, 0]}>
+                <Link
+                  as={RouterLink}
+                  to="/blog"
+                  color="gray.300"
+                  _hover={{ color: accentColor }}
+                  transition="color 0.3s"
+                >
+                  Blog
+                </Link>
+                <Link
+                  as={RouterLink}
+                  to="/privacy"
+                  color="gray.300"
+                  _hover={{ color: accentColor }}
+                  transition="color 0.3s"
+                >
+                  Privacy
+                </Link>
+                <Link
+                  as={RouterLink}
+                  to="/terms"
+                  color="gray.300"
+                  _hover={{ color: accentColor }}
+                  transition="color 0.3s"
+                >
+                  Terms
+                </Link>
+                <Link
+                  as={RouterLink}
+                  to="/contact"
+                  color="gray.300"
+                  _hover={{ color: accentColor }}
+                  transition="color 0.3s"
+                >
+                  Support
+                </Link>
+              </HStack>
+            </Flex>
+          </Container>
+        </Box>
+
+        {/* Image Viewer Modal */}
+        <Modal
+          isOpen={isImageViewerOpen}
+          onClose={closeImageViewer}
+          size="6xl"
+          isCentered
+        >
+          <ModalOverlay bg="blackAlpha.800" onClick={closeImageViewer} />
+          <ModalContent bg="transparent" boxShadow="none">
+            <ModalCloseButton
+              color="white"
+              size="lg"
+              onClick={closeImageViewer}
+              zIndex={9999}
+            />
+            <ModalBody p={0} position="relative">
+              <Box
+                position="relative"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                minH="80vh"
+              >
+                {/* Previous Button */}
+                <IconButton
+                  aria-label="Previous image"
+                  icon={<ChevronLeftIcon />}
+                  position="absolute"
+                  left={4}
+                  zIndex={10}
+                  size="lg"
+                  color="white"
+                  bg="blackAlpha.600"
+                  _hover={{ bg: "blackAlpha.800" }}
+                  onClick={prevImage}
+                  isDisabled={featureImages.length <= 1}
+                />
+
+                {/* Current Image */}
+                <Box maxW="90%" maxH="70vh" textAlign="center">
+                  <img
+                    src={featureImages[currentImageIndex].src}
+                    alt={featureImages[currentImageIndex].alt}
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "80%",
+                      objectFit: "contain",
+                      borderRadius: "8px",
+                    }}
+                  />
                   <Text
                     color="white"
                     fontSize="lg"
                     fontWeight="bold"
-                    textShadow="0 2px 4px rgba(0,0,0,0.5)"
+                    mt={4}
+                    textShadow="0 2px 4px rgba(0,0,0,0.8)"
                   >
-                    Dokahub Demo
+                    {featureImages[currentImageIndex].title}
                   </Text>
                   <Text
                     color="white"
                     fontSize="sm"
-                    opacity={0.9}
-                    textShadow="0 2px 4px rgba(0,0,0,0.5)"
+                    mt={2}
+                    textShadow="0 2px 4px rgba(0,0,0,0.8)"
                   >
-                    2:34 • See how it works
+                    {currentImageIndex + 1} of {featureImages.length}
                   </Text>
-                </VStack>
-              </Box>
-            </Box>
-
-            <HStack spacing={6} flexWrap="wrap" justify="center">
-              <VStack spacing={2} align="center" minW="150px">
-                <Text fontSize="3xl" fontWeight="bold" color={accentColor}>
-                  5x
-                </Text>
-                <Text fontSize="sm" color={"gray.300"} textAlign="center">
-                  Faster content creation
-                </Text>
-              </VStack>
-              <VStack spacing={2} align="center" minW="150px">
-                <Text fontSize="3xl" fontWeight="bold" color={accentColor}>
-                  80%
-                </Text>
-                <Text fontSize="sm" color={"gray.300"} textAlign="center">
-                  Time saved on scheduling
-                </Text>
-              </VStack>
-              <VStack spacing={2} align="center" minW="150px">
-                <Text fontSize="3xl" fontWeight="bold" color={accentColor}>
-                  3x
-                </Text>
-                <Text fontSize="sm" color={"gray.300"} textAlign="center">
-                  More engagement
-                </Text>
-              </VStack>
-            </HStack>
-          </VStack>
-        </Container>
-      </Box>
-
-       {/* Features Section */}
-       <Box
-         id="features"
-         ref={featuresRef}
-         py={20}
-         opacity={featuresVisible ? 1 : 0}
-         transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
-       >
-         <Container maxW="1200px">
-           <VStack spacing={16}>
-             <Box textAlign="center">
-               <Heading
-                 size="3xl"
-                 fontWeight="black"
-                 mb={4}
-                 fontSize={["2xl", "3xl", "4xl"]}
-               >
-                 Everything You Need for
-                 <br />
-                 <Text as="span" color={accentColor}>
-                   Content Success
-                 </Text>
-               </Heading>
-               <Text
-                 fontSize={["md", "lg", "xl"]}
-                 color="gray.700"
-                 maxW="600px"
-                 mx="auto"
-               >
-                 Powerful features designed to streamline your content creation
-                 and amplify your social media presence.
-               </Text>
-             </Box>
-
-             <VStack spacing={20} w="full">
-               {/* Feature 1 */}
-               <HStack
-                 spacing={8}
-                 align="center"
-                 flexDirection={["column", "column", "row"]}
-                 w="full"
-                 {...(prefersReducedMotion
-                   ? {}
-                   : {
-                       animation: `${fadeInUp} 0.8s ease-out 0.2s`,
-                       opacity: isVisible ? 1 : 0,
-                     })}
-               >
-                 <Box flex={1} textAlign="center">
-                   <Icon as={SettingsIcon} w={24} h={24} color={accentColor} />
-                 </Box>
-                 <Box flex={1}>
-                   <Heading size="lg" fontWeight="bold" mb={4}>
-                     Plan Your Content with AI
-                   </Heading>
-                   <Text color={featureTextColor} fontSize="lg">
-                     Plan your content for the next week, month with suggestions from AI to keep your social media strategy on track.
-                   </Text>
-                 </Box>
-               </HStack>
-
-               {/* Feature 2 */}
-               <HStack
-                 spacing={8}
-                 align="center"
-                 flexDirection={["column", "column", "row-reverse"]}
-                 w="full"
-                 {...(prefersReducedMotion
-                   ? {}
-                   : {
-                       animation: `${fadeInUp} 0.8s ease-out 0.4s`,
-                       opacity: isVisible ? 1 : 0,
-                     })}
-               >
-                 <Box flex={1} textAlign="center">
-                   <Icon as={CalendarIcon} w={24} h={24} color={accentColor} />
-                 </Box>
-                 <Box flex={1}>
-                   <Heading size="lg" fontWeight="bold" mb={4}>
-                     Content Calendar View
-                   </Heading>
-                   <Text color={featureTextColor} fontSize="lg">
-                     View scheduled content in your content calendar to stay organized and never miss a post.
-                   </Text>
-                 </Box>
-               </HStack>
-
-               {/* Feature 3 */}
-               <HStack
-                 spacing={8}
-                 align="center"
-                 flexDirection={["column", "column", "row"]}
-                 w="full"
-                 {...(prefersReducedMotion
-                   ? {}
-                   : {
-                       animation: `${fadeInUp} 0.8s ease-out 0.6s`,
-                       opacity: isVisible ? 1 : 0,
-                     })}
-               >
-                 <Box flex={1} textAlign="center">
-                   <Icon as={ChatIcon} w={24} h={24} color={accentColor} />
-                 </Box>
-                 <Box flex={1}>
-                   <Heading size="lg" fontWeight="bold" mb={4}>
-                     Team Collaboration
-                   </Heading>
-                   <Text color={featureTextColor} fontSize="lg">
-                     Invite others to collaborate with you on contents, assign tasks, and work together seamlessly.
-                   </Text>
-                 </Box>
-               </HStack>
-
-               {/* Feature 4 */}
-               <HStack
-                 spacing={8}
-                 align="center"
-                 flexDirection={["column", "column", "row-reverse"]}
-                 w="full"
-                 {...(prefersReducedMotion
-                   ? {}
-                   : {
-                       animation: `${fadeInUp} 0.8s ease-out 0.8s`,
-                       opacity: isVisible ? 1 : 0,
-                     })}
-               >
-                 <Box flex={1} textAlign="center">
-                   <Icon as={TimeIcon} w={24} h={24} color={accentColor} />
-                 </Box>
-                 <Box flex={1}>
-                   <Heading size="lg" fontWeight="bold" mb={4}>
-                     Smart Reminders
-                   </Heading>
-                   <Text color={featureTextColor} fontSize="lg">
-                     Get reminded when content is due, so you never miss important posting times.
-                   </Text>
-                 </Box>
-               </HStack>
-
-               {/* Feature 5 */}
-               <HStack
-                 spacing={8}
-                 align="center"
-                 flexDirection={["column", "column", "row"]}
-                 w="full"
-                 {...(prefersReducedMotion
-                   ? {}
-                   : {
-                       animation: `${fadeInUp} 0.8s ease-out 1.0s`,
-                       opacity: isVisible ? 1 : 0,
-                     })}
-               >
-                 <Box flex={1} textAlign="center">
-                   <Icon as={CheckCircleIcon} w={24} h={24} color={accentColor} />
-                 </Box>
-                 <Box flex={1}>
-                   <Heading size="lg" fontWeight="bold" mb={4}>
-                     Social Media Sharing
-                   </Heading>
-                   <Text color={featureTextColor} fontSize="lg">
-                     Share content to your social media accounts directly from the platform with one click.
-                   </Text>
-                 </Box>
-               </HStack>
-             </VStack>
-           </VStack>
-         </Container>
-       </Box>
-
-      {/* Pricing Section */}
-      <Box
-        id="pricing"
-        ref={pricingRef}
-        py={20}
-        bg="gray.100"
-        opacity={pricingVisible ? 1 : 0}
-        transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
-      >
-        <Container maxW="1200px">
-          <VStack spacing={12}>
-            <Box textAlign="center" maxW="600px" mx="auto">
-              <Heading
-                size="3xl"
-                fontWeight="black"
-                mb={4}
-                fontSize={["2xl", "3xl", "4xl"]}
-              >
-                Simple, Transparent Pricing
-              </Heading>
-              <Text fontSize={["md", "lg", "xl"]} color={"gray.700"}>
-                Start automating your content calendar today with our flexible
-                pricing.
-              </Text>
-            </Box>
-
-            {/* Billing Toggle */}
-            <HStack
-              spacing={0}
-              bg="gray.200"
-              p={1}
-              borderRadius="full"
-              maxW="300px"
-              mx="auto"
-            >
-              <Button
-                flex={1}
-                variant={billingPeriod === "monthly" ? "solid" : "ghost"}
-                bg={billingPeriod === "monthly" ? "white" : "transparent"}
-                color={billingPeriod === "monthly" ? "black" : "gray.600"}
-                _hover={{
-                  bg: billingPeriod === "monthly" ? "white" : "gray.100",
-                }}
-                onClick={() => setBillingPeriod("monthly")}
-                borderRadius="full"
-              >
-                Monthly
-              </Button>
-              <Button
-                flex={1}
-                variant={billingPeriod === "annual" ? "solid" : "ghost"}
-                bg={billingPeriod === "annual" ? "white" : "transparent"}
-                color={billingPeriod === "annual" ? "black" : "gray.600"}
-                _hover={{
-                  bg: billingPeriod === "annual" ? "white" : "gray.100",
-                }}
-                onClick={() => setBillingPeriod("annual")}
-                borderRadius="full"
-              >
-                Annual
-              </Button>
-            </HStack>
-
-            <Grid
-              templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }}
-              gap={8}
-              maxW="1200px"
-              w="full"
-              mx="auto"
-            >
-              {/* Free Plan */}
-              <Box
-                {...(prefersReducedMotion
-                  ? {}
-                  : {
-                      animation: `${fadeInUp} 0.8s ease-out`,
-                      opacity: isVisible ? 1 : 0,
-                    })}
-              >
-                <Box
-                  bg={bgColor}
-                  borderRadius="2xl"
-                  boxShadow="2xl"
-                  overflow="hidden"
-                  h="full"
-                >
-                  <VStack spacing={6} p={8}>
-                    <VStack spacing={2} textAlign="center">
-                      <Text fontSize="lg" color={"gray.300"}>
-                        Free Plan
-                      </Text>
-                      <HStack align="baseline" spacing={1}>
-                        <Text
-                          fontSize="4xl"
-                          fontWeight="black"
-                          color={textColor}
-                        >
-                          $0
-                        </Text>
-                        <Text fontSize="lg" color={"gray.300"}>
-                          /forever
-                        </Text>
-                      </HStack>
-                      <Text
-                        fontSize="sm"
-                        color={useColorModeValue("gray.500", "gray.400")}
-                      >
-                        Perfect for getting started
-                      </Text>
-                    </VStack>
-
-                    <VStack spacing={4} align="start" w="full">
-                      <HStack spacing={3}>
-                        <Icon
-                          as={CheckCircleIcon}
-                          color="green.500"
-                          w={5}
-                          h={5}
-                        />
-                        <Text fontSize="sm">1 team</Text>
-                      </HStack>
-                      <HStack spacing={3}>
-                        <Icon
-                          as={CheckCircleIcon}
-                          color="green.500"
-                          w={5}
-                          h={5}
-                        />
-                        <Text fontSize="sm">10 posts per month</Text>
-                      </HStack>
-                      <HStack spacing={3}>
-                        <Icon
-                          as={CheckCircleIcon}
-                          color="green.500"
-                          w={5}
-                          h={5}
-                        />
-                        <Text fontSize="sm">1 content plan per month</Text>
-                      </HStack>
-                      <HStack spacing={3}>
-                        <Icon
-                          as={CheckCircleIcon}
-                          color="green.500"
-                          w={5}
-                          h={5}
-                        />
-                        <Text fontSize="sm">1 team invite</Text>
-                      </HStack>
-                      <HStack spacing={3}>
-                        <Icon
-                          as={CheckCircleIcon}
-                          color="green.500"
-                          w={5}
-                          h={5}
-                        />
-                        <Text fontSize="sm">Basic scheduling</Text>
-                      </HStack>
-                    </VStack>
-
-                    <VStack spacing={4} w="full" mt="auto">
-                      <Button
-                        bg="gray.100"
-                        color="gray.700"
-                        size="lg"
-                        w="full"
-                        fontSize="lg"
-                        fontWeight="bold"
-                        _hover={{
-                          bg: "gray.200",
-                        }}
-                        transition="all 0.3s"
-                        onClick={() => navigate("/signup")}
-                      >
-                        Get Started Free
-                      </Button>
-                    </VStack>
-                  </VStack>
                 </Box>
-              </Box>
 
-              {/* Pro Plan */}
-              <Box
-                {...(prefersReducedMotion
-                  ? {}
-                  : {
-                      animation: `${fadeInUp} 0.8s ease-out 0.2s`,
-                      opacity: isVisible ? 1 : 0,
-                    })}
-              >
-                <Box
-                  bg={bgColor}
-                  borderRadius="2xl"
-                  boxShadow="2xl"
-                  overflow="hidden"
-                  border="2px solid"
-                  borderColor={accentColor}
-                  position="relative"
-                  h="full"
-                >
-                  {/* Popular Badge */}
-                  <Box
-                    position="absolute"
-                    top={4}
-                    right={4}
-                    bg={accentColor}
-                    color="black"
-                    px={3}
-                    py={1}
-                    borderRadius="full"
-                    fontSize="xs"
-                    fontWeight="bold"
-                    textTransform="uppercase"
-                    letterSpacing="wide"
-                  >
-                    Most Popular
-                  </Box>
-
-                  <VStack spacing={6} p={8}>
-                    <VStack spacing={2} textAlign="center">
-                      <Text fontSize="lg" color={"gray.300"}>
-                        Pro Plan
-                      </Text>
-                      <HStack align="baseline" spacing={1}>
-                        <Text
-                          fontSize="4xl"
-                          fontWeight="black"
-                          color={accentColor}
-                        >
-                          {billingPeriod === "monthly" ? "$9.99" : "$99.90"}
-                        </Text>
-                        <Text fontSize="lg" color={"gray.300"}>
-                          {billingPeriod === "monthly" ? "/month" : "/year"}
-                        </Text>
-                      </HStack>
-                      <Text
-                        fontSize="sm"
-                        color={useColorModeValue("gray.500", "gray.400")}
-                      >
-                        Billed {billingPeriod} • Cancel anytime
-                      </Text>
-                    </VStack>
-
-                    <VStack spacing={4} align="start" w="full">
-                      <HStack spacing={3}>
-                        <Icon
-                          as={CheckCircleIcon}
-                          color="green.500"
-                          w={5}
-                          h={5}
-                        />
-                        <Text fontSize="sm">Unlimited content plans</Text>
-                      </HStack>
-                      <HStack spacing={3}>
-                        <Icon
-                          as={CheckCircleIcon}
-                          color="green.500"
-                          w={5}
-                          h={5}
-                        />
-                        <Text fontSize="sm">AI-powered content generation</Text>
-                      </HStack>
-                      <HStack spacing={3}>
-                        <Icon
-                          as={CheckCircleIcon}
-                          color="green.500"
-                          w={5}
-                          h={5}
-                        />
-                        <Text fontSize="sm">Automated scheduling</Text>
-                      </HStack>
-                      <HStack spacing={3}>
-                        <Icon
-                          as={CheckCircleIcon}
-                          color="green.500"
-                          w={5}
-                          h={5}
-                        />
-                        <Text fontSize="sm">Team collaboration tools</Text>
-                      </HStack>
-                      <HStack spacing={3}>
-                        <Icon
-                          as={CheckCircleIcon}
-                          color="green.500"
-                          w={5}
-                          h={5}
-                        />
-                        <Text fontSize="sm">Analytics & insights</Text>
-                      </HStack>
-                      <HStack spacing={3}>
-                        <Icon
-                          as={CheckCircleIcon}
-                          color="green.500"
-                          w={5}
-                          h={5}
-                        />
-                        <Text fontSize="sm">Priority support</Text>
-                      </HStack>
-                    </VStack>
-
-                    <VStack spacing={4} w="full" mt="auto">
-                      <Box
-                        bg="grey.100"
-                        borderRadius="lg"
-                        p={4}
-                        w="full"
-                        textAlign="center"
-                      >
-                        <Text fontSize="sm" fontWeight="bold" color="grey.800">
-                          14-Day Free Trial
-                        </Text>
-                        <Text fontSize="xs" color="blue.700">
-                          No credit card required
-                        </Text>
-                      </Box>
-
-                      <Button
-                        bg={accentColor}
-                        color="black"
-                        size="lg"
-                        w="full"
-                        fontSize="lg"
-                        fontWeight="bold"
-                        _hover={{
-                          bg: accentColor,
-                          opacity: 0.8,
-                          transform: "translateY(-2px)",
-                        }}
-                        transition="all 0.3s"
-                        onClick={() => navigate("/signup")}
-                      >
-                        Start Free Trial
-                      </Button>
-                    </VStack>
-                  </VStack>
-                </Box>
-              </Box>
-
-              {/* Enterprise Plan */}
-              <Box
-                {...(prefersReducedMotion
-                  ? {}
-                  : {
-                      animation: `${fadeInUp} 0.8s ease-out 0.4s`,
-                      opacity: isVisible ? 1 : 0,
-                    })}
-              >
-                <Box
-                  bg={bgColor}
-                  borderRadius="2xl"
-                  boxShadow="2xl"
-                  overflow="hidden"
-                  h="full"
-                >
-                  <VStack spacing={6} p={8}>
-                    <VStack spacing={2} textAlign="center">
-                      <Text fontSize="lg" color={"gray.300"}>
-                        Enterprise Plan
-                      </Text>
-                      <HStack align="baseline" spacing={1}>
-                        <Text
-                          fontSize="4xl"
-                          fontWeight="black"
-                          color={textColor}
-                        >
-                          Custom
-                        </Text>
-                      </HStack>
-                      <Text
-                        fontSize="sm"
-                        color={useColorModeValue("gray.500", "gray.400")}
-                      >
-                        For large teams and agencies
-                      </Text>
-                    </VStack>
-
-                    <VStack spacing={4} align="start" w="full">
-                      <HStack spacing={3}>
-                        <Icon
-                          as={CheckCircleIcon}
-                          color="green.500"
-                          w={5}
-                          h={5}
-                        />
-                        <Text fontSize="sm">Everything in Pro</Text>
-                      </HStack>
-                      <HStack spacing={3}>
-                        <Icon
-                          as={CheckCircleIcon}
-                          color="green.500"
-                          w={5}
-                          h={5}
-                        />
-                        <Text fontSize="sm">Unlimited teams</Text>
-                      </HStack>
-                      <HStack spacing={3}>
-                        <Icon
-                          as={CheckCircleIcon}
-                          color="green.500"
-                          w={5}
-                          h={5}
-                        />
-                        <Text fontSize="sm">Advanced analytics</Text>
-                      </HStack>
-                      <HStack spacing={3}>
-                        <Icon
-                          as={CheckCircleIcon}
-                          color="green.500"
-                          w={5}
-                          h={5}
-                        />
-                        <Text fontSize="sm">White-label options</Text>
-                      </HStack>
-                      <HStack spacing={3}>
-                        <Icon
-                          as={CheckCircleIcon}
-                          color="green.500"
-                          w={5}
-                          h={5}
-                        />
-                        <Text fontSize="sm">Dedicated account manager</Text>
-                      </HStack>
-                      <HStack spacing={3}>
-                        <Icon
-                          as={CheckCircleIcon}
-                          color="green.500"
-                          w={5}
-                          h={5}
-                        />
-                        <Text fontSize="sm">Custom integrations</Text>
-                      </HStack>
-                    </VStack>
-
-                    <VStack spacing={4} w="full" mt="auto">
-                      <Button
-                        bg="gray.100"
-                        color="gray.700"
-                        size="lg"
-                        w="full"
-                        fontSize="lg"
-                        fontWeight="bold"
-                        _hover={{
-                          bg: "gray.200",
-                        }}
-                        transition="all 0.3s"
-                        onClick={() => navigate("/contact")}
-                      >
-                        Contact Sales
-                      </Button>
-                    </VStack>
-                  </VStack>
-                </Box>
-              </Box>
-            </Grid>
-
-            <HStack spacing={8} flexWrap="wrap" justify="center">
-              <VStack spacing={1} align="center">
-                <Icon as={CheckCircleIcon} color="green.500" w={6} h={6} />
-                <Text fontSize="sm" fontWeight="medium">
-                  30-day money back
-                </Text>
-              </VStack>
-              <VStack spacing={1} align="center">
-                <Icon as={CheckCircleIcon} color="green.500" w={6} h={6} />
-                <Text fontSize="sm" fontWeight="medium">
-                  Cancel anytime
-                </Text>
-              </VStack>
-              <VStack spacing={1} align="center">
-                <Icon as={CheckCircleIcon} color="green.500" w={6} h={6} />
-                <Text fontSize="sm" fontWeight="medium">
-                  Secure payment
-                </Text>
-              </VStack>
-            </HStack>
-          </VStack>
-        </Container>
-      </Box>
-
-      {/* CTA Section */}
-      <Box
-        id="cta"
-        ref={ctaRef}
-        py={20}
-        opacity={ctaVisible ? 1 : 0}
-        transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
-      >
-        <Container maxW="800px" textAlign="center">
-          <VStack spacing={8}>
-            <Box
-              {...(prefersReducedMotion
-                ? {}
-                : {
-                    animation: `${slideInLeft} 0.8s ease-out`,
-                    opacity: isVisible ? 1 : 0,
-                  })}
-            >
-              <Heading
-                size="3xl"
-                fontWeight="black"
-                mb={4}
-                fontSize={["2xl", "3xl", "4xl"]}
-              >
-                Ready to Transform Your
-                <br />
-                <Text as="span" color={accentColor}>
-                  Content Strategy?
-                </Text>
-              </Heading>
-              <Text fontSize={["md", "lg", "xl"]} color={"gray.600"} mb={8}>
-                Join thousands of creators and marketers who have automated
-                their content calendar and boosted their engagement.
-              </Text>
-            </Box>
-
-            <Box
-              {...(prefersReducedMotion
-                ? {}
-                : {
-                    animation: `${slideInRight} 0.8s ease-out 0.2s both`,
-                    opacity: isVisible ? 1 : 0,
-                  })}
-            >
-              <HStack spacing={4} justify="center" flexWrap="wrap">
-                <Button
+                {/* Next Button */}
+                <IconButton
+                  aria-label="Next image"
+                  icon={<ChevronRightIcon />}
+                  position="absolute"
+                  right={4}
+                  zIndex={10}
                   size="lg"
-                  bg={accentColor}
-                  color="black"
-                  px={10}
-                  py={4}
-                  fontSize="lg"
-                  fontWeight="bold"
-                  leftIcon={<CheckCircleIcon />}
-                  _hover={{
-                    bg: accentColor,
-                    opacity: 0.8,
-                    transform: "translateY(-2px)",
-                  }}
-                  transition="all 0.3s"
-                  onClick={() => navigate("/signup")}
-                >
-                  Start Your Free Trial
-                </Button>
-              </HStack>
-
-              <Text
-                fontSize="sm"
-                color={useColorModeValue("gray.500", "gray.400")}
-                mt={4}
-              >
-                No credit card required • 14-day free trial • Cancel anytime
-              </Text>
-            </Box>
-          </VStack>
-        </Container>
+                  color="white"
+                  bg="blackAlpha.600"
+                  _hover={{ bg: "blackAlpha.800" }}
+                  onClick={nextImage}
+                  isDisabled={featureImages.length <= 1}
+                />
+              </Box>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
       </Box>
-
-      {/* Footer */}
-      <Box
-        id="footer"
-        ref={footerRef}
-        py={8}
-        borderTop="1px"
-        borderColor="gray.300"
-        opacity={footerVisible ? 1 : 0}
-        transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
-      >
-        <Container maxW="1200px">
-          <Flex
-            direction={["column", "row"]}
-            align={["center", "center"]}
-            justify="space-between"
-            textAlign={["center", "left"]}
-          >
-            <Text color={"gray.300"}>© 2024 Dokahub. All rights reserved.</Text>
-            <HStack spacing={6} mt={[4, 0]}>
-              <Link
-                as={RouterLink}
-                to="/blog"
-                color="gray.300"
-                _hover={{ color: accentColor }}
-                transition="color 0.3s"
-              >
-                Blog
-              </Link>
-              <Link
-                as={RouterLink}
-                to="/privacy"
-                color="gray.300"
-                _hover={{ color: accentColor }}
-                transition="color 0.3s"
-              >
-                Privacy
-              </Link>
-              <Link
-                as={RouterLink}
-                to="/terms"
-                color="gray.300"
-                _hover={{ color: accentColor }}
-                transition="color 0.3s"
-              >
-                Terms
-              </Link>
-              <Link
-                as={RouterLink}
-                to="/contact"
-                color="gray.300"
-                _hover={{ color: accentColor }}
-                transition="color 0.3s"
-              >
-                Support
-              </Link>
-            </HStack>
-          </Flex>
-        </Container>
-      </Box>
-    </Box>
     </>
   );
 };
