@@ -149,8 +149,8 @@ const SubscriptionPage: React.FC = () => {
       popular: false,
     },
     {
-      name: "pro",
-      title: "Pro",
+      name: "professional",
+      title: "Professional",
       monthlyPrice: 29,
       features: [
         "5 Teams",
@@ -167,13 +167,13 @@ const SubscriptionPage: React.FC = () => {
     },
     {
       name: "agency",
-      title: "Agency",
+      title: "Enterprise",
       monthlyPrice: 99,
       features: [
         "Unlimited Teams",
         "Unlimited Posts",
         "Unlimited Content Plans",
-        "All Pro features",
+        "All Professional features",
         "Custom integrations",
         "Dedicated account manager",
         "24/7 phone support",
@@ -362,7 +362,7 @@ const SubscriptionPage: React.FC = () => {
                     </VStack>
 
                     <VStack spacing={4} w="full">
-                      {plan.name === "pro" && (
+                      {plan.name === "professional" && (
                         <Box
                           bg="blue.50"
                           borderRadius="lg"
@@ -375,7 +375,7 @@ const SubscriptionPage: React.FC = () => {
                             fontWeight="bold"
                             color="blue.700"
                           >
-                            🎉 7-Day Free Trial
+                            7-Day Free Trial
                           </Text>
                           <Text fontSize="xs" color="blue.600">
                             No credit card required

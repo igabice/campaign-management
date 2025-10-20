@@ -8,7 +8,7 @@ import mailService from "../services/mail.service";
 import logger from "./logger";
 
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-08-27.basil",
+  // apiVersion: "2025-08-27.basil",
 });
 
 export const auth = betterAuth({
@@ -88,12 +88,12 @@ export const auth = betterAuth({
   },
   // redirectTo: `${process.env.FRONTEND_URL || "http://localhost:3000"}/dashboard`,
   plugins: [
-     stripe({
-       stripeClient,
-       stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
-       createCustomerOnSignUp: true,
-       webhookPath: "/stripe/webhook",
-       subscription: {
+    stripe({
+      stripeClient,
+      stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
+      createCustomerOnSignUp: true,
+      webhookPath: "/stripe/webhook",
+      subscription: {
         enabled: true,
         authorizeReference: async ({ user, action, session, referenceId }) => {
           logger.debug({ user, action, session, referenceId });
@@ -134,13 +134,13 @@ export const auth = betterAuth({
             },
           },
           {
-            name: "pro",
+            name: "professional",
             priceId:
               process.env.STRIPE_PRO_PRICE_ID ||
-              "price_1S9vKSIi1vSoxV6yyqqWYLjf", //9.99
+              "price_1SKG9SIwRhaDWVrOUHlyiDQk", //9.99
             annualDiscountPriceId:
               process.env.STRIPE_PRO_ANNUAL_PRICE_ID ||
-              "price_1SHseHIi1vSoxV6yokXrwep8", // 100
+              "price_1SKG9jIwRhaDWVrOff2IWV0Y", // 100
             limits: {
               teams: 5,
               posts: 100,
@@ -155,10 +155,10 @@ export const auth = betterAuth({
             name: "agency",
             priceId:
               process.env.STRIPE_ENTERPRISE_PRICE_ID || //49.99
-              "price_1SHsWXIi1vSoxV6yr5FMr4dl",
+              "price_1SKGASIwRhaDWVrOHU8JWEXG",
             annualDiscountPriceId:
               process.env.STRIPE_ENTERPRISE_ANNUAL_PRICE_ID ||
-              "price_1SHsaNIi1vSoxV6yv5CxqpF5", // 500
+              "price_1SKGAnIwRhaDWVrOFLLD3xPw", // 500
             limits: {
               teams: -1,
               posts: -1,

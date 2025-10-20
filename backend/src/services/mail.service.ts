@@ -319,7 +319,7 @@ class MailService {
           <h3 style="margin-top: 0; color: #28a745;">🚀 What you can do now:</h3>
           <ul style="margin-bottom: 0;">
             ${
-              user.plan === "pro"
+              user.plan === "professional"
                 ? `
               <li>Create up to 5 teams</li>
               <li>Schedule up to 100 posts per month</li>
@@ -327,7 +327,7 @@ class MailService {
               <li>Access advanced analytics</li>
               <li>Collaborate with team members</li>
             `
-                : user.plan === "enterprise"
+                : user.plan === "agency"
                   ? `
               <li>Unlimited teams and posts</li>
               <li>All Pro features</li>
