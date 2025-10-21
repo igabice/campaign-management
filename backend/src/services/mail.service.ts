@@ -40,7 +40,7 @@ class MailService {
           </a>
         </div>
         <p>If you didn't expect this invitation, you can safely ignore this email.</p>
-        <p>Best regards,<br>The Campaign Management Team</p>
+        <p>Best regards,<br>The Dokahub Team</p>
       </div>
     `;
 
@@ -65,9 +65,9 @@ class MailService {
 
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Welcome to Campaign Management! 🎉</h2>
+        <h2>Welcome to Dokahub!</h2>
         <p>Hello ${user.name || "there"},</p>
-        <p>Welcome to the Campaign Management platform! Your account has been successfully created.</p>
+        <p>Welcome to the Dokahub platform! Your account has been successfully created.</p>
         <p>You can now:</p>
         <ul>
           <li>Create and manage teams</li>
@@ -81,7 +81,7 @@ class MailService {
           </a>
         </div>
         <p>If you have any questions, feel free to reach out to our support team.</p>
-        <p>Happy campaigning!<br>The Campaign Management Team</p>
+        <p>Happy campaigning!<br>The Dokahub Team</p>
       </div>
     `;
 
@@ -89,7 +89,7 @@ class MailService {
       await this.transporter.sendMail({
         from: process.env.SMTP_FROM || "noreply@dokahub.com",
         to: user.email,
-        subject: "Welcome to Campaign Management!",
+        subject: "Welcome to Dokahub!",
         html,
       });
     } catch (error) {
@@ -122,7 +122,7 @@ class MailService {
           </a>
         </div>
         <p>Start by inviting your team members to collaborate on campaigns!</p>
-        <p>Best regards,<br>The Campaign Management Team</p>
+        <p>Best regards,<br>The Dokahub Team</p>
       </div>
     `;
 
@@ -199,7 +199,7 @@ class MailService {
           </a>
         </div>
         <p>We value you as part of our community and want to help you succeed!</p>
-        <p>Best regards,<br>The Campaign Management Team</p>
+        <p>Best regards,<br>The Dokahub Team</p>
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
         <p style="font-size: 12px; color: #666;">
           You're receiving this email because you haven't been active on Campaign Manager for ${daysInactive} days.
@@ -271,7 +271,7 @@ class MailService {
         </ul>
 
         <p>We're here to help you succeed! Feel free to reach out if you have any questions.</p>
-        <p>Happy campaigning!<br>The Campaign Management Team</p>
+        <p>Happy campaigning!<br>The Dokahub Team</p>
 
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
         <p style="font-size: 12px; color: #666;">
@@ -352,7 +352,7 @@ class MailService {
 
         <p>If you have any questions about your subscription or need help getting started, don't hesitate to reach out to our support team.</p>
         <p>Welcome to the next level of campaign management!</p>
-        <p>Best regards,<br>The Campaign Management Team</p>
+        <p>Best regards,<br>The Dokahub Team</p>
       </div>
     `;
 
@@ -403,7 +403,7 @@ class MailService {
 
         <p>You now have access to all the features included in your plan. Start creating amazing campaigns!</p>
         <p>If you need any assistance, our support team is here to help.</p>
-        <p>Happy campaigning!<br>The Campaign Management Team</p>
+        <p>Happy campaigning!<br>The Dokahub Team</p>
       </div>
     `;
 
@@ -464,7 +464,7 @@ class MailService {
 
         <p>We truly appreciate the time you've spent with us and hope to see you back soon. If there's anything we could have done better, we'd love to hear your feedback.</p>
         <p>Thank you for being part of our community!</p>
-        <p>Best regards,<br>The Campaign Management Team</p>
+        <p>Best regards,<br>The Dokahub Team</p>
       </div>
     `;
 
@@ -489,7 +489,7 @@ class MailService {
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>Reset Your Password 🔒</h2>
         <p>Hello ${user.name || "there"},</p>
-        <p>You have requested to reset your password for your Campaign Management account.</p>
+        <p>You have requested to reset your password for your Dokahub account.</p>
         <p>Click the button below to reset your password:</p>
         <div style="text-align: center; margin: 30px 0;">
           <a href="${resetUrl}" style="background-color: #dc3545; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
@@ -503,7 +503,7 @@ class MailService {
           ${resetUrl}
         </p>
         <p>For security reasons, please don't share this email or the reset link with anyone.</p>
-        <p>Best regards,<br>The Campaign Management Team</p>
+        <p>Best regards,<br>The Dokahub Team</p>
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
         <p style="font-size: 12px; color: #666;">
           If you have any issues resetting your password, please contact our support team.
@@ -515,7 +515,7 @@ class MailService {
       await this.transporter.sendMail({
         from: process.env.SMTP_FROM || "noreply@dokahub.com",
         to: user.email,
-        subject: "Reset Your Password - Campaign Management",
+        subject: "Reset Your Password - Dokahub",
         html,
       });
     } catch (error) {

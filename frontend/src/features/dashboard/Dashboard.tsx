@@ -52,6 +52,7 @@ import { userPreferenceApi } from "../../services/userPreferences";
 import { Post } from "../../types/schemas";
 import { format } from "date-fns";
 import { CreateTeamModal } from "../../components/modals/CreateTeamModal";
+import { CreateSocialMediaModal } from "../../components/modals/CreateSocialMediaModal";
 
 type PeriodFilter = "year" | "month" | "3months";
 type OverdueFilter = "24hours" | "3days" | "7days";
@@ -88,6 +89,8 @@ const Dashboard: React.FC = () => {
   const borderColor = useColorModeValue("gray.200", "gray.700");
 
   const [isCreateTeamModalOpen, setIsCreateTeamModalOpen] = useState(false);
+  const [isCreateSocialMediaModalOpen, setIsCreateSocialMediaModalOpen] =
+    useState(false);
 
   const fetchDashboardData = useCallback(async () => {
     if (!activeTeam) return;
@@ -214,7 +217,7 @@ const Dashboard: React.FC = () => {
           {/* Header */}
           <Box textAlign="center">
             <Heading size="2xl" mb={4} color="blue.600">
-              Welcome to Campaign Management! 🎉
+              Welcome to Dokahub!
             </Heading>
             <Text fontSize="lg" color="gray.600" mb={6}>
               Let's get you set up and ready to manage your social media
@@ -354,7 +357,7 @@ const Dashboard: React.FC = () => {
               >
                 <VStack spacing={4}>
                   <Heading size="md" color="green.700" textAlign="center">
-                    Why Campaign Management?
+                    Why Dokahub?
                   </Heading>
                   <Grid
                     templateColumns={[
@@ -429,6 +432,99 @@ const Dashboard: React.FC = () => {
           onTeamCreated={(newTeam) => {
             refreshTeams();
             // The TeamContext will automatically set this as activeTeam
+          }}
+        />
+      </Box>
+    );
+  }
+
+  // If user has a team but no social media accounts, show a prompt to add one
+  const hasNoSocialMedia =
+    analytics &&
+    (!analytics.platformDistribution ||
+      analytics.platformDistribution.length === 0);
+
+  if (hasNoSocialMedia) {
+    return (
+      <Box p={8} maxW="1000px" mx="auto">
+        <VStack spacing={8} align="stretch">
+          {/* Header */}
+          <Box textAlign="center">
+            <Heading size="2xl" mb={4} color="blue.600">
+              Welcome to {activeTeam?.title}!
+            </Heading>
+            <Text fontSize="lg" color="gray.600" mb={6}>
+              Let's connect your social media accounts to start creating and
+              scheduling content.
+            </Text>
+          </Box>
+
+          {/* Add Social Media Section */}
+          <Box>
+            <Heading size="lg" mb={6} textAlign="center">
+              Connect Your Social Media Accounts
+            </Heading>
+
+            <VStack spacing={6} align="stretch">
+              {/* Step 1: Add Social Media */}
+              <Box
+                bg="yellow.50"
+                p={6}
+                borderRadius="lg"
+                border="2px"
+                borderColor="yellow.200"
+              >
+                <VStack spacing={4} align="center">
+                  <Heading size="md" color="blue.700">
+                    Add Your First Social Media Account
+                  </Heading>
+                  <Text color="gray.700" textAlign="center">
+                    Connect your Facebook, Twitter, TikTok, or LinkedIn accounts
+                    to start scheduling posts and managing your social media
+                    presence.
+                  </Text>
+                  <Button
+                    colorScheme="blue"
+                    size="lg"
+                    onClick={() => setIsCreateSocialMediaModalOpen(true)}
+                  >
+                    Add Social Media Account
+                  </Button>
+                </VStack>
+              </Box>
+            </VStack>
+          </Box>
+
+          {/* Help Section */}
+          <Box textAlign="center" pt={4}>
+            <Text fontSize="sm" color="gray.500">
+              Need help getting started? Check out our{" "}
+              <Text
+                as="span"
+                color="blue.500"
+                cursor="pointer"
+                _hover={{ textDecoration: "underline" }}
+              >
+                social media setup guide
+              </Text>{" "}
+              or{" "}
+              <Text
+                as="span"
+                color="blue.500"
+                cursor="pointer"
+                _hover={{ textDecoration: "underline" }}
+              >
+                contact support
+              </Text>
+            </Text>
+          </Box>
+        </VStack>
+
+        <CreateSocialMediaModal
+          isOpen={isCreateSocialMediaModalOpen}
+          onClose={() => setIsCreateSocialMediaModalOpen(false)}
+          onCreated={() => {
+            fetchDashboardData(); // Refresh analytics to show the new social media account
           }}
         />
       </Box>
@@ -691,9 +787,18 @@ const Dashboard: React.FC = () => {
                   )}
                   {(!analytics?.platformDistribution ||
                     analytics.platformDistribution.length === 0) && (
-                    <Text fontSize="sm" color="gray.500">
-                      No platform data available
-                    </Text>
+                    <Box textAlign="center" py={4}>
+                      <Text fontSize="sm" color="gray.500" mb={3}>
+                        No social media accounts connected
+                      </Text>
+                      <Button
+                        size="sm"
+                        colorScheme="blue"
+                        onClick={() => setIsCreateSocialMediaModalOpen(true)}
+                      >
+                        Add Social Media Account
+                      </Button>
+                    </Box>
                   )}
                 </VStack>
               </CardBody>
@@ -864,6 +969,14 @@ const Dashboard: React.FC = () => {
           </CardBody>
         </Card>
       </VStack>
+
+      <CreateSocialMediaModal
+        isOpen={isCreateSocialMediaModalOpen}
+        onClose={() => setIsCreateSocialMediaModalOpen(false)}
+        onCreated={() => {
+          fetchDashboardData(); // Refresh analytics to show the new social media account
+        }}
+      />
     </Box>
   );
 };

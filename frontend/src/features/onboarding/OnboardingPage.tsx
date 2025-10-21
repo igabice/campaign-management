@@ -28,6 +28,7 @@ import { useNavigate } from "react-router-dom";
 import { teamsApi } from "../../services/teams";
 import { userPreferenceApi } from "../../services/userPreferences";
 import { useAuth } from "../../features/auth/AuthContext";
+import { useTeam } from "../../contexts/TeamContext";
 import { UserPreference } from "../../types/schemas";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
@@ -64,6 +65,7 @@ const POPULAR_TOPICS = [
 
 const OnboardingPage: React.FC = () => {
   const { session } = useAuth();
+  const { refreshTeams } = useTeam();
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -194,6 +196,9 @@ const OnboardingPage: React.FC = () => {
       } as Partial<UserPreference>;
 
       await userPreferenceApi.createUserPreferences(preferencesData);
+
+      // Refresh teams in context to load the newly created team
+      await refreshTeams();
 
       toast({
         title: "Welcome!",

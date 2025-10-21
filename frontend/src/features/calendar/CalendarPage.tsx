@@ -1,7 +1,39 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Box, Heading, Tabs, TabList, TabPanels, Tab, TabPanel, Button, HStack, Flex, Table, Thead, Tbody, Tr, Th, Td, Input, InputGroup, InputLeftElement, Select, Text, IconButton, VStack, Badge, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton } from "@chakra-ui/react";
+import {
+  Box,
+  Heading,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+  Button,
+  HStack,
+  Flex,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Select,
+  Text,
+  IconButton,
+  VStack,
+  Badge,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+} from "@chakra-ui/react";
 import { SearchIcon, EditIcon, DeleteIcon } from "@chakra-ui/icons";
-import { Twitter, Facebook, Linkedin, Instagram } from 'lucide-react';
+import { Twitter, Facebook, Linkedin, Instagram } from "lucide-react";
 import { Calendar, dateFnsLocalizer, View } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale";
@@ -12,6 +44,7 @@ import { Post } from "../../types/schemas";
 import { CreatePostModal } from "../../components/modals/CreatePostModal";
 import { PostDetailsModal } from "../../components/modals/PostDetailsModal";
 import { PostsListModal } from "../../components/modals/PostsListModal";
+import { useNavigate } from "react-router-dom";
 
 const locales = {
   "en-US": enUS,
@@ -27,6 +60,7 @@ const localizer = dateFnsLocalizer({
 
 export const CalendarPage = () => {
   const { activeTeam } = useTeam();
+  const navigate = useNavigate();
   const [posts, setPosts] = useState<Post[]>([]);
   const [events, setEvents] = useState<any[]>([]);
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
@@ -36,11 +70,11 @@ export const CalendarPage = () => {
   const [isListOpen, setIsListOpen] = useState(false);
   const [datePosts, setDatePosts] = useState<Post[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [currentView, setCurrentView] = useState<View>('month');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
-  const [startDate, setStartDate] = useState<string>('');
-  const [endDate, setEndDate] = useState<string>('');
+  const [currentView, setCurrentView] = useState<View>("month");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
   const [totalPosts, setTotalPosts] = useState<number>(0);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -48,13 +82,13 @@ export const CalendarPage = () => {
 
   const getPlatformIcon = (platform: string) => {
     switch (platform.toLowerCase()) {
-      case 'twitter':
+      case "twitter":
         return <Twitter size={16} />;
-      case 'facebook':
+      case "facebook":
         return <Facebook size={16} />;
-      case 'linkedin':
+      case "linkedin":
         return <Linkedin size={16} />;
-      case 'instagram':
+      case "instagram":
         return <Instagram size={16} />;
       default:
         return null;
@@ -69,7 +103,7 @@ export const CalendarPage = () => {
         search: searchTerm || undefined,
         status: statusFilter || undefined,
         startDate: startDate || undefined,
-        endDate: endDate || undefined
+        endDate: endDate || undefined,
       });
       setPosts(response.result);
       setTotalPosts(response.count);
@@ -95,8 +129,8 @@ export const CalendarPage = () => {
   }, [fetchPosts]);
 
   useEffect(() => {
-    const newEvents = posts.map(post => ({
-      title: post.title || post.content.substring(0, 50) + '...',
+    const newEvents = posts.map((post) => ({
+      title: post.title || post.content.substring(0, 50) + "...",
       start: new Date(post.scheduledDate),
       end: new Date(post.scheduledDate),
       resource: post,
@@ -109,8 +143,15 @@ export const CalendarPage = () => {
       <Flex mb={4} align="center" justify="space-between">
         <Heading>Calendar</Heading>
         <HStack spacing={4}>
-          <Button colorScheme="blue" onClick={() => setIsCreatePostOpen(true)}>Create Post</Button>
-          <Button colorScheme="green" onClick={() => console.log('Generate plan')}>Generate Plan</Button>
+          <Button colorScheme="blue" onClick={() => setIsCreatePostOpen(true)}>
+            Create Post
+          </Button>
+          <Button
+            colorScheme="green"
+            onClick={() => navigate("/content-planner/create")}
+          >
+            Generate Plan
+          </Button>
         </HStack>
       </Flex>
       <Tabs h="full">
@@ -136,7 +177,7 @@ export const CalendarPage = () => {
                 }}
                 onSelectSlot={(slotInfo) => {
                   const { start, end } = slotInfo;
-                  const dayPosts = posts.filter(post => {
+                  const dayPosts = posts.filter((post) => {
                     const postDate = new Date(post.scheduledDate);
                     return postDate >= start && postDate < end;
                   });
@@ -147,243 +188,307 @@ export const CalendarPage = () => {
                   }
                 }}
                 selectable
-                views={['month', 'week', 'day']}
+                views={["month", "week", "day"]}
                 style={{ height: "600px" }}
               />
             </Box>
           </TabPanel>
-           <TabPanel>
-             <Box pb={8}>
-               <Heading size="md" mb={4}>Scheduled Posts</Heading>
-               <HStack spacing={4} mb={4}>
-                 <Select placeholder="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} w="200px">
-                   <option value="Draft">Draft</option>
-                   <option value="Posted">Posted</option>
-                 </Select>
-                 <VStack spacing={1} display={{ base: 'none', md: 'flex' }}>
-                   <Text fontSize="sm" fontWeight="bold">Start Date</Text>
-                   <Input
-                     type="date"
-                     value={startDate}
-                     onChange={(e) => setStartDate(e.target.value)}
-                     size="sm"
-                   />
-                 </VStack>
-                 <VStack spacing={1} display={{ base: 'none', md: 'flex' }}>
-                   <Text fontSize="sm" fontWeight="bold">End Date</Text>
-                   <Input
-                     type="date"
-                     value={endDate}
-                     onChange={(e) => setEndDate(e.target.value)}
-                     size="sm"
-                   />
-                 </VStack>
-                 <InputGroup flex={1}>
-                   <InputLeftElement pointerEvents="none">
-                     <SearchIcon color="gray.300" />
-                   </InputLeftElement>
-                   <Input
-                     placeholder="Search posts by title or content..."
-                     value={searchTerm}
-                     onChange={(e) => setSearchTerm(e.target.value)}
-                   />
-                 </InputGroup>
-                 <Button
-                   variant="link"
-                   colorScheme="blue"
-                   display={{ base: 'none', md: 'inline-flex' }}
-                   onClick={() => {
-                     setStatusFilter('');
-                     setStartDate('');
-                     setEndDate('');
-                     setSearchTerm('');
-                   }}
-                 >
-                   Clear Filters
-                 </Button>
-               </HStack>
-                <Box display={{ base: 'none', md: 'block' }}>
-                  <Tabs variant="enclosed">
-                    <TabList>
-                      <Tab>Table View</Tab>
-                      <Tab>Feed View</Tab>
-                    </TabList>
-                    <TabPanels>
-                      <TabPanel>
-                        <Table variant="simple">
-                          <Thead>
-                            <Tr>
-                              <Th>Title</Th>
-                              <Th>Content</Th>
-                              <Th>Scheduled Date</Th>
-                              <Th>Status</Th>
-                              <Th>Actions</Th>
+          <TabPanel>
+            <Box pb={8}>
+              <Heading size="md" mb={4}>
+                Scheduled Posts
+              </Heading>
+              <HStack spacing={4} mb={4}>
+                <Select
+                  placeholder="Filter by status"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  w="200px"
+                >
+                  <option value="Draft">Draft</option>
+                  <option value="Posted">Posted</option>
+                </Select>
+                <VStack spacing={1} display={{ base: "none", md: "flex" }}>
+                  <Text fontSize="sm" fontWeight="bold">
+                    Start Date
+                  </Text>
+                  <Input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    size="sm"
+                  />
+                </VStack>
+                <VStack spacing={1} display={{ base: "none", md: "flex" }}>
+                  <Text fontSize="sm" fontWeight="bold">
+                    End Date
+                  </Text>
+                  <Input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    size="sm"
+                  />
+                </VStack>
+                <InputGroup flex={1}>
+                  <InputLeftElement pointerEvents="none">
+                    <SearchIcon color="gray.300" />
+                  </InputLeftElement>
+                  <Input
+                    placeholder="Search posts by title or content..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </InputGroup>
+                <Button
+                  variant="link"
+                  colorScheme="blue"
+                  display={{ base: "none", md: "inline-flex" }}
+                  onClick={() => {
+                    setStatusFilter("");
+                    setStartDate("");
+                    setEndDate("");
+                    setSearchTerm("");
+                  }}
+                >
+                  Clear Filters
+                </Button>
+              </HStack>
+              <Box display={{ base: "none", md: "block" }}>
+                <Tabs variant="enclosed">
+                  <TabList>
+                    <Tab>Table View</Tab>
+                    <Tab>Feed View</Tab>
+                  </TabList>
+                  <TabPanels>
+                    <TabPanel>
+                      <Table variant="simple">
+                        <Thead>
+                          <Tr>
+                            <Th>Title</Th>
+                            <Th>Content</Th>
+                            <Th>Scheduled Date</Th>
+                            <Th>Status</Th>
+                            <Th>Actions</Th>
+                          </Tr>
+                        </Thead>
+                        <Tbody>
+                          {posts.map((post) => (
+                            <Tr key={post.id}>
+                              <Td
+                                cursor="pointer"
+                                _hover={{ bg: "gray.50" }}
+                                onClick={() => {
+                                  setSelectedPost(post);
+                                  setIsDetailsOpen(true);
+                                }}
+                              >
+                                {post.title || "No title"}
+                              </Td>
+                              <Td
+                                cursor="pointer"
+                                _hover={{ bg: "gray.50" }}
+                                onClick={() => {
+                                  setSelectedPost(post);
+                                  setIsDetailsOpen(true);
+                                }}
+                              >
+                                {post.content}
+                              </Td>
+                              <Td>
+                                {format(new Date(post.scheduledDate), "PPP")}
+                              </Td>
+                              <Td>{post.status}</Td>
+                              <Td>
+                                <HStack spacing={2}>
+                                  <IconButton
+                                    aria-label="Edit post"
+                                    icon={<EditIcon />}
+                                    size="sm"
+                                    onClick={() => setEditingPost(post)}
+                                  />
+                                  <IconButton
+                                    aria-label="Delete post"
+                                    icon={<DeleteIcon />}
+                                    size="sm"
+                                    colorScheme="red"
+                                    onClick={() => {
+                                      setPostToDelete(post);
+                                      setDeleteModalOpen(true);
+                                    }}
+                                  />
+                                </HStack>
+                              </Td>
                             </Tr>
-                          </Thead>
-                          <Tbody>
-                            {posts.map(post => (
-                              <Tr key={post.id}>
-                                <Td
-                                  cursor="pointer"
-                                  _hover={{ bg: 'gray.50' }}
-                                  onClick={() => {
-                                    setSelectedPost(post);
-                                    setIsDetailsOpen(true);
-                                  }}
-                                >
-                                  {post.title || 'No title'}
-                                </Td>
-                                <Td
-                                  cursor="pointer"
-                                  _hover={{ bg: 'gray.50' }}
-                                  onClick={() => {
-                                    setSelectedPost(post);
-                                    setIsDetailsOpen(true);
-                                  }}
-                                >
-                                  {post.content}
-                                </Td>
-                                <Td>{format(new Date(post.scheduledDate), 'PPP')}</Td>
-                                <Td>{post.status}</Td>
-                                <Td>
-                                  <HStack spacing={2}>
-                                    <IconButton
-                                      aria-label="Edit post"
-                                      icon={<EditIcon />}
-                                      size="sm"
-                                      onClick={() => setEditingPost(post)}
-                                    />
-                                    <IconButton
-                                      aria-label="Delete post"
-                                      icon={<DeleteIcon />}
-                                      size="sm"
-                                      colorScheme="red"
-                                      onClick={() => {
-                                        setPostToDelete(post);
-                                        setDeleteModalOpen(true);
-                                      }}
-                                    />
-                                  </HStack>
-                                </Td>
-                              </Tr>
-                            ))}
-                          </Tbody>
-                        </Table>
-                      </TabPanel>
-                      <TabPanel>
-                        <VStack spacing={4} align="stretch">
-                          {posts.map(post => (
-                            <Box key={post.id} borderWidth={1} borderRadius="md" p={4} _hover={{ shadow: 'md' }}>
-                              <VStack align="start" spacing={2}>
-                                {post.title && (
-                                  <HStack>
-                                    <Heading size="md">{post.title}</Heading>
-                                    <HStack spacing={1}>
-                                      {post.socialMedias.map((sm) => {
-                                        const icon = getPlatformIcon(sm.platform);
-                                        return icon ? <Box key={sm.id}>{icon}</Box> : null;
-                                      })}
-                                    </HStack>
-                                  </HStack>
-                                )}
-                                <Text>{post.content}</Text>
-                                {post.image && (
-                                  <img src={post.image} alt="Post image" style={{ maxWidth: '100%', maxHeight: '300px', height: 'auto', objectFit: 'contain', borderRadius: 'md' }} />
-                                )}
-                                <HStack justify="space-between" w="full">
-                                  <HStack>
-                                    <Text fontSize="sm" color="gray.600">
-                                      Scheduled: {format(new Date(post.scheduledDate), 'PPP p')}
-                                    </Text>
-                                    <Badge colorScheme={post.status === 'Posted' ? 'green' : 'gray'}>
-                                      {post.status}
-                                    </Badge>
-                                  </HStack>
-                                  <HStack spacing={2}>
-                                    <IconButton
-                                      aria-label="Edit post"
-                                      icon={<EditIcon />}
-                                      size="sm"
-                                      onClick={() => setEditingPost(post)}
-                                    />
-                                    <IconButton
-                                      aria-label="Delete post"
-                                      icon={<DeleteIcon />}
-                                      size="sm"
-                                      colorScheme="red"
-                                      onClick={() => {
-                                        setPostToDelete(post);
-                                        setDeleteModalOpen(true);
-                                      }}
-                                    />
+                          ))}
+                        </Tbody>
+                      </Table>
+                    </TabPanel>
+                    <TabPanel>
+                      <VStack spacing={4} align="stretch">
+                        {posts.map((post) => (
+                          <Box
+                            key={post.id}
+                            borderWidth={1}
+                            borderRadius="md"
+                            p={4}
+                            _hover={{ shadow: "md" }}
+                          >
+                            <VStack align="start" spacing={2}>
+                              {post.title && (
+                                <HStack>
+                                  <Heading size="md">{post.title}</Heading>
+                                  <HStack spacing={1}>
+                                    {post.socialMedias.map((sm) => {
+                                      const icon = getPlatformIcon(sm.platform);
+                                      return icon ? (
+                                        <Box key={sm.id}>{icon}</Box>
+                                      ) : null;
+                                    })}
                                   </HStack>
                                 </HStack>
-                              </VStack>
-                            </Box>
-                          ))}
-                        </VStack>
-                      </TabPanel>
-                    </TabPanels>
-                  </Tabs>
-                </Box>
-                <Box display={{ base: 'block', md: 'none' }}>
-                  <VStack spacing={4} align="stretch">
-                    {posts.map(post => (
-                      <Box key={post.id} borderWidth={1} borderRadius="md" p={4} _hover={{ shadow: 'md' }}>
-                        <VStack align="start" spacing={2}>
-                          {post.title && (
-                            <HStack>
-                              <Heading size="md">{post.title}</Heading>
-                              <HStack spacing={1}>
-                                {post.socialMedias.map((sm) => {
-                                  const icon = getPlatformIcon(sm.platform);
-                                  return icon ? <Box key={sm.id}>{icon}</Box> : null;
-                                })}
+                              )}
+                              <Text>{post.content}</Text>
+                              {post.image && (
+                                <img
+                                  src={post.image}
+                                  alt="Post image"
+                                  style={{
+                                    maxWidth: "100%",
+                                    maxHeight: "300px",
+                                    height: "auto",
+                                    objectFit: "contain",
+                                    borderRadius: "md",
+                                  }}
+                                />
+                              )}
+                              <HStack justify="space-between" w="full">
+                                <HStack>
+                                  <Text fontSize="sm" color="gray.600">
+                                    Scheduled:{" "}
+                                    {format(
+                                      new Date(post.scheduledDate),
+                                      "PPP p"
+                                    )}
+                                  </Text>
+                                  <Badge
+                                    colorScheme={
+                                      post.status === "Posted"
+                                        ? "green"
+                                        : "gray"
+                                    }
+                                  >
+                                    {post.status}
+                                  </Badge>
+                                </HStack>
+                                <HStack spacing={2}>
+                                  <IconButton
+                                    aria-label="Edit post"
+                                    icon={<EditIcon />}
+                                    size="sm"
+                                    onClick={() => setEditingPost(post)}
+                                  />
+                                  <IconButton
+                                    aria-label="Delete post"
+                                    icon={<DeleteIcon />}
+                                    size="sm"
+                                    colorScheme="red"
+                                    onClick={() => {
+                                      setPostToDelete(post);
+                                      setDeleteModalOpen(true);
+                                    }}
+                                  />
+                                </HStack>
                               </HStack>
-                            </HStack>
-                          )}
-                          <Text>{post.content}</Text>
-                          {post.image && (
-                            <img src={post.image} alt="Post image" style={{ maxWidth: '100%', maxHeight: '300px', height: 'auto', objectFit: 'contain', borderRadius: 'md' }} />
-                          )}
-                          <HStack justify="space-between" w="full">
-                            <HStack>
-                              <Text fontSize="sm" color="gray.600">
-                                Scheduled: {format(new Date(post.scheduledDate), 'PPP p')}
-                              </Text>
-                              <Badge colorScheme={post.status === 'Posted' ? 'green' : 'gray'}>
-                                {post.status}
-                              </Badge>
-                            </HStack>
-                            <HStack spacing={2}>
-                              <IconButton
-                                aria-label="Edit post"
-                                icon={<EditIcon />}
-                                size="sm"
-                                onClick={() => setEditingPost(post)}
-                              />
-                              <IconButton
-                                aria-label="Delete post"
-                                icon={<DeleteIcon />}
-                                size="sm"
-                                colorScheme="red"
-                                onClick={() => {
-                                  setPostToDelete(post);
-                                  setDeleteModalOpen(true);
-                                }}
-                              />
+                            </VStack>
+                          </Box>
+                        ))}
+                      </VStack>
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
+              </Box>
+              <Box display={{ base: "block", md: "none" }}>
+                <VStack spacing={4} align="stretch">
+                  {posts.map((post) => (
+                    <Box
+                      key={post.id}
+                      borderWidth={1}
+                      borderRadius="md"
+                      p={4}
+                      _hover={{ shadow: "md" }}
+                    >
+                      <VStack align="start" spacing={2}>
+                        {post.title && (
+                          <HStack>
+                            <Heading size="md">{post.title}</Heading>
+                            <HStack spacing={1}>
+                              {post.socialMedias.map((sm) => {
+                                const icon = getPlatformIcon(sm.platform);
+                                return icon ? (
+                                  <Box key={sm.id}>{icon}</Box>
+                                ) : null;
+                              })}
                             </HStack>
                           </HStack>
-                        </VStack>
-                      </Box>
-                    ))}
-                  </VStack>
-                </Box>
-               <Text mt={4} fontSize="sm" color="gray.600">
-                 Total posts: {totalPosts}
-               </Text>
-             </Box>
-           </TabPanel>
+                        )}
+                        <Text>{post.content}</Text>
+                        {post.image && (
+                          <img
+                            src={post.image}
+                            alt="Post image"
+                            style={{
+                              maxWidth: "100%",
+                              maxHeight: "300px",
+                              height: "auto",
+                              objectFit: "contain",
+                              borderRadius: "md",
+                            }}
+                          />
+                        )}
+                        <HStack justify="space-between" w="full">
+                          <HStack>
+                            <Text fontSize="sm" color="gray.600">
+                              Scheduled:{" "}
+                              {format(new Date(post.scheduledDate), "PPP p")}
+                            </Text>
+                            <Badge
+                              colorScheme={
+                                post.status === "Posted" ? "green" : "gray"
+                              }
+                            >
+                              {post.status}
+                            </Badge>
+                          </HStack>
+                          <HStack spacing={2}>
+                            <IconButton
+                              aria-label="Edit post"
+                              icon={<EditIcon />}
+                              size="sm"
+                              onClick={() => setEditingPost(post)}
+                            />
+                            <IconButton
+                              aria-label="Delete post"
+                              icon={<DeleteIcon />}
+                              size="sm"
+                              colorScheme="red"
+                              onClick={() => {
+                                setPostToDelete(post);
+                                setDeleteModalOpen(true);
+                              }}
+                            />
+                          </HStack>
+                        </HStack>
+                      </VStack>
+                    </Box>
+                  ))}
+                </VStack>
+              </Box>
+              <Text mt={4} fontSize="sm" color="gray.600">
+                Total posts: {totalPosts}
+              </Text>
+            </Box>
+          </TabPanel>
         </TabPanels>
       </Tabs>
       <CreatePostModal
@@ -418,15 +523,23 @@ export const CalendarPage = () => {
           <ModalHeader>Confirm Deletion</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            Are you sure you want to delete this post? This action cannot be undone.
+            Are you sure you want to delete this post? This action cannot be
+            undone.
             {postToDelete && (
               <Text mt={2} fontWeight="bold">
-                "{postToDelete.title || postToDelete.content.substring(0, 50) + '...' }"
+                "
+                {postToDelete.title ||
+                  postToDelete.content.substring(0, 50) + "..."}
+                "
               </Text>
             )}
           </ModalBody>
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={() => setDeleteModalOpen(false)}>
+            <Button
+              variant="ghost"
+              mr={3}
+              onClick={() => setDeleteModalOpen(false)}
+            >
               Cancel
             </Button>
             <Button colorScheme="red" onClick={handleDeletePost}>

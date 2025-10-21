@@ -127,13 +127,13 @@ export const HomePage = () => {
   const featureImages = [
     {
       src: "/images/features/content-plan.png",
-      alt: "Plan Your Content with AI",
-      title: "Plan Your Content with AI",
+      alt: "Plan Your Social Media Content with AI",
+      title: "Plan Your Social Media Content with AI",
     },
     {
       src: "/images/features/content-calendar.png",
-      alt: "Content Calendar View",
-      title: "Content Calendar View",
+      alt: "Social Media Calendar View",
+      title: "Social Media Calendar View",
     },
     {
       src: "/images/features/team-invite.png",
@@ -233,32 +233,32 @@ export const HomePage = () => {
     name: "Dokahub",
     url: "https://dokahub.com",
     description:
-      "Automate your content calendar with AI-powered planning and scheduling.",
+      "End social media content chaos with AI-powered planning and scheduling.",
     logo: "https://dokahub.com/logo192.png",
-    sameAs: [
-      // Add social media URLs if available
-    ],
+    sameAs: [],
   };
 
   return (
     <>
       <Helmet>
-        <title>Dokahub - Automate Your Content Calendar with AI</title>
+        <title>
+          Dokahub - End Social Media Content Chaos with AI-Powered Planning
+        </title>
         <meta
           name="description"
-          content="Transform your social media strategy with AI-powered content planning, automated scheduling, and seamless team collaboration."
+          content="Stop scrambling for social media posts. Plan weeks ahead with AI, collaborate seamlessly with teams, and automate your social media scheduling."
         />
         <meta
           name="keywords"
-          content="content calendar, social media automation, AI content planning, team collaboration, content scheduling"
+          content="social media calendar, social media automation, AI content planning, team collaboration, social media scheduling"
         />
         <meta
           property="og:title"
-          content="Dokahub - Automate Your Content Calendar with AI"
+          content="Dokahub - End Social Media Content Chaos with AI-Powered Planning"
         />
         <meta
           property="og:description"
-          content="Transform your social media strategy with AI-powered content planning, automated scheduling, and seamless team collaboration."
+          content="Stop scrambling for social media posts. Plan weeks ahead with AI, collaborate seamlessly with teams, and automate your social media scheduling."
         />
         <meta property="og:image" content="https://dokahub.com/logo192.png" />
         <meta property="og:url" content="https://dokahub.com" />
@@ -266,11 +266,11 @@ export const HomePage = () => {
         <meta name="twitter:card" content="summary_large_image" />
         <meta
           name="twitter:title"
-          content="Dokahub - Automate Your Content Calendar with AI"
+          content="Dokahub - End Social Media Content Chaos with AI-Powered Planning"
         />
         <meta
           name="twitter:description"
-          content="Transform your social media strategy with AI-powered content planning, automated scheduling, and seamless team collaboration."
+          content="Stop scrambling for social media posts. Plan weeks ahead with AI, collaborate seamlessly with teams, and automate your social media scheduling."
         />
         <meta name="twitter:image" content="https://dokahub.com/logo192.png" />
         <script type="application/ld+json">
@@ -418,24 +418,12 @@ export const HomePage = () => {
           </DrawerContent>
         </Drawer>
 
-        {/* Hero Section */}
+        {/* Hero Section - PROBLEM & SOLUTION */}
         <Box
           ref={heroRef}
-          // bgGradient="linear(to-br, purple.200, pink.200)"
           py={20}
           position="relative"
           opacity={heroVisible ? 1 : 0}
-          // transition="opacity 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
-          // _before={{
-          //   content: '""',
-          //   position: "absolute",
-          //   top: 0,
-          //   left: 0,
-          //   right: 0,
-          //   bottom: 0,
-          //   bg: "rgba(255, 255, 255, 0.2)",
-          //   zIndex: 1,
-          // }}
         >
           <Container maxW="1200px" position="relative" zIndex={2}>
             <VStack spacing={8} textAlign="center">
@@ -447,25 +435,26 @@ export const HomePage = () => {
                   mb={6}
                   fontSize={["4xl", "5xl", "6xl", "7xl"]}
                 >
-                  Automate Your
+                  Tired of Social Media
                   <br />
                   <Text as="span" color={accentColor}>
-                    Content Calendar
+                    Content Chaos?
                   </Text>
                 </Heading>
 
                 <Text
                   fontSize={["lg", "xl", "2xl"]}
-                  // color="white"
                   maxW="600px"
                   mx="auto"
                   mb={8}
                   lineHeight="1.6"
-                  // textShadow="0 2px 4px rgba(0,0,0,0.3)"
                 >
-                  Transform your social media strategy with AI-powered content
-                  planning, automated scheduling, and seamless team
-                  collaboration.
+                  Are you scrambling for last-minute social media posts, missing
+                  deadlines, and struggling with messy collaborations?
+                  <strong> DokaHub eliminates the stress</strong> with
+                  AI-powered social media planning that lets you
+                  <strong> plan weeks ahead</strong> and collaborate seamlessly
+                  across all platforms.
                 </Text>
 
                 <HStack spacing={4} justify="center" flexWrap="wrap">
@@ -495,20 +484,20 @@ export const HomePage = () => {
                     size="lg"
                     bg={accentColor}
                     variant="outline"
-                    borderColor="white"
-                    color="white"
+                    borderColor="black"
+                    color="black"
                     px={8}
                     py={4}
                     fontSize="lg"
                     _hover={{
-                      bg: "white",
-                      color: "black",
+                      bg: "black",
+                      color: "white",
                       transform: "translateY(-2px)",
                     }}
                     transition="all 0.3s"
-                    onClick={() => navigate("/login")}
+                    onClick={() => scrollToSection("demo")}
                   >
-                    View Demo
+                    See How It Works
                   </Button>
                 </HStack>
               </Box>
@@ -516,7 +505,7 @@ export const HomePage = () => {
           </Container>
         </Box>
 
-        {/* Demo Video Section */}
+        {/* Demo Video Section - FROM PROBLEM TO SOLUTION */}
         <Box
           id="demo"
           ref={demoRef}
@@ -534,12 +523,12 @@ export const HomePage = () => {
                   mb={4}
                   fontSize={["2xl", "3xl", "4xl"]}
                 >
-                  See Dokahub in Action
+                  From Social Media Chaos to Calendar Control
                 </Heading>
                 <Text fontSize={["md", "lg", "xl"]} color="gray.600" mb={8}>
-                  Watch how our AI-powered content calendar automation
-                  transforms your social media strategy and saves you hours of
-                  manual work every week.
+                  See how DokaHub transforms last-minute social media scrambling
+                  into strategic, stress-free planning with automated scheduling
+                  and team collaboration.
                 </Text>
               </Box>
 
@@ -557,7 +546,6 @@ export const HomePage = () => {
                       opacity: isVisible ? 1 : 0,
                     })}
               >
-                {/* Demo Video Placeholder */}
                 <Box
                   bg="gray.200"
                   h={["250px", "400px", "500px"]}
@@ -573,12 +561,10 @@ export const HomePage = () => {
                   transition="all 0.3s"
                   cursor="pointer"
                   onClick={() => {
-                    // Replace "#" with your actual demo video URL (YouTube, Vimeo, etc.)
-                    const demoVideoUrl = "#"; // e.g., "https://www.youtube.com/watch?v=YOUR_VIDEO_ID"
+                    const demoVideoUrl = "#";
                     window.open(demoVideoUrl, "_blank");
                   }}
                 >
-                  {/* Video Thumbnail Placeholder */}
                   <Box
                     position="absolute"
                     top={0}
@@ -589,7 +575,6 @@ export const HomePage = () => {
                     opacity={0.8}
                   />
 
-                  {/* Play Button */}
                   <Box
                     className="play-button"
                     w={20}
@@ -615,7 +600,6 @@ export const HomePage = () => {
                     />
                   </Box>
 
-                  {/* Video Title Overlay */}
                   <VStack
                     position="absolute"
                     bottom={6}
@@ -631,7 +615,7 @@ export const HomePage = () => {
                       fontWeight="bold"
                       textShadow="0 2px 4px rgba(0,0,0,0.5)"
                     >
-                      Dokahub Demo
+                      From Social Media Chaos to Control in 2 Minutes
                     </Text>
                     <Text
                       color="white"
@@ -639,7 +623,7 @@ export const HomePage = () => {
                       opacity={0.9}
                       textShadow="0 2px 4px rgba(0,0,0,0.5)"
                     >
-                      2:34 • See how it works
+                      2:34 • See the transformation
                     </Text>
                   </VStack>
                 </Box>
@@ -648,26 +632,26 @@ export const HomePage = () => {
               <HStack spacing={6} flexWrap="wrap" justify="center">
                 <VStack spacing={2} align="center" minW="150px">
                   <Text fontSize="3xl" fontWeight="bold" color={accentColor}>
-                    5x
+                    10x
                   </Text>
-                  <Text fontSize="sm" color={"gray.300"} textAlign="center">
-                    Faster content creation
+                  <Text fontSize="sm" color={"gray.600"} textAlign="center">
+                    Faster social media planning
                   </Text>
                 </VStack>
                 <VStack spacing={2} align="center" minW="150px">
                   <Text fontSize="3xl" fontWeight="bold" color={accentColor}>
                     80%
                   </Text>
-                  <Text fontSize="sm" color={"gray.300"} textAlign="center">
-                    Time saved on scheduling
+                  <Text fontSize="sm" color={"gray.600"} textAlign="center">
+                    Less social media stress
                   </Text>
                 </VStack>
                 <VStack spacing={2} align="center" minW="150px">
                   <Text fontSize="3xl" fontWeight="bold" color={accentColor}>
-                    3x
+                    5x
                   </Text>
-                  <Text fontSize="sm" color={"gray.300"} textAlign="center">
-                    More engagement
+                  <Text fontSize="sm" color={"gray.600"} textAlign="center">
+                    Better team collaboration
                   </Text>
                 </VStack>
               </HStack>
@@ -675,7 +659,7 @@ export const HomePage = () => {
           </Container>
         </Box>
 
-        {/* Features Section */}
+        {/* Features Section - THE SOLUTION */}
         <Box
           id="features"
           ref={featuresRef}
@@ -692,10 +676,10 @@ export const HomePage = () => {
                   mb={4}
                   fontSize={["2xl", "3xl", "4xl"]}
                 >
-                  Everything You Need for
+                  Your All-in-One Solution for
                   <br />
                   <Text as="span" color={accentColor}>
-                    Content Success
+                    Stress-Free Social Media
                   </Text>
                 </Heading>
                 <Text
@@ -704,8 +688,8 @@ export const HomePage = () => {
                   maxW="600px"
                   mx="auto"
                 >
-                  Powerful features designed to streamline your content creation
-                  and amplify your social media presence.
+                  Everything you need to go from chaotic social media creation
+                  to organized, strategic planning.
                 </Text>
               </Box>
 
@@ -733,7 +717,7 @@ export const HomePage = () => {
                   >
                     <img
                       src="/images/features/content-plan.png"
-                      alt="Plan Your Content with AI"
+                      alt="Plan Your Social Media Content with AI"
                       style={{
                         width: "100%",
                         height: "280px",
@@ -747,12 +731,13 @@ export const HomePage = () => {
                   </Box>
                   <Box flex={1}>
                     <Heading size="lg" fontWeight="bold" mb={4}>
-                      Plan Your Content with AI
+                      Plan Your Social Media Content with AI
                     </Heading>
                     <Text color={featureTextColor} fontSize="lg">
-                      Plan your content for the next week, month with
-                      suggestions from AI to keep your social media strategy on
-                      track.
+                      Stop scrambling for social media ideas. Plan your posts
+                      for weeks or months ahead with AI suggestions that keep
+                      your social media strategy on track and consistent across
+                      all platforms.
                     </Text>
                   </Box>
                 </HStack>
@@ -780,7 +765,7 @@ export const HomePage = () => {
                   >
                     <img
                       src="/images/features/content-calendar.png"
-                      alt="Content Calendar View"
+                      alt="Social Media Calendar View"
                       style={{
                         width: "100%",
                         height: "280px",
@@ -794,11 +779,13 @@ export const HomePage = () => {
                   </Box>
                   <Box flex={1}>
                     <Heading size="lg" fontWeight="bold" mb={4}>
-                      Content Calendar View
+                      Social Media Calendar View
                     </Heading>
                     <Text color={featureTextColor} fontSize="lg">
-                      View scheduled content in your content calendar to stay
-                      organized and never miss a post.
+                      Never miss a social media post again. Visualize your
+                      entire social media strategy at a glance and maintain
+                      perfect posting consistency across Instagram, Twitter,
+                      Facebook, and more.
                     </Text>
                   </Box>
                 </HStack>
@@ -843,8 +830,10 @@ export const HomePage = () => {
                       Team Collaboration
                     </Heading>
                     <Text color={featureTextColor} fontSize="lg">
-                      Invite others to collaborate with you on contents, assign
-                      tasks, and work together seamlessly.
+                      End messy email threads and lost social media files.
+                      Invite team members and clients to collaborate in
+                      real-time with clear task assignments and feedback loops
+                      for your social media content.
                     </Text>
                   </Box>
                 </HStack>
@@ -889,8 +878,9 @@ export const HomePage = () => {
                       Smart Reminders
                     </Heading>
                     <Text color={featureTextColor} fontSize="lg">
-                      Get reminded when content is due, so you never miss
-                      important posting times.
+                      Forget about missing social media deadlines. Get automated
+                      reminders for due posts so you can focus on creating
+                      engaging content while we handle the scheduling.
                     </Text>
                   </Box>
                 </HStack>
@@ -935,8 +925,9 @@ export const HomePage = () => {
                       Social Media Sharing
                     </Heading>
                     <Text color={featureTextColor} fontSize="lg">
-                      Share content to your social media accounts directly from
-                      the platform with one click.
+                      Stop the copy-paste madness. Publish directly to your
+                      social media accounts with one click and maintain your
+                      posting schedule effortlessly across all platforms.
                     </Text>
                   </Box>
                 </HStack>
@@ -966,8 +957,8 @@ export const HomePage = () => {
                   Simple, Transparent Pricing
                 </Heading>
                 <Text fontSize={["md", "lg", "xl"]} color={"gray.700"}>
-                  Start automating your content calendar today with our flexible
-                  pricing.
+                  Start automating your social media calendar today with our
+                  flexible pricing.
                 </Text>
               </Box>
 
@@ -1033,7 +1024,7 @@ export const HomePage = () => {
                   >
                     <VStack spacing={6} p={8}>
                       <VStack spacing={2} textAlign="center">
-                        <Text fontSize="lg" color={"gray.300"}>
+                        <Text fontSize="lg" color={"gray.600"}>
                           Free Plan
                         </Text>
                         <HStack align="baseline" spacing={1}>
@@ -1044,7 +1035,7 @@ export const HomePage = () => {
                           >
                             $0
                           </Text>
-                          <Text fontSize="lg" color={"gray.300"}>
+                          <Text fontSize="lg" color={"gray.600"}>
                             /forever
                           </Text>
                         </HStack>
@@ -1073,7 +1064,9 @@ export const HomePage = () => {
                             w={5}
                             h={5}
                           />
-                          <Text fontSize="sm">10 posts per month</Text>
+                          <Text fontSize="sm">
+                            10 social media posts per month
+                          </Text>
                         </HStack>
                         <HStack spacing={3}>
                           <Icon
@@ -1082,7 +1075,9 @@ export const HomePage = () => {
                             w={5}
                             h={5}
                           />
-                          <Text fontSize="sm">1 content plan per month</Text>
+                          <Text fontSize="sm">
+                            1 social media plan per month
+                          </Text>
                         </HStack>
                         <HStack spacing={3}>
                           <Icon
@@ -1100,7 +1095,9 @@ export const HomePage = () => {
                             w={5}
                             h={5}
                           />
-                          <Text fontSize="sm">Basic scheduling</Text>
+                          <Text fontSize="sm">
+                            Basic social media scheduling
+                          </Text>
                         </HStack>
                       </VStack>
 
@@ -1164,7 +1161,7 @@ export const HomePage = () => {
 
                     <VStack spacing={6} p={8}>
                       <VStack spacing={2} textAlign="center">
-                        <Text fontSize="lg" color={"gray.300"}>
+                        <Text fontSize="lg" color={"gray.600"}>
                           Pro Plan
                         </Text>
                         <HStack align="baseline" spacing={1}>
@@ -1175,7 +1172,7 @@ export const HomePage = () => {
                           >
                             {billingPeriod === "monthly" ? "$9.99" : "$99.90"}
                           </Text>
-                          <Text fontSize="lg" color={"gray.300"}>
+                          <Text fontSize="lg" color={"gray.600"}>
                             {billingPeriod === "monthly" ? "/month" : "/year"}
                           </Text>
                         </HStack>
@@ -1195,17 +1192,8 @@ export const HomePage = () => {
                             w={5}
                             h={5}
                           />
-                          <Text fontSize="sm">Unlimited content plans</Text>
-                        </HStack>
-                        <HStack spacing={3}>
-                          <Icon
-                            as={CheckCircleIcon}
-                            color="green.500"
-                            w={5}
-                            h={5}
-                          />
                           <Text fontSize="sm">
-                            AI-powered content generation
+                            Unlimited social media plans
                           </Text>
                         </HStack>
                         <HStack spacing={3}>
@@ -1215,7 +1203,20 @@ export const HomePage = () => {
                             w={5}
                             h={5}
                           />
-                          <Text fontSize="sm">Automated scheduling</Text>
+                          <Text fontSize="sm">
+                            AI-powered social media content generation
+                          </Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">
+                            Automated social media scheduling
+                          </Text>
                         </HStack>
                         <HStack spacing={3}>
                           <Icon
@@ -1233,7 +1234,9 @@ export const HomePage = () => {
                             w={5}
                             h={5}
                           />
-                          <Text fontSize="sm">Analytics & insights</Text>
+                          <Text fontSize="sm">
+                            Social media analytics & insights
+                          </Text>
                         </HStack>
                         <HStack spacing={3}>
                           <Icon
@@ -1248,7 +1251,7 @@ export const HomePage = () => {
 
                       <VStack spacing={4} w="full" mt="auto">
                         <Box
-                          bg="grey.100"
+                          bg="blue.50"
                           borderRadius="lg"
                           p={4}
                           w="full"
@@ -1257,7 +1260,7 @@ export const HomePage = () => {
                           <Text
                             fontSize="sm"
                             fontWeight="bold"
-                            color="grey.800"
+                            color="blue.800"
                           >
                             14-Day Free Trial
                           </Text>
@@ -1306,7 +1309,7 @@ export const HomePage = () => {
                   >
                     <VStack spacing={6} p={8}>
                       <VStack spacing={2} textAlign="center">
-                        <Text fontSize="lg" color={"gray.300"}>
+                        <Text fontSize="lg" color={"gray.600"}>
                           Enterprise Plan
                         </Text>
                         <HStack align="baseline" spacing={1}>
@@ -1352,7 +1355,9 @@ export const HomePage = () => {
                             w={5}
                             h={5}
                           />
-                          <Text fontSize="sm">Advanced analytics</Text>
+                          <Text fontSize="sm">
+                            Advanced social media analytics
+                          </Text>
                         </HStack>
                         <HStack spacing={3}>
                           <Icon
@@ -1379,7 +1384,9 @@ export const HomePage = () => {
                             w={5}
                             h={5}
                           />
-                          <Text fontSize="sm">Custom integrations</Text>
+                          <Text fontSize="sm">
+                            Custom social media integrations
+                          </Text>
                         </HStack>
                       </VStack>
 
@@ -1429,7 +1436,7 @@ export const HomePage = () => {
           </Container>
         </Box>
 
-        {/* CTA Section */}
+        {/* CTA Section - THE SELL */}
         <Box
           id="cta"
           ref={ctaRef}
@@ -1453,15 +1460,16 @@ export const HomePage = () => {
                   mb={4}
                   fontSize={["2xl", "3xl", "4xl"]}
                 >
-                  Ready to Transform Your
+                  Ready to End Social Media Chaos
                   <br />
                   <Text as="span" color={accentColor}>
-                    Content Strategy?
+                    For Good?
                   </Text>
                 </Heading>
                 <Text fontSize={["md", "lg", "xl"]} color={"gray.600"} mb={8}>
-                  Join thousands of creators and marketers who have automated
-                  their content calendar and boosted their engagement.
+                  Join thousands of creators and marketers who have transformed
+                  their social media strategy from stressful scrambling to
+                  organized, stress-free planning.
                 </Text>
               </Box>
 
@@ -1524,14 +1532,14 @@ export const HomePage = () => {
               justify="space-between"
               textAlign={["center", "left"]}
             >
-              <Text color={"gray.300"}>
+              <Text color={"gray.600"}>
                 © 2024 Dokahub. All rights reserved.
               </Text>
               <HStack spacing={6} mt={[4, 0]}>
                 <Link
                   as={RouterLink}
                   to="/blog"
-                  color="gray.300"
+                  color="gray.600"
                   _hover={{ color: accentColor }}
                   transition="color 0.3s"
                 >
@@ -1540,7 +1548,7 @@ export const HomePage = () => {
                 <Link
                   as={RouterLink}
                   to="/privacy"
-                  color="gray.300"
+                  color="gray.600"
                   _hover={{ color: accentColor }}
                   transition="color 0.3s"
                 >
@@ -1549,7 +1557,7 @@ export const HomePage = () => {
                 <Link
                   as={RouterLink}
                   to="/terms"
-                  color="gray.300"
+                  color="gray.600"
                   _hover={{ color: accentColor }}
                   transition="color 0.3s"
                 >
@@ -1558,7 +1566,7 @@ export const HomePage = () => {
                 <Link
                   as={RouterLink}
                   to="/contact"
-                  color="gray.300"
+                  color="gray.600"
                   _hover={{ color: accentColor }}
                   transition="color 0.3s"
                 >

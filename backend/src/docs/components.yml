@@ -176,14 +176,14 @@ components:
               type: string
             email:
               type: string
-         team:
-           type: object
-           properties:
-             id:
-               type: string
-             title:
-               type: string
-       required:
+            team:
+              type: object
+              properties:
+                id:
+                  type: string
+                title:
+                  type: string
+      required:
          - id
          - content
          - socialMedias

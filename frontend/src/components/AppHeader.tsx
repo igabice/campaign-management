@@ -113,11 +113,20 @@ export const AppHeader = () => {
               variant="ghost"
             />
           </Show>
-          <Hide below="md">
-            <Box fontSize="2xl" fontWeight="bold">
-              <Heading> Dokahub</Heading>
-            </Box>
-          </Hide>
+           <Hide below="md">
+             <Flex align="center" fontSize="2xl" fontWeight="bold">
+               <Box
+                 as="img"
+                 src="/logo.png"
+                 alt="Dokahub Logo"
+                 h="40px"
+                 w="40px"
+                 mr={3}
+                 borderRadius="md"
+               />
+               <Heading>Dokahub</Heading>
+             </Flex>
+           </Hide>
         </Flex>
         <Spacer />
         <Flex align="center">
@@ -199,7 +208,20 @@ export const AppHeader = () => {
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
-          <DrawerHeader>Menu</DrawerHeader>
+          <DrawerHeader>
+            <Flex align="center">
+              <Box
+                as="img"
+                src="/logo.png"
+                alt="Dokahub Logo"
+                h="32px"
+                w="32px"
+                mr={3}
+                borderRadius="md"
+              />
+              <Text fontSize="lg" fontWeight="bold">Dokahub</Text>
+            </Flex>
+          </DrawerHeader>
           <DrawerBody>
             <VStack spacing={4} align="stretch" h="full">
               {menuItems.map((item) => (

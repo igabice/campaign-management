@@ -26,36 +26,44 @@ import { FullPageLoader } from "../../components/FullPageLoader";
 import { CreateSocialMediaModal } from "../../components/modals/CreateSocialMediaModal";
 import { addDays, parseISO, getDay } from "date-fns";
 
-const availableDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const availableDays = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
 
 type ScheduleItem = { day: string; times: string[] };
-
-
-
-
 
 export const CreatePlanPage = () => {
   const { activeTeam } = useTeam();
   const [socialMedias, setSocialMedias] = useState<any[]>([]);
-  const [selectedSocialMedias, setSelectedSocialMedias] = useState<string[]>([]);
+  const [selectedSocialMedias, setSelectedSocialMedias] = useState<string[]>(
+    []
+  );
   const [isLoading, setIsLoading] = useState(false);
-  const [isCreateSocialMediaModalOpen, setIsCreateSocialMediaModalOpen] = useState(false);
-  const [schedule, setSchedule] = useState<ScheduleItem[]>(availableDays.map(day => ({ day, times: [] })));
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [isCreateSocialMediaModalOpen, setIsCreateSocialMediaModalOpen] =
+    useState(false);
+  const [schedule, setSchedule] = useState<ScheduleItem[]>(
+    availableDays.map((day) => ({ day, times: [] }))
+  );
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const navigate = useNavigate();
   const toast = useToast();
-
-
-
-
 
   const fetchSocialMedias = useCallback(async () => {
     if (!activeTeam) return;
     try {
-      const response = await socialMediaApi.getAllSocialMedia(1, 100, { teamId: activeTeam.id, status: 'active' });
+      const response = await socialMediaApi.getAllSocialMedia(1, 100, {
+        teamId: activeTeam.id,
+        status: "active",
+      });
       setSocialMedias(response.result);
     } catch (error) {
       console.error("Failed to fetch social medias", error);
@@ -65,14 +73,14 @@ export const CreatePlanPage = () => {
   useEffect(() => {
     if (activeTeam) {
       fetchSocialMedias();
-      setStartDate(new Date().toISOString().split('T')[0]);
-      setEndDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+      setStartDate(new Date().toISOString().split("T")[0]);
+      setEndDate(
+        new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0]
+      );
     }
   }, [activeTeam, fetchSocialMedias]);
-
-
-
-
 
   const generateScheduledPosts = (aiPosts: any[]) => {
     const start = parseISO(startDate);
@@ -80,11 +88,15 @@ export const CreatePlanPage = () => {
     const scheduledSlots: { date: Date; time: string }[] = [];
 
     // Generate all possible slots between start and end dates
-    for (let current = new Date(start); current <= end; current = addDays(current, 1)) {
+    for (
+      let current = new Date(start);
+      current <= end;
+      current = addDays(current, 1)
+    ) {
       const dayName = availableDays[getDay(current)];
-      const daySchedule = schedule.find(s => s.day === dayName);
+      const daySchedule = schedule.find((s) => s.day === dayName);
       if (daySchedule) {
-        daySchedule.times.forEach(time => {
+        daySchedule.times.forEach((time) => {
           scheduledSlots.push({ date: new Date(current), time });
         });
       }
@@ -97,7 +109,7 @@ export const CreatePlanPage = () => {
     return aiPosts.slice(0, scheduledSlots.length).map((post, index) => {
       const slot = scheduledSlots[index];
       const scheduledDate = new Date(slot.date);
-      const [hours, minutes] = slot.time.split(':');
+      const [hours, minutes] = slot.time.split(":");
       scheduledDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
       return {
@@ -110,7 +122,33 @@ export const CreatePlanPage = () => {
     });
   };
 
-  const handleGenerateWithAI = async (action: 'draft' | 'publish', generateAI: boolean = true) => {
+  const handleGenerateWithAI = async (
+    action: "draft" | "publish",
+    generateAI: boolean = true
+  ) => {
+    // Validate title and description
+    if (!title.trim()) {
+      toast({
+        title: "Title is required",
+        description: "Please enter a title for your content plan",
+        // status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    if (!description.trim()) {
+      toast({
+        title: "Description is required",
+        description: "Please enter a description for your content plan",
+        // status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
     if (selectedSocialMedias.length === 0) {
       toast({
         title: "No social media selected",
@@ -128,10 +166,13 @@ export const CreatePlanPage = () => {
       if (generateAI) {
         const result = await aiApi.generateContentPlan({
           topicPreferences: [], // TODO: add user preferences
-          postFrequency: `${schedule.reduce((sum, d) => sum + d.times.length, 0)} posts per week`,
+          postFrequency: `${schedule.reduce(
+            (sum, d) => sum + d.times.length,
+            0
+          )} posts per week`,
           title,
           description,
-          tone: 'Professional',
+          tone: "Professional",
         });
         if (result.posts && result.posts.length > 0) {
           scheduledPosts = generateScheduledPosts(result.posts);
@@ -147,7 +188,7 @@ export const CreatePlanPage = () => {
         }
       }
 
-      if (action === 'publish') {
+      if (action === "publish") {
         // Create and publish the plan directly
         await plansApi.createPlan({
           ...{
@@ -155,10 +196,10 @@ export const CreatePlanPage = () => {
             description,
             startDate,
             endDate,
-            tone: 'Professional',
+            tone: "Professional",
             teamId: activeTeam!.id,
           },
-          status: 'published',
+          status: "published",
           posts: scheduledPosts,
         });
 
@@ -180,18 +221,20 @@ export const CreatePlanPage = () => {
               description,
               startDate,
               endDate,
-              tone: 'Professional',
+              tone: "Professional",
               teamId: activeTeam!.id,
             },
-            action: 'draft'
-          }
+            action: "draft",
+          },
         });
       }
     } catch (error: any) {
       console.error("AI generation error:", error);
       toast({
         title: "Error",
-        description: error.message || "An unexpected error occurred during content generation.",
+        description:
+          error.message ||
+          "An unexpected error occurred during content generation.",
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -201,56 +244,79 @@ export const CreatePlanPage = () => {
     }
   };
 
-
-
   return (
     <Box p={8} maxW="4xl" mx="auto">
       {isLoading && <FullPageLoader message="Creating content plan..." />}
-      <Heading mb={6}>Create Content Plan</Heading>
+      <Heading mb={2}>Create Content Plan</Heading>
+      <Text color="gray.600" mb={6} fontSize="lg">
+        Plan and schedule your social media content with AI assistance. Define your content strategy, set posting schedules, and generate posts automatically.
+      </Text>
       <Card>
         <CardBody>
           <VStack spacing={6} align="stretch">
             <FormControl>
               <FormLabel>Title</FormLabel>
-              <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Weekly Tech Roundup" />
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g., Weekly Tech Roundup"
+              />
             </FormControl>
 
             <FormControl>
               <FormLabel>Description</FormLabel>
-              <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe the content you want to generate..." />
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Describe the content you want to generate..."
+              />
             </FormControl>
 
             <FormControl>
               <FormLabel>Start Date</FormLabel>
-              <Input value={startDate} onChange={(e) => setStartDate(e.target.value)} type="date" />
+              <Input
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                type="date"
+              />
             </FormControl>
             <FormControl>
               <FormLabel>End Date</FormLabel>
-              <Input value={endDate} onChange={(e) => setEndDate(e.target.value)} type="date" />
+              <Input
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                type="date"
+              />
             </FormControl>
 
             <FormControl>
               <FormLabel>Social Media Accounts</FormLabel>
-               <VStack align="start" spacing={2}>
-                 {socialMedias.map((sm) => (
-                   <Checkbox
-                     key={sm.id}
-                     isChecked={selectedSocialMedias.includes(sm.id)}
-                     onChange={(e) => {
-                       if (e.target.checked) {
-                         setSelectedSocialMedias(prev => [...prev, sm.id]);
-                       } else {
-                         setSelectedSocialMedias(prev => prev.filter(id => id !== sm.id));
-                       }
-                     }}
-                   >
-                     {sm.accountName} ({sm.platform})
-                   </Checkbox>
-                 ))}
-                 <Button size="sm" variant="outline" onClick={() => setIsCreateSocialMediaModalOpen(true)}>
-                   Add New Account
-                 </Button>
-               </VStack>
+              <VStack align="start" spacing={2}>
+                {socialMedias.map((sm) => (
+                  <Checkbox
+                    key={sm.id}
+                    isChecked={selectedSocialMedias.includes(sm.id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedSocialMedias((prev) => [...prev, sm.id]);
+                      } else {
+                        setSelectedSocialMedias((prev) =>
+                          prev.filter((id) => id !== sm.id)
+                        );
+                      }
+                    }}
+                  >
+                    {sm.accountName} ({sm.platform})
+                  </Checkbox>
+                ))}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setIsCreateSocialMediaModalOpen(true)}
+                >
+                  Add New Account
+                </Button>
+              </VStack>
             </FormControl>
 
             <Divider />
@@ -259,19 +325,28 @@ export const CreatePlanPage = () => {
 
             <VStack align="stretch" spacing={4}>
               <Text fontWeight="bold">Days & Times</Text>
-              <Text>Select the days and times you want to schedule posts for.</Text>
+              <Text>
+                Select the days and times you want to schedule posts for.
+              </Text>
               {schedule.map((daySchedule) => (
-                <Box key={daySchedule.day} p={4} borderWidth={1} borderRadius="md">
+                <Box
+                  key={daySchedule.day}
+                  p={4}
+                  borderWidth={1}
+                  borderRadius="md"
+                >
                   <HStack justify="space-between">
                     <Text fontWeight="bold">{daySchedule.day}</Text>
                     <Button
                       size="sm"
                       onClick={() => {
-                        setSchedule(prev => prev.map(d =>
-                          d.day === daySchedule.day
-                            ? { ...d, times: [...d.times, '09:00'] }
-                            : d
-                        ));
+                        setSchedule((prev) =>
+                          prev.map((d) =>
+                            d.day === daySchedule.day
+                              ? { ...d, times: [...d.times, "09:00"] }
+                              : d
+                          )
+                        );
                       }}
                     >
                       Add Time
@@ -286,25 +361,36 @@ export const CreatePlanPage = () => {
                             value={time}
                             onChange={(e) => {
                               const newTime = e.target.value;
-                              setSchedule(prev => prev.map(d =>
-                                d.day === daySchedule.day
-                                  ? {
-                                      ...d,
-                                      times: d.times.map((t, i) => i === timeIndex ? newTime : t)
-                                    }
-                                  : d
-                              ));
+                              setSchedule((prev) =>
+                                prev.map((d) =>
+                                  d.day === daySchedule.day
+                                    ? {
+                                        ...d,
+                                        times: d.times.map((t, i) =>
+                                          i === timeIndex ? newTime : t
+                                        ),
+                                      }
+                                    : d
+                                )
+                              );
                             }}
                           />
                           <Button
                             size="sm"
                             colorScheme="red"
                             onClick={() => {
-                              setSchedule(prev => prev.map(d =>
-                                d.day === daySchedule.day
-                                  ? { ...d, times: d.times.filter((_, i) => i !== timeIndex) }
-                                  : d
-                              ));
+                              setSchedule((prev) =>
+                                prev.map((d) =>
+                                  d.day === daySchedule.day
+                                    ? {
+                                        ...d,
+                                        times: d.times.filter(
+                                          (_, i) => i !== timeIndex
+                                        ),
+                                      }
+                                    : d
+                                )
+                              );
                             }}
                           >
                             Remove
@@ -319,32 +405,46 @@ export const CreatePlanPage = () => {
           </VStack>
         </CardBody>
         <CardFooter>
-            <HStack spacing={4}>
-              <Button onClick={() => handleGenerateWithAI('draft', false)} variant="outline" isLoading={isLoading}>
-                Save Plan
-              </Button>
-              <Button onClick={() => handleGenerateWithAI('draft', true)} colorScheme="green" isLoading={isLoading}>
-                Plan with AI
-              </Button>
-              <Button onClick={() => handleGenerateWithAI('publish', true)} colorScheme="blue" isLoading={isLoading}>
-                Create & Publish
-              </Button>
-            </HStack>
-         </CardFooter>
-       </Card>
+          <HStack spacing={4}>
+            <Button
+              onClick={() => handleGenerateWithAI("draft", false)}
+              variant="outline"
+              isLoading={isLoading}
+            >
+              Save Plan
+            </Button>
+            <Button
+              onClick={() => handleGenerateWithAI("draft", true)}
+              colorScheme="green"
+              isLoading={isLoading}
+            >
+              Plan with AI
+            </Button>
+            <Button
+              onClick={() => handleGenerateWithAI("publish", true)}
+              colorScheme="blue"
+              isLoading={isLoading}
+            >
+              Create & Publish
+            </Button>
+          </HStack>
+        </CardFooter>
+      </Card>
 
-       <CreateSocialMediaModal
-         isOpen={isCreateSocialMediaModalOpen}
-         onClose={() => setIsCreateSocialMediaModalOpen(false)}
-         onCreated={() => {
-           // Refresh social medias
-           if (activeTeam) {
-             socialMediaApi.getAllSocialMedia(1, 100, { teamId: activeTeam.id }).then(data => {
-               setSocialMedias(data.result);
-             });
-           }
-         }}
-       />
-     </Box>
-   );
- };
+      <CreateSocialMediaModal
+        isOpen={isCreateSocialMediaModalOpen}
+        onClose={() => setIsCreateSocialMediaModalOpen(false)}
+        onCreated={() => {
+          // Refresh social medias
+          if (activeTeam) {
+            socialMediaApi
+              .getAllSocialMedia(1, 100, { teamId: activeTeam.id })
+              .then((data) => {
+                setSocialMedias(data.result);
+              });
+          }
+        }}
+      />
+    </Box>
+  );
+};
