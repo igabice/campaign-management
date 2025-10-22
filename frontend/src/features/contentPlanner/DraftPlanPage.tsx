@@ -17,6 +17,7 @@ import {
   CardBody,
   CardFooter,
   IconButton,
+  Select,
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { useNavigate, useParams } from "react-router-dom";
@@ -27,7 +28,26 @@ import { plansApi } from "../../services/plans";
 import { FullPageLoader } from "../../components/FullPageLoader";
 import { addDays, parseISO, getDay } from "date-fns";
 
-const availableDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const availableDays = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
+const availableTones = [
+  "Professional",
+  "Casual",
+  "Friendly",
+  "Enthusiastic",
+  "Informative",
+  "Humorous",
+  "Inspirational",
+  "Authoritative",
+];
 
 type ScheduleItem = { day: string; times: string[] };
 
@@ -35,13 +55,21 @@ export const DraftPlanPage = () => {
   const { id } = useParams<{ id: string }>();
   const { activeTeam } = useTeam();
   const [socialMedias, setSocialMedias] = useState<any[]>([]);
-  const [selectedSocialMedias, setSelectedSocialMedias] = useState<string[]>([]);
+  const [selectedSocialMedias, setSelectedSocialMedias] = useState<string[]>(
+    []
+  );
   const [isLoading, setIsLoading] = useState(false);
-  const [schedule, setSchedule] = useState<ScheduleItem[]>(availableDays.map(day => ({ day, times: [] })));
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [loadingMessage, setLoadingMessage] = useState(
+    "Creating content plan..."
+  );
+  const [schedule, setSchedule] = useState<ScheduleItem[]>(
+    availableDays.map((day) => ({ day, times: [] }))
+  );
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [tone, setTone] = useState("Professional");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [plan, setPlan] = useState<any>(null);
   const navigate = useNavigate();
   const toast = useToast();
@@ -49,7 +77,10 @@ export const DraftPlanPage = () => {
   const fetchSocialMedias = useCallback(async () => {
     if (!activeTeam) return;
     try {
-      const response = await socialMediaApi.getAllSocialMedia(1, 100, { teamId: activeTeam.id, status: 'active' });
+      const response = await socialMediaApi.getAllSocialMedia(1, 100, {
+        teamId: activeTeam.id,
+        status: "active",
+      });
       setSocialMedias(response.result);
     } catch (error) {
       console.error("Failed to fetch social medias", error);
@@ -62,9 +93,10 @@ export const DraftPlanPage = () => {
       const planData = await plansApi.getPlanById(id);
       setPlan(planData);
       setTitle(planData.title);
-      setDescription(planData.description || '');
-      setStartDate(planData.startDate.split('T')[0]);
-      setEndDate(planData.endDate.split('T')[0]);
+      setDescription(planData.description || "");
+      setTone(planData.tone || "Professional");
+      setStartDate(planData.startDate.split("T")[0]);
+      setEndDate(planData.endDate.split("T")[0]);
     } catch (error) {
       console.error("Failed to fetch plan", error);
       navigate("/calendar");
@@ -84,11 +116,15 @@ export const DraftPlanPage = () => {
     const scheduledSlots: { date: Date; time: string }[] = [];
 
     // Generate all possible slots between start and end dates
-    for (let current = new Date(start); current <= end; current = addDays(current, 1)) {
+    for (
+      let current = new Date(start);
+      current <= end;
+      current = addDays(current, 1)
+    ) {
       const dayName = availableDays[getDay(current)];
-      const daySchedule = schedule.find(s => s.day === dayName);
+      const daySchedule = schedule.find((s) => s.day === dayName);
       if (daySchedule) {
-        daySchedule.times.forEach(time => {
+        daySchedule.times.forEach((time) => {
           scheduledSlots.push({ date: new Date(current), time });
         });
       }
@@ -101,7 +137,7 @@ export const DraftPlanPage = () => {
     return aiPosts.slice(0, scheduledSlots.length).map((post, index) => {
       const slot = scheduledSlots[index];
       const scheduledDate = new Date(slot.date);
-      const [hours, minutes] = slot.time.split(':');
+      const [hours, minutes] = slot.time.split(":");
       scheduledDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
       return {
@@ -127,13 +163,17 @@ export const DraftPlanPage = () => {
     }
 
     setIsLoading(true);
+    setLoadingMessage("Generating AI content plan...");
     try {
       const result = await aiApi.generateContentPlan({
         topicPreferences: [], // TODO: add user preferences
-        postFrequency: `${schedule.reduce((sum, d) => sum + d.times.length, 0)} posts per week`,
+        postFrequency: `${schedule.reduce(
+          (sum, d) => sum + d.times.length,
+          0
+        )} posts per week`,
         title,
         description,
-        tone: 'Professional',
+        tone: "Professional",
       });
       if (result.posts && result.posts.length > 0) {
         const scheduledPosts = generateScheduledPosts(result.posts);
@@ -147,12 +187,12 @@ export const DraftPlanPage = () => {
               description,
               startDate,
               endDate,
-              tone: 'Professional',
+              tone,
               teamId: activeTeam!.id,
             },
-            action: 'publish',
-            draftId: id
-          }
+            action: "publish",
+            draftId: id,
+          },
         });
       } else {
         toast({
@@ -167,13 +207,16 @@ export const DraftPlanPage = () => {
       console.error("AI generation error:", error);
       toast({
         title: "Error",
-        description: error.message || "An unexpected error occurred during content generation.",
+        description:
+          error.message ||
+          "An unexpected error occurred during content generation.",
         status: "error",
         duration: 3000,
         isClosable: true,
       });
     } finally {
       setIsLoading(false);
+      setLoadingMessage("Creating content plan...");
     }
   };
 
@@ -215,28 +258,59 @@ export const DraftPlanPage = () => {
 
   return (
     <Box p={8} maxW="4xl" mx="auto">
-      {isLoading && <FullPageLoader message="Generating content with AI..." />}
+      {isLoading && <FullPageLoader message={loadingMessage} />}
       <Heading mb={6}>Edit Draft Plan</Heading>
       <Card>
         <CardBody>
           <VStack spacing={6} align="stretch">
             <FormControl>
               <FormLabel>Title</FormLabel>
-              <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Weekly Tech Roundup" />
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g., Weekly Tech Roundup"
+              />
             </FormControl>
 
             <FormControl>
               <FormLabel>Description</FormLabel>
-              <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe the content you want to generate..." />
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Describe the content you want to generate..."
+              />
+            </FormControl>
+
+            <FormControl>
+              <FormLabel>Tone</FormLabel>
+              <Select
+                value={tone}
+                onChange={(e) => setTone(e.target.value)}
+                placeholder="Select a tone for your content"
+              >
+                {availableTones.map((toneOption) => (
+                  <option key={toneOption} value={toneOption}>
+                    {toneOption}
+                  </option>
+                ))}
+              </Select>
             </FormControl>
 
             <FormControl>
               <FormLabel>Start Date</FormLabel>
-              <Input value={startDate} onChange={(e) => setStartDate(e.target.value)} type="date" />
+              <Input
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                type="date"
+              />
             </FormControl>
             <FormControl>
               <FormLabel>End Date</FormLabel>
-              <Input value={endDate} onChange={(e) => setEndDate(e.target.value)} type="date" />
+              <Input
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                type="date"
+              />
             </FormControl>
 
             <FormControl>
@@ -248,9 +322,11 @@ export const DraftPlanPage = () => {
                     isChecked={selectedSocialMedias.includes(sm.id)}
                     onChange={(e) => {
                       if (e.target.checked) {
-                        setSelectedSocialMedias(prev => [...prev, sm.id]);
+                        setSelectedSocialMedias((prev) => [...prev, sm.id]);
                       } else {
-                        setSelectedSocialMedias(prev => prev.filter(id => id !== sm.id));
+                        setSelectedSocialMedias((prev) =>
+                          prev.filter((id) => id !== sm.id)
+                        );
                       }
                     }}
                   >
@@ -266,19 +342,28 @@ export const DraftPlanPage = () => {
 
             <VStack align="stretch" spacing={4}>
               <Text fontWeight="bold">Days & Times</Text>
-              <Text>Select the days and times you want to schedule posts for.</Text>
+              <Text>
+                Select the days and times you want to schedule posts for.
+              </Text>
               {schedule.map((daySchedule) => (
-                <Box key={daySchedule.day} p={4} borderWidth={1} borderRadius="md">
+                <Box
+                  key={daySchedule.day}
+                  p={4}
+                  borderWidth={1}
+                  borderRadius="md"
+                >
                   <HStack justify="space-between">
                     <Text fontWeight="bold">{daySchedule.day}</Text>
                     <Button
                       size="sm"
                       onClick={() => {
-                        setSchedule(prev => prev.map(d =>
-                          d.day === daySchedule.day
-                            ? { ...d, times: [...d.times, '09:00'] }
-                            : d
-                        ));
+                        setSchedule((prev) =>
+                          prev.map((d) =>
+                            d.day === daySchedule.day
+                              ? { ...d, times: [...d.times, "09:00"] }
+                              : d
+                          )
+                        );
                       }}
                     >
                       Add Time
@@ -293,14 +378,18 @@ export const DraftPlanPage = () => {
                             value={time}
                             onChange={(e) => {
                               const newTime = e.target.value;
-                              setSchedule(prev => prev.map(d =>
-                                d.day === daySchedule.day
-                                  ? {
-                                      ...d,
-                                      times: d.times.map((t, i) => i === timeIndex ? newTime : t)
-                                    }
-                                  : d
-                              ));
+                              setSchedule((prev) =>
+                                prev.map((d) =>
+                                  d.day === daySchedule.day
+                                    ? {
+                                        ...d,
+                                        times: d.times.map((t, i) =>
+                                          i === timeIndex ? newTime : t
+                                        ),
+                                      }
+                                    : d
+                                )
+                              );
                             }}
                           />
                           <IconButton
@@ -310,11 +399,18 @@ export const DraftPlanPage = () => {
                             variant="ghost"
                             size="sm"
                             onClick={() => {
-                              setSchedule(prev => prev.map(d =>
-                                d.day === daySchedule.day
-                                  ? { ...d, times: d.times.filter((_, i) => i !== timeIndex) }
-                                  : d
-                              ));
+                              setSchedule((prev) =>
+                                prev.map((d) =>
+                                  d.day === daySchedule.day
+                                    ? {
+                                        ...d,
+                                        times: d.times.filter(
+                                          (_, i) => i !== timeIndex
+                                        ),
+                                      }
+                                    : d
+                                )
+                              );
                             }}
                           />
                         </HStack>
@@ -332,10 +428,18 @@ export const DraftPlanPage = () => {
               Cancel
             </Button>
             <HStack spacing={4}>
-              <Button onClick={handleUpdateDraft} variant="outline" isLoading={isLoading}>
+              <Button
+                onClick={handleUpdateDraft}
+                variant="outline"
+                isLoading={isLoading}
+              >
                 Update Draft
               </Button>
-              <Button onClick={handleGenerateWithAI} colorScheme="blue" isLoading={isLoading}>
+              <Button
+                onClick={handleGenerateWithAI}
+                colorScheme="blue"
+                isLoading={isLoading}
+              >
                 Generate & Publish
               </Button>
             </HStack>

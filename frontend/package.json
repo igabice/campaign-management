@@ -71,6 +71,7 @@
     ]
   },
   "devDependencies": {
-    "@hookform/resolvers": "^5.2.2"
+    "@hookform/resolvers": "^5.2.2",
+    "@types/html-to-draftjs": "^1.5.0"
   }
 }

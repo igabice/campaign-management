@@ -318,11 +318,30 @@ const UserPreferencePage: React.FC = () => {
                           </HStack>
                         )}
                       </Text>
-                      {preferences.telegramChatId && (
-                        <Text fontSize="sm" color="green.500">
-                          ✅ Telegram notifications are active
-                        </Text>
-                      )}
+                       {preferences.telegramChatId && (
+                         <VStack align="start" spacing={2}>
+                           <Text fontSize="sm" color="green.500">
+                             ✅ Telegram notifications are active
+                           </Text>
+                           <Button
+                             size="sm"
+                             colorScheme="red"
+                             variant="outline"
+                             onClick={() => {
+                               updatePreference("telegramChatId", undefined);
+                               updatePreference("telegramEnabled", false);
+                               toast({
+                                 title: "Telegram Unlinked",
+                                 description: "Telegram notifications have been disabled",
+                                 status: "info",
+                                 duration: 3000,
+                               });
+                             }}
+                           >
+                             Unlink Telegram
+                           </Button>
+                         </VStack>
+                       )}
                     </VStack>
                   </Box>
                 )}

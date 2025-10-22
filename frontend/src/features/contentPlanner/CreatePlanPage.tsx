@@ -16,6 +16,7 @@ import {
   Card,
   CardBody,
   CardFooter,
+  Select,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useTeam } from "../../contexts/TeamContext";
@@ -36,6 +37,17 @@ const availableDays = [
   "Saturday",
 ];
 
+const availableTones = [
+  "Professional",
+  "Casual",
+  "Friendly",
+  "Enthusiastic",
+  "Informative",
+  "Humorous",
+  "Inspirational",
+  "Authoritative",
+];
+
 type ScheduleItem = { day: string; times: string[] };
 
 export const CreatePlanPage = () => {
@@ -45,6 +57,7 @@ export const CreatePlanPage = () => {
     []
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("Creating content plan...");
   const [isCreateSocialMediaModalOpen, setIsCreateSocialMediaModalOpen] =
     useState(false);
   const [schedule, setSchedule] = useState<ScheduleItem[]>(
@@ -52,6 +65,7 @@ export const CreatePlanPage = () => {
   );
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [tone, setTone] = useState("Professional");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const navigate = useNavigate();
@@ -172,7 +186,7 @@ export const CreatePlanPage = () => {
           )} posts per week`,
           title,
           description,
-          tone: "Professional",
+          tone,
         });
         if (result.posts && result.posts.length > 0) {
           scheduledPosts = generateScheduledPosts(result.posts);
@@ -196,7 +210,7 @@ export const CreatePlanPage = () => {
             description,
             startDate,
             endDate,
-            tone: "Professional",
+            tone,
             teamId: activeTeam!.id,
           },
           status: "published",
@@ -211,8 +225,8 @@ export const CreatePlanPage = () => {
           isClosable: true,
         });
         navigate("/calendar");
-      } else {
-        // Navigate to preview page for draft
+      } else if (generateAI) {
+        // Navigate to preview page for draft with AI-generated posts
         navigate("/content-planner/preview", {
           state: {
             posts: scheduledPosts,
@@ -221,12 +235,35 @@ export const CreatePlanPage = () => {
               description,
               startDate,
               endDate,
-              tone: "Professional",
+              tone,
               teamId: activeTeam!.id,
             },
             action: "draft",
           },
         });
+      } else {
+        // Save plan directly as draft without posts
+        await plansApi.createPlan({
+          ...{
+            title,
+            description,
+            startDate,
+            endDate,
+            tone,
+            teamId: activeTeam!.id,
+          },
+          status: "draft",
+          posts: [],
+        });
+
+        toast({
+          title: "Draft saved successfully",
+          description: "Your plan has been saved as a draft",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        navigate("/content-planner");
       }
     } catch (error: any) {
       console.error("AI generation error:", error);
@@ -241,12 +278,13 @@ export const CreatePlanPage = () => {
       });
     } finally {
       setIsLoading(false);
+      setLoadingMessage("Creating content plan...");
     }
   };
 
   return (
     <Box p={8} maxW="4xl" mx="auto">
-      {isLoading && <FullPageLoader message="Creating content plan..." />}
+      {isLoading && <FullPageLoader message={loadingMessage} />}
       <Heading mb={2}>Create Content Plan</Heading>
       <Text color="gray.600" mb={6} fontSize="lg">
         Plan and schedule your social media content with AI assistance. Define your content strategy, set posting schedules, and generate posts automatically.
@@ -263,17 +301,32 @@ export const CreatePlanPage = () => {
               />
             </FormControl>
 
-            <FormControl>
-              <FormLabel>Description</FormLabel>
-              <Textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe the content you want to generate..."
-              />
-            </FormControl>
+             <FormControl>
+               <FormLabel>Description</FormLabel>
+               <Textarea
+                 value={description}
+                 onChange={(e) => setDescription(e.target.value)}
+                 placeholder="Describe the content you want to generate..."
+               />
+             </FormControl>
 
-            <FormControl>
-              <FormLabel>Start Date</FormLabel>
+             <FormControl>
+               <FormLabel>Tone</FormLabel>
+               <Select
+                 value={tone}
+                 onChange={(e) => setTone(e.target.value)}
+                 placeholder="Select a tone for your content"
+               >
+                 {availableTones.map((toneOption) => (
+                   <option key={toneOption} value={toneOption}>
+                     {toneOption}
+                   </option>
+                 ))}
+               </Select>
+             </FormControl>
+
+             <FormControl>
+               <FormLabel>Start Date</FormLabel>
               <Input
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
@@ -406,13 +459,13 @@ export const CreatePlanPage = () => {
         </CardBody>
         <CardFooter>
           <HStack spacing={4}>
-            <Button
-              onClick={() => handleGenerateWithAI("draft", false)}
-              variant="outline"
-              isLoading={isLoading}
-            >
-              Save Plan
-            </Button>
+             <Button
+               onClick={() => handleGenerateWithAI("draft", false)}
+               variant="outline"
+               isLoading={isLoading}
+             >
+               Save as Draft
+             </Button>
             <Button
               onClick={() => handleGenerateWithAI("draft", true)}
               colorScheme="green"

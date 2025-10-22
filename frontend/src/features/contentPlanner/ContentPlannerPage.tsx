@@ -137,9 +137,9 @@ export const ContentPlannerPage = () => {
                     <Button size="sm" variant="outline" onClick={() => navigate(`/content-planner/${plan.id}`)}>
                       View
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => navigate(`/content-planner/${plan.id}/edit`)}>
-                      Edit
-                    </Button>
+                     <Button size="sm" variant="outline" onClick={() => navigate(`/content-planner/draft/${plan.id}`)}>
+                       Edit
+                     </Button>
                     <Button size="sm" colorScheme="red" variant="outline" onClick={() => handleDelete(plan.id)}>
                       Delete
                     </Button>

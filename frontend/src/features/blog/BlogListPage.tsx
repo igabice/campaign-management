@@ -20,12 +20,9 @@ import { format } from "date-fns";
 import { blogService } from "../../services/blog";
 import { Blog } from "../../types/schemas";
 
-import { authService } from "../../services/auth";
-
 export const BlogListPage: React.FC = () => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
   const toast = useToast();
 
   const fetchBlogs = useCallback(async () => {
@@ -47,13 +44,7 @@ export const BlogListPage: React.FC = () => {
 
   useEffect(() => {
     fetchBlogs();
-    checkAdminStatus();
   }, [fetchBlogs]);
-
-  const checkAdminStatus = async () => {
-    const adminStatus = await authService.checkAdminStatus();
-    setIsAdmin(adminStatus);
-  };
 
   if (loading) {
     return (
@@ -68,11 +59,6 @@ export const BlogListPage: React.FC = () => {
       <VStack spacing={8} align="stretch">
         <HStack justify="space-between">
           <Heading size="xl">Blog</Heading>
-          {isAdmin && (
-            <Button as={RouterLink} to="/blog/create" colorScheme="blue">
-              Create Blog Post
-            </Button>
-          )}
         </HStack>
 
         {blogs.length === 0 ? (
@@ -130,22 +116,17 @@ export const BlogListPage: React.FC = () => {
                       <Text>By {blog.creator.name}</Text>
                       <Text>{format(new Date(blog.createdAt), "PPP")}</Text>
                     </HStack>
-                    {isAdmin && (
-                      <HStack spacing={2} mt={2}>
-                        <Button
-                          size="sm"
-                          colorScheme="blue"
-                          variant="outline"
-                          as={RouterLink}
-                          to={`/blog/edit/${blog.id}`}
-                        >
-                          Edit
-                        </Button>
-                        <Button size="sm" colorScheme="red" variant="outline">
-                          Delete
-                        </Button>
-                      </HStack>
-                    )}
+                    <HStack spacing={2} mt={2}>
+                      <Button
+                        size="sm"
+                        colorScheme="blue"
+                        variant="outline"
+                        as={RouterLink}
+                        to={`/blog/edit/${blog.id}`}
+                      >
+                        Edit
+                      </Button>
+                    </HStack>
                   </VStack>
                 </CardBody>
               </Card>

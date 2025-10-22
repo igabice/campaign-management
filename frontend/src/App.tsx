@@ -32,6 +32,8 @@ import { ContactPage } from "./features/legal/ContactPage";
 import { BlogListPage } from "./features/blog/BlogListPage";
 import { BlogCreatePage } from "./features/blog/BlogCreatePage";
 import { BlogDetailPage } from "./features/blog/BlogDetailPage";
+import { BlogManagementPage } from "./features/blog/BlogManagementPage";
+import { BlogEditPage } from "./features/blog/BlogEditPage";
 import { BlogLayout } from "./components/BlogLayout";
 import { GlobalModalProvider } from "./contexts/GlobalModalContext";
 import { TeamProvider } from "./contexts/TeamContext";
@@ -139,15 +141,31 @@ const App = () => {
                          </MainLayout>
                        }
                      />
-                      <Route
-                        path="/preferences"
-                        element={
-                          <MainLayout>
-                            <UserPreferencePage />
-                          </MainLayout>
-                        }
-                      />
-                      <Route path="/onboarding" element={<OnboardingPage />} />
+                       <Route
+                         path="/preferences"
+                         element={
+                           <MainLayout>
+                             <UserPreferencePage />
+                           </MainLayout>
+                         }
+                       />
+                       <Route
+                         path="/blog-management"
+                         element={
+                           <MainLayout>
+                             <BlogManagementPage />
+                           </MainLayout>
+                         }
+                       />
+                       <Route
+                         path="/blog/edit/:id"
+                         element={
+                           <MainLayout>
+                             <BlogEditPage />
+                           </MainLayout>
+                         }
+                       />
+                       <Route path="/onboarding" element={<OnboardingPage />} />
                 </Route>
            </Routes>
           </TeamProvider>

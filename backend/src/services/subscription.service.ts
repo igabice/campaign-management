@@ -49,10 +49,10 @@ export async function checkSubscriptionLimits(
   if (!subscription) {
     // Free plan limits
     const limits: SubscriptionLimits = {
-      teams: 1,
-      posts: 10,
-      plans: 1,
-      invites: 1,
+      teams: 2,
+      posts: 20,
+      plans: 3,
+      invites: 2,
     };
     await checkUsageLimits(userId, action, limits);
     return;

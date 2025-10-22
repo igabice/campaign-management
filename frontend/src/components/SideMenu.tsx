@@ -34,7 +34,10 @@ import {
 interface SideMenuItem {
   name: string;
   path: string;
-  icon: React.ComponentType<{ size?: string | number; style?: React.CSSProperties }>;
+  icon: React.ComponentType<{
+    size?: string | number;
+    style?: React.CSSProperties;
+  }>;
 }
 
 interface SideMenuProps {
@@ -83,7 +86,9 @@ export const SideMenu: React.FC<SideMenuProps> = ({ onClose }) => {
     { name: "Subscription", path: "/subscription", icon: CreditCard },
     { name: "Preferences", path: "/preferences", icon: Settings },
     { name: "Profile", path: "/profile", icon: User },
-    ...(isAdmin ? [{ name: "Blog Management", path: "/blog", icon: FileText }] : []),
+    ...(isAdmin
+      ? [{ name: "Blog Management", path: "/blog-management", icon: FileText }]
+      : []),
   ];
 
   return (
@@ -141,10 +146,22 @@ export const SideMenu: React.FC<SideMenuProps> = ({ onClose }) => {
         </ChakraLink>
       ))}
       <VStack spacing={2} mt={4}>
-        <Button leftIcon={<AddIcon />} colorScheme="blue" size="sm" w="full" onClick={() => setIsCreatePostModalOpen(true)}>
+        <Button
+          leftIcon={<AddIcon />}
+          colorScheme="blue"
+          size="sm"
+          w="full"
+          onClick={() => setIsCreatePostModalOpen(true)}
+        >
           Create Post
         </Button>
-        <Button leftIcon={<AddIcon />} colorScheme="green" size="sm" w="full" onClick={() => navigate("/content-planner/create")}>
+        <Button
+          leftIcon={<AddIcon />}
+          colorScheme="green"
+          size="sm"
+          w="full"
+          onClick={() => navigate("/content-planner/create")}
+        >
           Create Plan
         </Button>
       </VStack>
@@ -172,23 +189,23 @@ export const SideMenu: React.FC<SideMenuProps> = ({ onClose }) => {
         </HStack>
       </VStack>
 
-       <CreatePostModal
-         isOpen={isCreatePostModalOpen}
-         onClose={() => setIsCreatePostModalOpen(false)}
-         activeTeam={activeTeam}
-         onPostCreated={() => {
-           // Optionally refresh something, but since it's calendar, maybe not needed
-         }}
-       />
+      <CreatePostModal
+        isOpen={isCreatePostModalOpen}
+        onClose={() => setIsCreatePostModalOpen(false)}
+        activeTeam={activeTeam}
+        onPostCreated={() => {
+          // Optionally refresh something, but since it's calendar, maybe not needed
+        }}
+      />
 
-       <CreateTeamModal
-         isOpen={isCreateModalOpen}
-         onClose={() => setIsCreateModalOpen(false)}
-         onTeamCreated={(newTeam) => {
-           refreshTeams();
-           setActiveTeam(newTeam);
-         }}
-       />
+      <CreateTeamModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onTeamCreated={(newTeam) => {
+          refreshTeams();
+          setActiveTeam(newTeam);
+        }}
+      />
     </VStack>
   );
 };

@@ -4,6 +4,17 @@ import aiController from "../controllers/ai.controller";
 import aiValidation from "../validations/ai.validation";
 import { requireAuth } from "../middlewares/auth";
 
+// Middleware to set longer timeout for AI routes
+const setLongTimeout = (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
+  // Set timeout to 90 seconds for AI operations
+  res.setTimeout(90000);
+  next();
+};
+
 const router = express.Router();
 
 /**
@@ -84,6 +95,11 @@ const router = express.Router();
  */
 router
   .route("/generate-content-plan")
-  .post(requireAuth, validate(aiValidation.generateContentPlan), aiController.generateContentPlan);
+  .post(
+    requireAuth,
+    setLongTimeout,
+    validate(aiValidation.generateContentPlan),
+    aiController.generateContentPlan
+  );
 
 export default router;
