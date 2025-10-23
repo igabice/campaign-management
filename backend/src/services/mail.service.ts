@@ -1,5 +1,7 @@
 import nodemailer from "nodemailer";
 import { Invite } from "@prisma/client";
+import logger from "../config/logger";
+import config from "../config/config";
 
 interface TeamWithUser {
   id: string;
@@ -540,6 +542,19 @@ class MailService {
     } catch (error) {
       console.error("Failed to send email:", error);
       throw error;
+    }
+  }
+
+  async verifyConnection(): Promise<void> {
+    if (config.env !== "test") {
+      this.transporter
+        .verify()
+        .then(() => logger.info("Connected to email server"))
+        .catch(() => {
+          logger.warn(
+            "Unable to connect to email server. Make sure you have configured the SMTP options in .env"
+          );
+        });
     }
   }
 }
