@@ -8,6 +8,7 @@ import { initializeRedisClient } from "./middlewares/cache";
 import logger from "./config/logger";
 import { auth } from "./config/auth";
 import { toNodeHandler } from "better-auth/node";
+import mailService from "./services/mail.service";
 
 const app = express();
 
@@ -41,6 +42,8 @@ initializeRedisClient()
   .catch((err) => {
     logger.error("Failed to initialize Redis client:", err);
   });
+
+mailService.verifyConnection();
 
 app.get("/", (req, res) => {
   // Don't redirect to swagger if it's an auth callback or API request
