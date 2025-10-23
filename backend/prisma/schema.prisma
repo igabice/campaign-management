@@ -22,7 +22,7 @@ model User {
 
   accounts      Account[]
   sessions      Session[]
-  teams         Team[]
+  organizations Organization[]
   memberships   Member[]
   sentInvites   Invite[]
   posts         Post[]
@@ -89,7 +89,7 @@ model Verification {
   @@map("verifications")
 }
 
-model Team {
+model Organization {
   id          String   @id @default(uuid())
   title       String
   description String?
@@ -103,30 +103,32 @@ model Team {
   invites     Invite[]
   posts       Post[]
   plans       Plan[]
+  vendors     Vendor[]
+  contracts   Contract[]
 
-  @@map("teams")
+  @@map("organizations")
 }
 
 model Member {
   id        String   @id @default(uuid())
-  teamId    String   @map("team_id")
+  organizationId    String   @map("organization_id")
   userId    String   @map("user_id")
   status    String   @default("active")
   role      String   @default("member")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([teamId, userId])
+  @@unique([organizationId, userId])
   @@map("members")
 }
 
 model SocialMedia {
   id            String    @id @default(uuid())
   accountName   String
-  teamId        String    @map("team_id")
+  organizationId        String    @map("organization_id")
   platform      String
   profileLink   String    @map("profile_link")
   image         String?
@@ -135,7 +137,7 @@ model SocialMedia {
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
-  team  Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   posts Post[]
 
   @@map("social_media")
@@ -146,14 +148,14 @@ model Invite {
   email     String
   status    String   @default("pending")
   inviterId String   @map("inviter_id")
-  teamId    String   @map("team_id")
+  organizationId    String   @map("organization_id")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   inviter User @relation(fields: [inviterId], references: [id], onDelete: Cascade)
-  team    Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  @@unique([email, teamId])
+  @@unique([email, organizationId])
   @@map("invites")
 }
 
@@ -170,12 +172,12 @@ model Post {
   planId        String?   @map("plan_id")
   createdBy     String    @map("created_by")
   status        String    @default("Draft")
-  teamId        String    @map("team_id")
+  organizationId        String    @map("organization_id")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
   creator      User          @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  team         Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  organization         Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   socialMedias SocialMedia[]
   plan         Plan?         @relation(fields: [planId], references: [id], onDelete: SetNull)
 
@@ -191,12 +193,12 @@ model Plan {
   tone        String?
   status      String   @default("draft")
   createdBy   String   @map("created_by")
-  teamId      String   @map("team_id")
+  organizationId      String   @map("organization_id")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   creator User   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  team    Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  organization    Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   posts   Post[]
 
   @@map("plans")
@@ -300,4 +302,106 @@ model Blog {
   creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
 
   @@map("blogs")
+}
+
+model Vendor {
+  id String @id @default(cuid())
+  companyName String // Vendor Company Name
+  primaryContactName String? // Primary Contact Name
+  primaryContactPhone String? // Primary Contact Phone
+  address String? // Address
+  website String? // Website
+  primaryContactEmail String? // Primary Contact Email
+  serviceDescription String // Service Description
+  dataProcessingRole String // Data Processing Role
+  businessUnitOwner String // Business Unit Owner
+
+  // Relations
+  documents VendorDocument[]
+  jurisdictionConfigs JurisdictionConfig[]
+  contracts Contract[]
+
+  organizationId String
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("vendors")
+}
+
+model VendorDocument {
+  id String @id @default(cuid())
+  fileName String // Original file name
+  filePath String // Path to stored file
+  fileSize Int // File size in bytes
+  mimeType String // File type
+  documentType String // Contract, DPA, Security Assessment, etc.
+  version String? // Version (e.g., 1.0, 2.1a)
+  description String? // Brief description
+
+  // Relations
+  vendorId String?
+  vendor Vendor? @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  // Timestamps
+  uploadedAt DateTime @default(now())
+
+  @@map("documents")
+}
+
+model Contract {
+  id String @id @default(cuid())
+  title String // Contract Title (defaults to filename)
+  contractType String // Contract Type
+  status String @default("Active") // Active, Expired, etc.
+  expiryDate DateTime? // Expiry Date
+  fileName String // Original file name
+  filePath String // Path to stored file
+  fileSize Int // File size in bytes
+  mimeType String // File type
+  description String? // Brief description
+
+  // Relations
+  vendorId String
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("contracts")
+}
+
+
+model JurisdictionConfig {
+  id String @id @default(cuid())
+  country String // Country
+  fileName String // File name for jurisdiction requirements
+  filePath String // Path to stored file
+  requiresDueDiligence Boolean @default(false) // Specific Due Diligence Required?
+  dueDiligenceRequirements String? // Description of requirements or link to template
+  defaultDPATemplate String? // Default DPA Template file name
+  otherNotes String? // Other notes/requirements
+
+  // Relations
+  vendorId String
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("jurisdiction_configs")
+}
+
+enum ContractStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  TERMINATED
+  UNDER_REVIEW
 }

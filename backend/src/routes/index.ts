@@ -12,10 +12,18 @@ import userPreferenceRoutes from "./userPreference.routes";
 import contactRoutes from "./contact.routes";
 import blogRoutes from "./blog.routes";
 import authRoutes from "./auth.routes";
+import vendorRoutes from "./vendor.routes";
+import vendorDocumentRoutes from "./vendorDocument.routes";
+import contractRoutes from "./contract.routes";
+import jurisdictionConfigRoutes from "./jurisdictionConfig.routes";
 import docRoute from "../docs/swagger";
 
 const router = express.Router();
 
+router.use("/vendors", vendorRoutes);
+router.use("/vendor-documents", vendorDocumentRoutes);
+router.use("/contracts", contractRoutes);
+router.use("/jurisdiction-configs", jurisdictionConfigRoutes);
 router.use("/teams", teamRoutes);
 router.use("/social-media", socialMediaRoutes);
 router.use("/invites", inviteRoutes);

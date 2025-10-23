@@ -253,6 +253,178 @@ components:
          - teamId
          - createdAt
          - updatedAt
+    Vendor:
+        type: object
+        properties:
+            id:
+                type: string
+            companyName:
+                type: string
+            primaryContactName:
+                type: string
+            primaryContactPhone:
+                type: string
+            address:
+                type: string
+            website:
+                type: string
+            primaryContactEmail:
+                type: string
+            serviceDescription:
+                type: string
+            dataProcessingRole:
+                type: string
+            businessUnitOwner:
+                type: string
+            organizationId:
+                type: string
+    VendorUpdate:
+        type: object
+        properties:
+            companyName:
+                type: string
+            primaryContactName:
+                type: string
+            primaryContactPhone:
+                type: string
+            address:
+                type: string
+            website:
+                type: string
+            primaryContactEmail:
+                type: string
+            serviceDescription:
+                type: string
+            dataProcessingRole:
+                type: string
+            businessUnitOwner:
+                type: string
+    VendorDocument:
+        type: object
+        properties:
+            id:
+                type: string
+            fileName:
+                type: string
+            filePath:
+                type: string
+            fileSize:
+                type: integer
+            mimeType:
+                type: string
+            documentType:
+                type: string
+            version:
+                type: string
+            description:
+                type: string
+            vendorId:
+                type: string
+    VendorDocumentUpdate:
+        type: object
+        properties:
+            fileName:
+                type: string
+            filePath:
+                type: string
+            fileSize:
+                type: integer
+            mimeType:
+                type: string
+            documentType:
+                type: string
+            version:
+                type: string
+            description:
+                type: string
+    Contract:
+        type: object
+        properties:
+            id:
+                type: string
+            title:
+                type: string
+            contractType:
+                type: string
+            status:
+                type: string
+            expiryDate:
+                type: string
+                format: date-time
+            fileName:
+                type: string
+            filePath:
+                type: string
+            fileSize:
+                type: integer
+            mimeType:
+                type: string
+            description:
+                type: string
+            vendorId:
+                type: string
+            organizationId:
+                type: string
+    ContractUpdate:
+        type: object
+        properties:
+            title:
+                type: string
+            contractType:
+                type: string
+            status:
+                type: string
+            expiryDate:
+                type: string
+                format: date-time
+            fileName:
+                type: string
+            filePath:
+                type: string
+            fileSize:
+                type: integer
+            mimeType:
+                type: string
+            description:
+                type: string
+    JurisdictionConfig:
+        type: object
+        properties:
+            id:
+                type: string
+            country:
+                type: string
+            fileName:
+                type: string
+            filePath:
+                type: string
+            requiresDueDiligence:
+                type: boolean
+            dueDiligenceRequirements:
+                type: string
+            defaultDPATemplate:
+                type: string
+            otherNotes:
+                type: string
+            vendorId:
+                type: string
+    JurisdictionConfigUpdate:
+        type: object
+        properties:
+            country:
+                type: string
+            fileName:
+                type: string
+            filePath:
+                type: string
+            requiresDueDiligence:
+                type: boolean
+            dueDiligenceRequirements:
+                type: string
+            defaultDPATemplate:
+                type: string
+            otherNotes:
+                type: string
   responses:
     Unauthorized:
       description: Unauthorized
