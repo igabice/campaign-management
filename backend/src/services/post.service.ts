@@ -3,6 +3,7 @@ import httpStatus from "http-status";
 import ApiError from "../utils/ApiError";
 import prisma from "../config/prisma";
 import { checkSubscriptionLimits } from "./subscription.service";
+import notificationService from "./notification.service";
 
 const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 const ONE_WEEK_IN_MS = 7 * ONE_DAY_IN_MS;
@@ -603,6 +604,146 @@ async function getRecentActivity(teamId: string, limit: number = 5) {
   });
 }
 
+// Approval functions
+async function assignPostApprover(
+  postId: string,
+  approverId: string,
+  userId: string
+): Promise<Post> {
+  const post = await getPostById(postId);
+  if (!post) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Post not found");
+  }
+
+  // Check if user is a member of the team
+  const membership = await prisma.member.findFirst({
+    where: {
+      teamId: post.teamId,
+      userId,
+      status: "active",
+    },
+  });
+
+  if (!membership) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      "You are not authorized to assign approvers for this post"
+    );
+  }
+
+  // Check if approver is a member of the team
+  const approverMembership = await prisma.member.findFirst({
+    where: {
+      teamId: post.teamId,
+      userId: approverId,
+      status: "active",
+    },
+  });
+
+  if (!approverMembership) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Approver must be a member of the team"
+    );
+  }
+
+  const updatedPost = await prisma.post.update({
+    where: { id: postId },
+    data: {
+      approverId,
+      approvalStatus: "pending",
+    },
+    include: {
+      socialMedias: true,
+      creator: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      team: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
+      approver: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  // Send approval request notifications
+  await notificationService.sendPostApprovalRequest(postId, approverId);
+
+  return updatedPost;
+}
+
+async function approveOrRejectPost(
+  postId: string,
+  action: "approve" | "reject",
+  notes: string | null,
+  userId: string
+): Promise<Post> {
+  const post = await getPostById(postId);
+  if (!post) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Post not found");
+  }
+
+  // Check if user is the assigned approver
+  if (post.approverId !== userId) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      "You are not authorized to approve this post"
+    );
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const updateData: any = {
+    approvalStatus: action === "approve" ? "approved" : "rejected",
+    approvalNotes: notes,
+    approvedAt: new Date(),
+  };
+
+  const updatedPost = await prisma.post.update({
+    where: { id: postId },
+    data: updateData,
+    include: {
+      socialMedias: true,
+      creator: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      team: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
+      approver: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  // Send approval result notifications
+  await notificationService.sendPostApprovalResult(postId, post.createdBy);
+
+  return updatedPost;
+}
+
 export default {
   createPost,
   queryPosts,
@@ -612,4 +753,6 @@ export default {
   getDashboardAnalytics,
   getUpcomingPosts,
   getRecentActivity,
+  assignPostApprover,
+  approveOrRejectPost,
 };

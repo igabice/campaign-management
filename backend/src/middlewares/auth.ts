@@ -64,7 +64,7 @@ export const requireAuth = asyncHandler(
   }
 );
 
-// Middleware to require admin access (membership in admin team)
+// Middleware to require admin access
 export const requireAdmin = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -73,24 +73,12 @@ export const requireAdmin = asyncHandler(
       throw new ApiError(httpStatus.UNAUTHORIZED, "Unauthorized");
     }
 
-    const adminTeamId = process.env.ADMIN_TEAM_ID;
-    if (!adminTeamId) {
-      throw new ApiError(
-        httpStatus.INTERNAL_SERVER_ERROR,
-        "Admin team not configured"
-      );
-    }
-
-    const membership = await prisma.member.findFirst({
-      where: {
-        userId: session.user.id,
-        teamId: adminTeamId,
-      },
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { isAdmin: true },
     });
 
-    const ADMIN_ID = session.user.id === "cmgv8pojo0001qy0iur658hsg";
-
-    if (!membership && !ADMIN_ID) {
+    if (!user?.isAdmin) {
       throw new ApiError(httpStatus.FORBIDDEN, "Admin access required");
     }
 

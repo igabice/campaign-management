@@ -33,28 +33,13 @@ router.get(
   asyncHandler(async (req, res) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const session = (req as any).session;
-    const adminTeamId = process.env.ADMIN_TEAM_ID;
 
-    const ADMIN_ID = session.user.id === "cmgv8pojo0001qy0iur658hsg";
-
-    if (ADMIN_ID) {
-      res.json({ isAdmin: true });
-      return;
-    }
-
-    if (!adminTeamId) {
-      res.json({ isAdmin: false });
-      return;
-    }
-
-    const membership = await prisma.member.findFirst({
-      where: {
-        userId: session.user.id,
-        teamId: adminTeamId,
-      },
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { isAdmin: true },
     });
 
-    res.json({ isAdmin: !!membership });
+    res.json({ isAdmin: user?.isAdmin || false });
   })
 );
 

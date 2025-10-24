@@ -35,6 +35,7 @@ import { BlogDetailPage } from "./features/blog/BlogDetailPage";
 import { BlogManagementPage } from "./features/blog/BlogManagementPage";
 import { BlogEditPage } from "./features/blog/BlogEditPage";
 import { BlogLayout } from "./components/BlogLayout";
+import { ApprovalCenter } from "./components/ApprovalCenter";
 import { GlobalModalProvider } from "./contexts/GlobalModalContext";
 import { TeamProvider } from "./contexts/TeamContext";
 
@@ -125,14 +126,22 @@ const App = () => {
                         </MainLayout>
                       }
                     />
-                    <Route
-                      path="/notifications"
-                      element={
-                        <MainLayout>
-                          <NotificationsPage />
-                        </MainLayout>
-                      }
-                    />
+                     <Route
+                       path="/notifications"
+                       element={
+                         <MainLayout>
+                           <NotificationsPage />
+                         </MainLayout>
+                       }
+                     />
+                     <Route
+                       path="/approvals"
+                       element={
+                         <MainLayout>
+                           <ApprovalCenter />
+                         </MainLayout>
+                       }
+                     />
                      <Route
                        path="/subscription"
                        element={

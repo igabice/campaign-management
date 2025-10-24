@@ -3,6 +3,7 @@ import httpStatus from "http-status";
 import ApiError from "../utils/ApiError";
 import prisma from "../config/prisma";
 import { checkSubscriptionLimits } from "./subscription.service";
+import notificationService from "./notification.service";
 
 async function createPlan(
   userId: string,
@@ -24,7 +25,14 @@ async function createPlan(
     }[];
   }
 ): Promise<Plan> {
-  const { teamId, startDate, endDate, posts, status = 'draft', ...planData } = planBody;
+  const {
+    teamId,
+    startDate,
+    endDate,
+    posts,
+    status = "draft",
+    ...planData
+  } = planBody;
 
   // Check if user is a member of the team
   const membership = await prisma.member.findFirst({
@@ -42,7 +50,7 @@ async function createPlan(
     );
   }
 
-  await checkSubscriptionLimits(userId, 'plan');
+  await checkSubscriptionLimits(userId, "plan");
 
   return prisma.$transaction(async (tx) => {
     const plan = await tx.plan.create({
@@ -56,7 +64,7 @@ async function createPlan(
       },
     });
 
-    if (posts && posts.length > 0 && status === 'published') {
+    if (posts && posts.length > 0 && status === "published") {
       // Verify all social media accounts exist and belong to the team
       const allSocialMedias = posts.flatMap((p) => p.socialMedias);
       const uniqueSocialMedias = [...new Set(allSocialMedias)];
@@ -290,7 +298,7 @@ async function publishPlanById(
     throw new ApiError(httpStatus.NOT_FOUND, "Plan not found");
   }
 
-  if (plan.status === 'published') {
+  if (plan.status === "published") {
     throw new ApiError(httpStatus.BAD_REQUEST, "Plan is already published");
   }
 
@@ -310,13 +318,13 @@ async function publishPlanById(
     );
   }
 
-  await checkSubscriptionLimits(userId, 'plan');
+  await checkSubscriptionLimits(userId, "plan");
 
   return prisma.$transaction(async (tx) => {
     // Update plan status to published
     await tx.plan.update({
       where: { id },
-      data: { status: 'published' },
+      data: { status: "published" },
     });
 
     // Verify all social media accounts exist and belong to the team
@@ -428,6 +436,146 @@ async function deletePlanById(id: string, userId: string): Promise<Plan> {
   return prisma.plan.delete({ where: { id } });
 }
 
+// Approval functions
+async function assignPlanApprover(
+  planId: string,
+  approverId: string,
+  userId: string
+): Promise<Plan> {
+  const plan = await getPlanById(planId);
+  if (!plan) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Plan not found");
+  }
+
+  // Check if user is a member of the team
+  const membership = await prisma.member.findFirst({
+    where: {
+      teamId: plan.teamId,
+      userId,
+      status: "active",
+    },
+  });
+
+  if (!membership) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      "You are not authorized to assign approvers for this plan"
+    );
+  }
+
+  // Check if approver is a member of the team
+  const approverMembership = await prisma.member.findFirst({
+    where: {
+      teamId: plan.teamId,
+      userId: approverId,
+      status: "active",
+    },
+  });
+
+  if (!approverMembership) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Approver must be a member of the team"
+    );
+  }
+
+  const updatedPlan = await prisma.plan.update({
+    where: { id: planId },
+    data: {
+      approverId,
+      approvalStatus: "pending",
+    },
+    include: {
+      posts: true,
+      creator: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      team: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
+      approver: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  // Send approval request notifications
+  await notificationService.sendPlanApprovalRequest(planId, approverId);
+
+  return updatedPlan;
+}
+
+async function approveOrRejectPlan(
+  planId: string,
+  action: "approve" | "reject",
+  notes: string | null,
+  userId: string
+): Promise<Plan> {
+  const plan = await getPlanById(planId);
+  if (!plan) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Plan not found");
+  }
+
+  // Check if user is the assigned approver
+  if (plan.approverId !== userId) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      "You are not authorized to approve this plan"
+    );
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const updateData: any = {
+    approvalStatus: action === "approve" ? "approved" : "rejected",
+    approvalNotes: notes,
+    approvedAt: new Date(),
+  };
+
+  const updatedPlan = await prisma.plan.update({
+    where: { id: planId },
+    data: updateData,
+    include: {
+      posts: true,
+      creator: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      team: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
+      approver: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  // Send approval result notifications
+  await notificationService.sendPlanApprovalResult(planId, plan.createdBy);
+
+  return updatedPlan;
+}
+
 export default {
   createPlan,
   queryPlans,
@@ -435,4 +583,6 @@ export default {
   updatePlanById,
   publishPlanById,
   deletePlanById,
+  assignPlanApprover,
+  approveOrRejectPlan,
 };

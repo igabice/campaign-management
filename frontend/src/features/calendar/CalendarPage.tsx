@@ -44,6 +44,7 @@ import { Post } from "../../types/schemas";
 import { CreatePostModal } from "../../components/modals/CreatePostModal";
 import { PostDetailsModal } from "../../components/modals/PostDetailsModal";
 import { PostsListModal } from "../../components/modals/PostsListModal";
+import { AssignApproverModal } from "../../components/modals/AssignApproverModal";
 import { useNavigate } from "react-router-dom";
 
 const locales = {
@@ -79,6 +80,8 @@ export const CalendarPage = () => {
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState<Post | null>(null);
+  const [assignApproverModalOpen, setAssignApproverModalOpen] = useState(false);
+  const [itemToAssign, setItemToAssign] = useState<any>(null);
 
   const getPlatformIcon = (platform: string) => {
     switch (platform.toLowerCase()) {
@@ -263,15 +266,16 @@ export const CalendarPage = () => {
                   <TabPanels>
                     <TabPanel>
                       <Table variant="simple">
-                        <Thead>
-                          <Tr>
-                            <Th>Title</Th>
-                            <Th>Content</Th>
-                            <Th>Scheduled Date</Th>
-                            <Th>Status</Th>
-                            <Th>Actions</Th>
-                          </Tr>
-                        </Thead>
+                         <Thead>
+                           <Tr>
+                             <Th>Title</Th>
+                             <Th>Content</Th>
+                             <Th>Scheduled Date</Th>
+                             <Th>Status</Th>
+                             <Th>Approval</Th>
+                             <Th>Actions</Th>
+                           </Tr>
+                         </Thead>
                         <Tbody>
                           {posts.map((post) => (
                             <Tr key={post.id}>
@@ -300,7 +304,37 @@ export const CalendarPage = () => {
                               </Td>
                               <Td>{post.status}</Td>
                               <Td>
+                                {post.approvalStatus === "pending" && (
+                                  <Badge colorScheme="yellow">Pending Approval</Badge>
+                                )}
+                                {post.approvalStatus === "approved" && (
+                                  <Badge colorScheme="green">Approved</Badge>
+                                )}
+                                {post.approvalStatus === "rejected" && (
+                                  <Badge colorScheme="red">Rejected</Badge>
+                                )}
+                                {(!post.approvalStatus || post.approvalStatus === "none") && (
+                                  <Badge colorScheme="gray">No Approval</Badge>
+                                )}
+                              </Td>
+                              <Td>
                                 <HStack spacing={2}>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    colorScheme="blue"
+                                    onClick={() => {
+                                      setItemToAssign({
+                                        id: post.id,
+                                        type: "post",
+                                        title: post.title || "Untitled Post",
+                                        creator: post.creator,
+                                      });
+                                      setAssignApproverModalOpen(true);
+                                    }}
+                                  >
+                                    Assign Approver
+                                  </Button>
                                   <IconButton
                                     aria-label="Edit post"
                                     icon={<EditIcon />}
@@ -363,24 +397,33 @@ export const CalendarPage = () => {
                                 />
                               )}
                               <HStack justify="space-between" w="full">
-                                <HStack>
-                                  <Text fontSize="sm" color="gray.600">
-                                    Scheduled:{" "}
-                                    {format(
-                                      new Date(post.scheduledDate),
-                                      "PPP p"
-                                    )}
-                                  </Text>
-                                  <Badge
-                                    colorScheme={
-                                      post.status === "Posted"
-                                        ? "green"
-                                        : "gray"
-                                    }
-                                  >
-                                    {post.status}
-                                  </Badge>
-                                </HStack>
+                                 <HStack>
+                                   <Text fontSize="sm" color="gray.600">
+                                     Scheduled:{" "}
+                                     {format(
+                                       new Date(post.scheduledDate),
+                                       "PPP p"
+                                     )}
+                                   </Text>
+                                   <Badge
+                                     colorScheme={
+                                       post.status === "Posted"
+                                         ? "green"
+                                         : "gray"
+                                     }
+                                   >
+                                     {post.status}
+                                   </Badge>
+                                   {post.approvalStatus === "pending" && (
+                                     <Badge colorScheme="yellow">Pending Approval</Badge>
+                                   )}
+                                   {post.approvalStatus === "approved" && (
+                                     <Badge colorScheme="green">Approved</Badge>
+                                   )}
+                                   {post.approvalStatus === "rejected" && (
+                                     <Badge colorScheme="red">Rejected</Badge>
+                                   )}
+                                 </HStack>
                                 <HStack spacing={2}>
                                   <IconButton
                                     aria-label="Edit post"
@@ -548,6 +591,16 @@ export const CalendarPage = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+      <AssignApproverModal
+        isOpen={assignApproverModalOpen}
+        onClose={() => setAssignApproverModalOpen(false)}
+        item={itemToAssign}
+        onAssigned={() => {
+          fetchPosts();
+          setAssignApproverModalOpen(false);
+          setItemToAssign(null);
+        }}
+      />
     </Box>
   );
 };

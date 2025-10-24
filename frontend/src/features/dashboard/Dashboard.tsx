@@ -230,6 +230,10 @@ const Dashboard: React.FC = () => {
             <Heading size="lg" mb={6} textAlign="center">
               Your Quick Start Guide
             </Heading>
+            <Text fontSize="sm" color="gray.600" textAlign="center" mb={6}>
+              Follow these 4 steps to get your social media management up and
+              running
+            </Text>
 
             <VStack spacing={6} align="stretch">
               {/* Step 1: Create Team */}
@@ -289,7 +293,7 @@ const Dashboard: React.FC = () => {
                 </HStack>
               </Box>
 
-              {/* Step 2: Schedule Content */}
+              {/* Step 2: Schedule First Post */}
               <Box
                 bg="gray.50"
                 p={6}
@@ -317,26 +321,133 @@ const Dashboard: React.FC = () => {
                   </Box>
                   <Box flex="1">
                     <Heading size="md" mb={2} color="gray.600">
-                      Schedule Your First Posts
+                      Schedule Your First Post
                     </Heading>
                     <Text color="gray.600" mb={4}>
-                      Once you have a team, you can start scheduling content.
-                      Choose between individual posts for quick updates or
-                      comprehensive content plans for strategic campaigns with
-                      multiple posts.
+                      Get started by scheduling your first social media post.
+                      Choose the perfect time and platform to reach your
+                      audience.
                     </Text>
                     <VStack align="start" spacing={2} mb={4}>
                       <Text fontSize="sm" color="gray.500">
-                        • <strong>Quick Post:</strong> Schedule a single post to
-                        any connected social account
+                        • <strong>Choose Platform:</strong> Select Facebook,
+                        Twitter, Instagram, or LinkedIn
                       </Text>
                       <Text fontSize="sm" color="gray.500">
-                        • <strong>Content Plan:</strong> Create a series of
-                        posts with AI assistance for campaigns
+                        • <strong>Pick Perfect Time:</strong> Schedule for
+                        optimal engagement
                       </Text>
                       <Text fontSize="sm" color="gray.500">
-                        • <strong>Goals & Targets:</strong> Set objectives like
-                        engagement, reach, or conversions
+                        • <strong>Add Content:</strong> Write your message and
+                        add images
+                      </Text>
+                    </VStack>
+                    <Text fontSize="sm" color="gray.500" fontStyle="italic">
+                      Available after creating your team
+                    </Text>
+                  </Box>
+                </HStack>
+              </Box>
+
+              {/* Step 3: Plan Content with AI */}
+              <Box
+                bg="gray.50"
+                p={6}
+                borderRadius="lg"
+                border="2px"
+                borderColor="gray.200"
+                opacity={0.6}
+                position="relative"
+              >
+                <HStack spacing={4} align="start">
+                  <Box
+                    bg="gray.400"
+                    color="white"
+                    borderRadius="full"
+                    w={8}
+                    h={8}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    fontWeight="bold"
+                    fontSize="sm"
+                    flexShrink={0}
+                  >
+                    3
+                  </Box>
+                  <Box flex="1">
+                    <Heading size="md" mb={2} color="gray.600">
+                      Plan Content with AI
+                    </Heading>
+                    <Text color="gray.600" mb={4}>
+                      Use our AI-powered content planner to create comprehensive
+                      social media campaigns. Generate multiple posts with
+                      consistent messaging and strategic timing.
+                    </Text>
+                    <VStack align="start" spacing={2} mb={4}>
+                      <Text fontSize="sm" color="gray.500">
+                        • <strong>AI Generation:</strong> Let AI create engaging
+                        content based on your topics
+                      </Text>
+                      <Text fontSize="sm" color="gray.500">
+                        • <strong>Campaign Planning:</strong> Create multi-post
+                        campaigns with themes
+                      </Text>
+                      <Text fontSize="sm" color="gray.500">
+                        • <strong>Smart Scheduling:</strong> Automated posting
+                        across optimal times
+                      </Text>
+                    </VStack>
+                    <Text fontSize="sm" color="gray.500" fontStyle="italic">
+                      Available after creating your team
+                    </Text>
+                  </Box>
+                </HStack>
+              </Box>
+
+              {/* Step 4: Invite Someone to Collaborate */}
+              <Box
+                bg="gray.50"
+                p={6}
+                borderRadius="lg"
+                border="2px"
+                borderColor="gray.200"
+                opacity={0.6}
+                position="relative"
+              >
+                <HStack spacing={4} align="start">
+                  <Box
+                    bg="gray.400"
+                    color="white"
+                    borderRadius="full"
+                    w={8}
+                    h={8}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    fontWeight="bold"
+                    fontSize="sm"
+                    flexShrink={0}
+                  >
+                    4
+                  </Box>
+                  <Box flex="1">
+                    <Heading size="md" mb={2} color="gray.600">
+                      Invite Someone to Collaborate
+                    </Heading>
+                    <Text color="gray.600" mb={4}>
+                      Grow your team by inviting collaborators. Share the
+                      workload and get help with content creation, scheduling,
+                      and campaign management.
+                    </Text>
+                    <VStack align="start" spacing={2} mb={4}>
+                      <Text fontSize="sm" color="gray.500">
+                        • <strong>Team Collaboration:</strong> Work together on
+                        content planning
+                      </Text>
+                      <Text fontSize="sm" color="gray.500">
+                        • <strong>Shared Workspaces:</strong> Access the same
+                        campaigns and posts
                       </Text>
                     </VStack>
                     <Text fontSize="sm" color="gray.500" fontStyle="italic">
@@ -363,7 +474,7 @@ const Dashboard: React.FC = () => {
                     templateColumns={[
                       "1fr",
                       "repeat(2, 1fr)",
-                      "repeat(3, 1fr)",
+                      "repeat(4, 1fr)",
                     ]}
                     gap={4}
                     w="full"
@@ -384,6 +495,15 @@ const Dashboard: React.FC = () => {
                       </Text>
                       <Text fontSize="sm" color="gray.600">
                         Generate engaging posts with AI
+                      </Text>
+                    </VStack>
+                    <VStack spacing={2} textAlign="center">
+                      <Text fontSize="2xl">👥</Text>
+                      <Text fontWeight="medium" color="green.700">
+                        Team Collaboration
+                      </Text>
+                      <Text fontSize="sm" color="gray.600">
+                        Work together on campaigns
                       </Text>
                     </VStack>
                     <VStack spacing={2} textAlign="center">

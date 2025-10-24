@@ -81,4 +81,36 @@ export const postsApi = {
   deletePost: async (id: string) => {
     await del(`${POSTS_BASE_URL}/${id}`);
   },
+
+  assignApprover: async (id: string, payload: { approverId: string }) => {
+    const response = await post(`${POSTS_BASE_URL}/${id}/assign-approver`, payload);
+    return response.data;
+  },
+
+  approveOrRejectPost: async (id: string, payload: { action: "approve" | "reject"; notes?: string }) => {
+    const response = await post(`${POSTS_BASE_URL}/${id}/approve`, payload);
+    return response.data;
+  },
+
+  getPosts: async (
+    page: number = 1,
+    limit: number = 20,
+    query?: {
+      teamId?: string;
+      status?: string;
+      approvalStatus?: string;
+      startDate?: string;
+      endDate?: string;
+      search?: string;
+    }
+  ) => {
+    const response = await getPaginated(POSTS_BASE_URL, {
+      params: {
+        page,
+        limit,
+        ...(query && query),
+      },
+    });
+    return response.data;
+  },
 };

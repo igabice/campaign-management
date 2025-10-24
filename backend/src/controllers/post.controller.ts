@@ -47,6 +47,7 @@ const getPosts = asyncHandler(async (req, res) => {
   const filter = {
     ...(req.query.teamId && { teamId: req.query.teamId }),
     ...(req.query.status && { status: req.query.status }),
+    ...(req.query.approvalStatus && { approvalStatus: req.query.approvalStatus }),
     ...(Object.keys(dateFilter).length > 0 && { scheduledDate: dateFilter }),
     ...(search && {
       OR: [
@@ -200,6 +201,28 @@ const getRecentActivity = asyncHandler(async (req, res) => {
   res.send(posts);
 });
 
+const assignPostApprover = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { approverId } = req.body;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const session = (req as any).session;
+
+  const post = await postService.assignPostApprover(id, approverId, session.user.id);
+  res.send(post);
+});
+
+const approveOrRejectPost = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { action, notes } = req.body;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const session = (req as any).session;
+
+  const post = await postService.approveOrRejectPost(id, action, notes, session.user.id);
+  res.send(post);
+});
+
 export default {
   createPost,
   getPosts,
@@ -209,4 +232,6 @@ export default {
   getDashboardAnalytics,
   getUpcomingPosts,
   getRecentActivity,
+  assignPostApprover,
+  approveOrRejectPost,
 };

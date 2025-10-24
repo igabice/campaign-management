@@ -524,6 +524,79 @@ class MailService {
     }
   }
 
+  async sendPasswordChangeConfirmationEmail(
+    user: { name: string | null; email: string },
+    changeTime: Date = new Date()
+  ): Promise<void> {
+    const dashboardUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/dashboard`;
+    const formattedTime = changeTime.toLocaleString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short'
+    });
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Password Changed Successfully 🔐</h2>
+        <p>Hello ${user.name || "there"},</p>
+        <p>Your password for your Dokahub account has been successfully changed.</p>
+
+        <div style="background-color: #d4edda; border: 1px solid #c3e6cb; padding: 15px; border-radius: 4px; margin: 20px 0;">
+          <p style="margin: 0; color: #155724;"><strong>✓ Password Change Confirmed</strong></p>
+          <p style="margin: 5px 0 0 0; color: #155724;"><strong>Time:</strong> ${formattedTime}</p>
+          <p style="margin: 5px 0 0 0; color: #155724;"><strong>Account:</strong> ${user.email}</p>
+        </div>
+
+        <p>If you made this change, no further action is required. Your account is now secure with your new password.</p>
+
+        <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 4px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #856404;">⚠️ Security Notice</h3>
+          <p style="margin-bottom: 0; color: #856404;">
+            If you did not request this password change, please contact our support team immediately and consider changing your password again.
+          </p>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${dashboardUrl}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+            Access Your Dashboard
+          </a>
+        </div>
+
+        <p>For your security, we recommend:</p>
+        <ul>
+          <li>Using a strong, unique password</li>
+          <li>Enabling two-factor authentication if available</li>
+          <li>Regularly monitoring your account activity</li>
+        </ul>
+
+        <p>If you have any questions or concerns about your account security, please don't hesitate to contact our support team.</p>
+        <p>Best regards,<br>The Dokahub Team</p>
+
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+        <p style="font-size: 12px; color: #666;">
+          This is an automated message. Please do not reply to this email.
+          If you need assistance, contact our support team at support@dokahub.com
+        </p>
+      </div>
+    `;
+
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_FROM || "noreply@dokahub.com",
+        to: user.email,
+        subject: "Password Changed Successfully - Dokahub",
+        html,
+      });
+    } catch (error) {
+      console.error("Failed to send password change confirmation email:", error);
+      // Don't throw error - password change is still successful even if email fails
+    }
+  }
+
   async sendMail(options: {
     to: string;
     subject: string;
@@ -540,6 +613,223 @@ class MailService {
     } catch (error) {
       console.error("Failed to send email:", error);
       throw error;
+    }
+  }
+
+  // Approval notification methods
+  async sendPostApprovalRequestEmail(
+    post: {
+      id: string;
+      title?: string | null;
+      content: string;
+      creator: { name: string | null; email: string };
+      team: { title: string };
+    },
+    approver: { name: string | null; email: string }
+  ): Promise<void> {
+    const approvalUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/calendar`;
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Post Approval Request </h2>
+        <p>Hello ${approver.name || "there"},</p>
+        <p>You have been assigned as the approver for a new post in the team "${post.team.title}".</p>
+
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #007bff;">Post Details:</h3>
+          <p><strong>Title:</strong> ${post.title || "Untitled Post"}</p>
+          <p><strong>Created by:</strong> ${post.creator.name || post.creator.email}</p>
+          <p><strong>Content Preview:</strong> ${post.content.substring(0, 150)}${post.content.length > 150 ? "..." : ""}</p>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${approvalUrl}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+            Review Post
+          </a>
+        </div>
+
+        <p>Please review the post and either approve or reject it. Your feedback will help maintain quality standards for the team.</p>
+        <p>Best regards,<br>The Dokahub Team</p>
+      </div>
+    `;
+
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_FROM || "noreply@dokahub.com",
+        to: approver.email,
+        subject: `Post Approval Request - ${post.team.title}`,
+        html,
+      });
+    } catch (error) {
+      console.error("Failed to send post approval request email:", error);
+    }
+  }
+
+  async sendPlanApprovalRequestEmail(
+    plan: {
+      id: string;
+      title: string;
+      description?: string | null;
+      creator: { name: string | null; email: string };
+      team: { title: string };
+    },
+    approver: { name: string | null; email: string }
+  ): Promise<void> {
+    const approvalUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/content-planner`;
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Content Plan Approval Request </h2>
+        <p>Hello ${approver.name || "there"},</p>
+        <p>You have been assigned as the approver for a new content plan in the team "${plan.team.title}".</p>
+
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #007bff;">Plan Details:</h3>
+          <p><strong>Title:</strong> ${plan.title}</p>
+          <p><strong>Created by:</strong> ${plan.creator.name || plan.creator.email}</p>
+          ${plan.description ? `<p><strong>Description:</strong> ${plan.description}</p>` : ""}
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${approvalUrl}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+            Review Plan
+          </a>
+        </div>
+
+        <p>Please review the content plan and either approve or reject it. Your feedback will help ensure campaign quality and alignment with team goals.</p>
+        <p>Best regards,<br>The Dokahub Team</p>
+      </div>
+    `;
+
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_FROM || "noreply@dokahub.com",
+        to: approver.email,
+        subject: `Content Plan Approval Request - ${plan.team.title}`,
+        html,
+      });
+    } catch (error) {
+      console.error("Failed to send plan approval request email:", error);
+    }
+  }
+
+  async sendPostApprovalResultEmail(
+    post: {
+      id: string;
+      title?: string | null;
+      approvalStatus: string | null;
+      approvalNotes?: string | null;
+      approver?: { name: string | null } | null;
+    },
+    creator: { name: string | null; email: string }
+  ): Promise<void> {
+    const dashboardUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/calendar`;
+    const status = post.approvalStatus === "approved" ? "Approved" : "Rejected";
+    const color = post.approvalStatus === "approved" ? "#28a745" : "#dc3545";
+    const emoji = post.approvalStatus === "approved" ? "✅" : "❌";
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Post ${status} ${emoji}</h2>
+        <p>Hello ${creator.name || "there"},</p>
+        <p>Your post "${post.title || "Untitled Post"}" has been <strong style="color: ${color};">${status.toLowerCase()}</strong> by ${post.approver?.name || "the approver"}.</p>
+
+        ${
+          post.approvalNotes
+            ? `
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #007bff;">Approval Notes:</h3>
+          <p style="margin-bottom: 0;">${post.approvalNotes}</p>
+        </div>
+        `
+            : ""
+        }
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${dashboardUrl}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+            View Post
+          </a>
+        </div>
+
+        <p>${
+          post.approvalStatus === "approved"
+            ? "Your post is now ready for scheduling. You can proceed with publishing it according to your campaign timeline."
+            : "Please review the approval notes and make necessary changes before resubmitting for approval."
+        }
+        </p>
+        <p>Best regards,<br>The Dokahub Team</p>
+      </div>
+    `;
+
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_FROM || "noreply@dokahub.com",
+        to: creator.email,
+        subject: `Post ${status} - ${post.title || "Untitled Post"}`,
+        html,
+      });
+    } catch (error) {
+      console.error("Failed to send post approval result email:", error);
+    }
+  }
+
+  async sendPlanApprovalResultEmail(
+    plan: {
+      id: string;
+      title: string;
+      approvalStatus: string | null;
+      approvalNotes?: string | null;
+      approver?: { name: string | null } | null;
+    },
+    creator: { name: string | null; email: string }
+  ): Promise<void> {
+    const dashboardUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/content-planner`;
+    const status = plan.approvalStatus === "approved" ? "Approved" : "Rejected";
+    const color = plan.approvalStatus === "approved" ? "#28a745" : "#dc3545";
+    const emoji = plan.approvalStatus === "approved" ? "✅" : "❌";
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Content Plan ${status} ${emoji}</h2>
+        <p>Hello ${creator.name || "there"},</p>
+        <p>Your content plan "${plan.title}" has been <strong style="color: ${color};">${status.toLowerCase()}</strong> by ${plan.approver?.name || "the approver"}.</p>
+
+        ${
+          plan.approvalNotes
+            ? `
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #007bff;">Approval Notes:</h3>
+          <p style="margin-bottom: 0;">${plan.approvalNotes}</p>
+        </div>
+        `
+            : ""
+        }
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${dashboardUrl}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+            View Plan
+          </a>
+        </div>
+
+        <p>${
+          plan.approvalStatus === "approved"
+            ? "Your content plan is now approved and ready for implementation. You can proceed with publishing the posts according to your campaign timeline."
+            : "Please review the approval notes and make necessary changes before resubmitting for approval."
+        }
+        </p>
+        <p>Best regards,<br>The Dokahub Team</p>
+      </div>
+    `;
+
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_FROM || "noreply@dokahub.com",
+        to: creator.email,
+        subject: `Content Plan ${status} - ${plan.title}`,
+        html,
+      });
+    } catch (error) {
+      console.error("Failed to send plan approval result email:", error);
     }
   }
 }
@@ -564,4 +854,5 @@ function getProTip(feature: string): string {
 }
 
 const mailService = new MailService();
+
 export default mailService;

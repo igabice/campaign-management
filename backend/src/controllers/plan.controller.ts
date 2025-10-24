@@ -48,6 +48,7 @@ const getPlans = asyncHandler(async (req, res) => {
 
   const filter = {
     ...(req.query.teamId && { teamId: req.query.teamId }),
+    ...(req.query.approvalStatus && { approvalStatus: req.query.approvalStatus }),
   };
 
   const plans = await planService.queryPlans(filter, options);
@@ -119,6 +120,28 @@ const deletePlan = asyncHandler(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const assignPlanApprover = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { approverId } = req.body;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const session = (req as any).session;
+
+  const plan = await planService.assignPlanApprover(id, approverId, session.user.id);
+  res.send(plan);
+});
+
+const approveOrRejectPlan = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { action, notes } = req.body;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const session = (req as any).session;
+
+  const plan = await planService.approveOrRejectPlan(id, action, notes, session.user.id);
+  res.send(plan);
+});
+
 export default {
   createPlan,
   getPlans,
@@ -126,4 +149,6 @@ export default {
   updatePlan,
   publishPlan,
   deletePlan,
+  assignPlanApprover,
+  approveOrRejectPlan,
 };

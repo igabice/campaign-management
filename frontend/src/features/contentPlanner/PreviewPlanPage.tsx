@@ -84,22 +84,27 @@ export const PreviewPlanPage = () => {
           duration: 3000,
           isClosable: true,
         });
-      } else {
-        // Creating a new plan
-        await plansApi.createPlan({
-          ...planData,
-          status,
-          posts: status === 'published' ? posts : posts,  // include posts for both
-        });
+       } else {
+         // Creating a new plan
+         const plan = await plansApi.createPlan({
+           ...planData,
+           status,
+           posts: status === 'published' ? posts : posts,  // include posts for both
+         });
 
-        toast({
-          title: status === 'published' ? "Plan created successfully" : "Draft saved successfully",
-          description: status === 'published' ? `Created plan with ${posts.length} posts` : "Your plan has been saved as a draft",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-        });
-      }
+         // Assign approver if required
+         if (planData.requiresApproval && planData.selectedApprover) {
+           await plansApi.assignApprover(plan.id, { approverId: planData.selectedApprover });
+         }
+
+         toast({
+           title: status === 'published' ? "Plan created successfully" : "Draft saved successfully",
+           description: status === 'published' ? `Created plan with ${posts.length} posts` : "Your plan has been saved as a draft",
+           status: "success",
+           duration: 3000,
+           isClosable: true,
+         });
+       }
 
       navigate(status === 'published' ? "/calendar" : "/content-planner");
     } catch (error: any) {

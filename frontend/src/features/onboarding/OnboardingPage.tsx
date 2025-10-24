@@ -22,6 +22,9 @@ import {
   useClipboard,
   IconButton,
   Tooltip,
+  Grid,
+  GridItem,
+  Image,
 } from "@chakra-ui/react";
 import { CopyIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
@@ -75,8 +78,6 @@ const OnboardingPage: React.FC = () => {
   // Step 1 data
   const [teamName, setTeamName] = useState("");
   const [topics, setTopics] = useState<string[]>([]);
-  const [newTopic, setNewTopic] = useState("");
-  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   // Step 2 data
   const [preferredDays, setPreferredDays] = useState<string[]>([
@@ -109,39 +110,8 @@ const OnboardingPage: React.FC = () => {
     }
   }, [session]);
 
-  const addTopic = () => {
-    if (newTopic.trim() && !topics.includes(newTopic.trim())) {
-      setTopics([...topics, newTopic.trim()]);
-      setNewTopic("");
-      setSuggestions([]);
-    }
-  };
-
   const removeTopic = (topicToRemove: string) => {
     setTopics(topics.filter((t) => t !== topicToRemove));
-  };
-
-  const handleNewTopicChange = (value: string) => {
-    setNewTopic(value);
-    if (value.trim()) {
-      setSuggestions(
-        POPULAR_TOPICS.filter(
-          (topic) =>
-            topic.toLowerCase().includes(value.toLowerCase()) &&
-            !topics.includes(topic)
-        )
-      );
-    } else {
-      setSuggestions([]);
-    }
-  };
-
-  const selectSuggestion = (topic: string) => {
-    if (!topics.includes(topic)) {
-      setTopics([...topics, topic]);
-    }
-    setNewTopic("");
-    setSuggestions([]);
   };
 
   const addTime = () => {
@@ -227,21 +197,13 @@ const OnboardingPage: React.FC = () => {
 
   const renderStep1 = () => (
     <VStack spacing={6} align="stretch">
-      <Box>
-        <Heading size="md" mb={2}>
-          Welcome! Let's set up your profile
-        </Heading>
-        <Text color="gray.600">
-          First, tell us about your team and interests.
-        </Text>
-      </Box>
-
       <FormControl>
-        <FormLabel>Team Name</FormLabel>
+        <FormLabel fontWeight="semibold">Team Name</FormLabel>
         <Input
           value={teamName}
           onChange={(e) => setTeamName(e.target.value)}
           placeholder="Enter your team name"
+          size="lg"
         />
         <FormHelperText>
           This will be the name of your content team (e.g., "Santa's Profile")
@@ -249,71 +211,81 @@ const OnboardingPage: React.FC = () => {
       </FormControl>
 
       <FormControl>
-        <FormLabel>Topics of Interest</FormLabel>
-        <HStack>
-          <Input
-            placeholder="Add a topic (e.g., Technology, Health)"
-            value={newTopic}
-            onChange={(e) => handleNewTopicChange(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && addTopic()}
-          />
-          <Button
-            colorScheme="yellow"
-            onClick={addTopic}
-            isDisabled={!newTopic.trim()}
-          >
-            Add
-          </Button>
-        </HStack>
-        {suggestions.length > 0 && (
-          <VStack align="start" spacing={1} mt={2}>
-            {suggestions.slice(0, 5).map((suggestion) => (
-              <Button
-                key={suggestion}
-                size="sm"
-                variant="ghost"
-                onClick={() => selectSuggestion(suggestion)}
-              >
-                {suggestion}
-              </Button>
-            ))}
-          </VStack>
-        )}
-        <FormHelperText>
-          Add topics you're interested in for content generation
+        <FormLabel fontWeight="semibold">Topics of Interest</FormLabel>
+        <FormHelperText mb={4}>
+          Select topics you're interested in for personalized content generation
         </FormHelperText>
-        <Box mt={3}>
-          <HStack wrap="wrap" spacing={2}>
-            {topics.map((topic) => (
-              <Tag key={topic} size="md" colorScheme="yellow" variant="solid">
-                <TagLabel>{topic}</TagLabel>
-                <TagCloseButton onClick={() => removeTopic(topic)} />
-              </Tag>
-            ))}
-          </HStack>
-        </Box>
+        <Grid templateColumns="repeat(auto-fill, minmax(140px, 1fr))" gap={3}>
+          {POPULAR_TOPICS.map((topic) => {
+            const isSelected = topics.includes(topic);
+            return (
+              <Box
+                key={topic}
+                as="button"
+                onClick={() => {
+                  if (isSelected) {
+                    removeTopic(topic);
+                  } else {
+                    setTopics([...topics, topic]);
+                  }
+                }}
+                p={3}
+                borderRadius="lg"
+                border="2px solid"
+                borderColor={isSelected ? "yellow.400" : "gray.200"}
+                bg={isSelected ? "yellow.50" : "white"}
+                color={isSelected ? "yellow.800" : "gray.700"}
+                fontWeight={isSelected ? "semibold" : "medium"}
+                fontSize="sm"
+                textAlign="center"
+                transition="all 0.2s"
+                _hover={{
+                  borderColor: isSelected ? "yellow.500" : "gray.300",
+                  bg: isSelected ? "yellow.100" : "gray.50",
+                  transform: "translateY(-1px)",
+                  shadow: "sm",
+                }}
+                _active={{
+                  transform: "translateY(0)",
+                }}
+              >
+                {topic}
+              </Box>
+            );
+          })}
+        </Grid>
+        {topics.length > 0 && (
+          <Box mt={4}>
+            <Text fontSize="sm" color="gray.600" mb={2}>
+              Selected topics ({topics.length}):
+            </Text>
+            <HStack wrap="wrap" spacing={2}>
+              {topics.map((topic) => (
+                <Tag key={topic} size="sm" colorScheme="yellow" variant="solid">
+                  <TagLabel>{topic}</TagLabel>
+                  <TagCloseButton onClick={() => removeTopic(topic)} />
+                </Tag>
+              ))}
+            </HStack>
+          </Box>
+        )}
       </FormControl>
     </VStack>
   );
 
   const renderStep2 = () => (
     <VStack spacing={6} align="stretch">
-      <Box>
-        <Heading size="md" mb={2}>
-          Content Scheduling
-        </Heading>
-        <Text color="gray.600">When would you like to post content?</Text>
-      </Box>
-
       <FormControl>
-        <FormLabel mb={3}>Preferred Posting Days</FormLabel>
+        <FormLabel fontWeight="semibold" mb={3}>
+          Preferred Posting Days
+        </FormLabel>
         <CheckboxGroup
           value={preferredDays}
           onChange={(values) => setPreferredDays(values as string[])}
         >
-          <VStack align="start" spacing={2}>
+          <VStack align="start" spacing={3}>
             {DAYS_OF_WEEK.map((day) => (
-              <Checkbox key={day.value} value={day.value}>
+              <Checkbox key={day.value} value={day.value} size="lg">
                 {day.label}
               </Checkbox>
             ))}
@@ -322,7 +294,9 @@ const OnboardingPage: React.FC = () => {
       </FormControl>
 
       <FormControl>
-        <FormLabel mb={3}>Preferred Posting Times</FormLabel>
+        <FormLabel fontWeight="semibold" mb={3}>
+          Preferred Posting Times
+        </FormLabel>
         <VStack align="stretch" spacing={3}>
           {preferredTimes.map((time, index) => (
             <HStack key={index}>
@@ -330,6 +304,7 @@ const OnboardingPage: React.FC = () => {
                 type="time"
                 value={time}
                 onChange={(e) => updateTime(index, e.target.value)}
+                size="lg"
               />
               <Button
                 size="sm"
@@ -359,25 +334,19 @@ const OnboardingPage: React.FC = () => {
 
   const renderStep3 = () => (
     <VStack spacing={6} align="stretch">
-      <Box>
-        <Heading size="md" mb={2}>
-          Notification Preferences
-        </Heading>
-        <Text color="gray.600">
-          How would you like to receive notifications?
-        </Text>
-      </Box>
-
       <FormControl>
         <HStack justify="space-between">
           <Box>
-            <FormLabel mb={1}>Email Notifications</FormLabel>
+            <FormLabel fontWeight="semibold" mb={1}>
+              Email Notifications
+            </FormLabel>
             <FormHelperText>Receive notifications via email</FormHelperText>
           </Box>
           <Switch
             colorScheme="yellow"
             isChecked={emailNotifications}
             onChange={(e) => setEmailNotifications(e.target.checked)}
+            size="lg"
           />
         </HStack>
       </FormControl>
@@ -385,19 +354,29 @@ const OnboardingPage: React.FC = () => {
       <FormControl>
         <HStack justify="space-between">
           <Box>
-            <FormLabel mb={1}>Telegram Notifications</FormLabel>
+            <FormLabel fontWeight="semibold" mb={1}>
+              Telegram Notifications
+            </FormLabel>
             <FormHelperText>Receive notifications via Telegram</FormHelperText>
           </Box>
           <Switch
             colorScheme="yellow"
             isChecked={telegramEnabled}
             onChange={(e) => setTelegramEnabled(e.target.checked)}
+            size="lg"
           />
         </HStack>
         {telegramEnabled && (
-          <VStack spacing={3} mt={3} align="stretch">
+          <VStack
+            spacing={4}
+            mt={4}
+            align="stretch"
+            p={4}
+            bg="gray.50"
+            borderRadius="md"
+          >
             <Box>
-              <Text fontSize="sm" fontWeight="medium" mb={2}>
+              <Text fontSize="sm" fontWeight="semibold" mb={2} color="blue.600">
                 Step 1: Copy your User ID
               </Text>
               <HStack>
@@ -405,6 +384,7 @@ const OnboardingPage: React.FC = () => {
                   value={userId}
                   isReadOnly
                   placeholder="Your User ID will appear here"
+                  size="sm"
                 />
                 <Tooltip label={hasCopied ? "Copied!" : "Copy User ID"}>
                   <IconButton
@@ -412,6 +392,7 @@ const OnboardingPage: React.FC = () => {
                     icon={<CopyIcon />}
                     onClick={onCopy}
                     colorScheme={hasCopied ? "green" : "gray"}
+                    size="sm"
                   />
                 </Tooltip>
               </HStack>
@@ -422,7 +403,7 @@ const OnboardingPage: React.FC = () => {
             </Box>
 
             <Box>
-              <Text fontSize="sm" fontWeight="medium" mb={2}>
+              <Text fontSize="sm" fontWeight="semibold" mb={2} color="blue.600">
                 Step 2: Start Telegram Chat
               </Text>
               <Button
@@ -446,13 +427,14 @@ const OnboardingPage: React.FC = () => {
             </Box>
 
             <Box>
-              <Text fontSize="sm" fontWeight="medium" mb={2}>
+              <Text fontSize="sm" fontWeight="semibold" mb={2} color="blue.600">
                 Step 3: Confirm Setup
               </Text>
               <Input
                 placeholder="Telegram Chat ID (will be auto-filled)"
                 value={telegramChatId}
                 onChange={(e) => setTelegramChatId(e.target.value)}
+                size="sm"
               />
               <Text fontSize="xs" color="gray.600" mt={1}>
                 This will be automatically filled once you complete the Telegram
@@ -466,13 +448,16 @@ const OnboardingPage: React.FC = () => {
       <FormControl>
         <HStack justify="space-between">
           <Box>
-            <FormLabel mb={1}>WhatsApp Notifications</FormLabel>
+            <FormLabel fontWeight="semibold" mb={1}>
+              WhatsApp Notifications
+            </FormLabel>
             <FormHelperText>Receive notifications via WhatsApp</FormHelperText>
           </Box>
           <Switch
             colorScheme="yellow"
             isChecked={whatsappEnabled}
             onChange={(e) => setWhatsappEnabled(e.target.checked)}
+            size="lg"
           />
         </HStack>
         {whatsappEnabled && (
@@ -481,7 +466,7 @@ const OnboardingPage: React.FC = () => {
               value={whatsappNumber}
               onChange={(value) => setWhatsappNumber(value)}
               country={"us"}
-              inputStyle={{ width: "100%" }}
+              inputStyle={{ width: "100%", height: "40px", fontSize: "16px" }}
             />
           </Box>
         )}
@@ -502,57 +487,165 @@ const OnboardingPage: React.FC = () => {
     }
   };
 
+  const getStepDescription = () => {
+    switch (currentStep) {
+      case 1:
+        return {
+          title: "Welcome to Dokahub",
+          subtitle: "Your Social Media Command Center",
+          description:
+            "Let's start by setting up your team and defining your content interests. This will help us personalize your experience and generate better content recommendations.",
+          highlights: [
+            "Create your first team workspace",
+            "Define topics you want to post about",
+            "Set up your content preferences",
+          ],
+        };
+      case 2:
+        return {
+          title: "Smart Content Scheduling",
+          subtitle: "Post at the Perfect Time",
+          description:
+            "Tell us when and how often you want to post. Our intelligent scheduling system will help you reach your audience when they're most active.",
+          highlights: [
+            "Choose your preferred posting days",
+            "Set optimal posting times",
+            "Automate your content calendar",
+          ],
+        };
+      case 3:
+        return {
+          title: "Stay Connected",
+          subtitle: "Never Miss an Update",
+          description:
+            "Set up your notification preferences to stay on top of your social media campaigns. Get notified about important updates and deadlines.",
+          highlights: [
+            "Email and Telegram notifications",
+            "WhatsApp alerts for urgent updates",
+            "Customizable notification preferences",
+          ],
+        };
+      default:
+        return {
+          title: "",
+          subtitle: "",
+          description: "",
+          highlights: [],
+        };
+    }
+  };
+
+  const stepInfo = getStepDescription();
+
   return (
-    <Container maxW="4xl" py={8}>
-      <VStack spacing={8} align="stretch">
-        <Box textAlign="center">
-          <Heading size="xl" mb={2}>
-            Get Started
-          </Heading>
-          <Text color="gray.600">
-            Let's set up your account in just a few steps
-          </Text>
-        </Box>
+    <Box minH="100vh" bg="gray.50">
+      <Grid templateColumns={{ base: "1fr", lg: "1fr 1fr" }} minH="100vh">
+        {/* Left Side - Description */}
+        <GridItem
+          bg="blue.600"
+          color="white"
+          p={12}
+          display="flex"
+          alignItems="center"
+        >
+          <VStack spacing={8} align="stretch" maxW="500px">
+            <Box>
+              <Image src="/logo.png" alt="Dokahub Logo" w="200px" mb={6} />
+              <Heading size="2xl" fontWeight="bold" mb={2}>
+                {stepInfo.title}
+              </Heading>
+              <Text fontSize="lg" fontWeight="medium" opacity={0.9} mb={4}>
+                {stepInfo.subtitle}
+              </Text>
+              <Text fontSize="md" opacity={0.8} mb={6}>
+                {stepInfo.description}
+              </Text>
+            </Box>
 
-        <Box>
-          <Progress
-            value={(currentStep / 3) * 100}
-            colorScheme="yellow"
-            size="lg"
-            mb={4}
-          />
-          <Text textAlign="center" fontSize="sm" color="gray.600">
-            Step {currentStep} of 3
-          </Text>
-        </Box>
+            <VStack spacing={3} align="stretch">
+              {stepInfo.highlights.map((highlight, index) => (
+                <HStack key={index} spacing={3}>
+                  <Box
+                    w={2}
+                    h={2}
+                    bg="yellow.400"
+                    borderRadius="full"
+                    flexShrink={0}
+                  />
+                  <Text fontSize="sm" fontWeight="medium">
+                    {highlight}
+                  </Text>
+                </HStack>
+              ))}
+            </VStack>
 
-        <Box minH="400px">{renderCurrentStep()}</Box>
+            <Box pt={4}>
+              <Progress
+                value={(currentStep / 3) * 100}
+                colorScheme="yellow"
+                size="sm"
+                bg="blue.700"
+              />
+              <Text fontSize="xs" opacity={0.7} mt={2}>
+                Step {currentStep} of 3
+              </Text>
+            </Box>
+          </VStack>
+        </GridItem>
 
-        <HStack justify="space-between">
-          <Button
-            variant="outline"
-            onClick={prevStep}
-            isDisabled={currentStep === 1}
-          >
-            Previous
-          </Button>
-          {currentStep < 3 ? (
-            <Button colorScheme="yellow" onClick={nextStep}>
-              Next
-            </Button>
-          ) : (
-            <Button
-              colorScheme="yellow"
-              onClick={handleSubmit}
-              isLoading={loading}
-              loadingText="Setting up..."
-            >
-              Complete Setup
-            </Button>
-          )}
-        </HStack>
-      </VStack>
-    </Container>
+        {/* Right Side - Form */}
+        <GridItem
+          bg="white"
+          p={12}
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+        >
+          <VStack spacing={8} align="stretch" maxW="500px" mx="auto" w="full">
+            <Box>
+              <Heading size="xl" color="gray.800" mb={2}>
+                {currentStep === 1 && "Set Up Your Profile"}
+                {currentStep === 2 && "Content Scheduling"}
+                {currentStep === 3 && "Notification Preferences"}
+              </Heading>
+              <Text color="gray.600">
+                {currentStep === 1 && "Tell us about your team and interests"}
+                {currentStep === 2 && "When would you like to post content?"}
+                {currentStep === 3 &&
+                  "How would you like to receive notifications?"}
+              </Text>
+            </Box>
+
+            <Box minH="300px">{renderCurrentStep()}</Box>
+
+            <HStack justify="space-between" pt={4}>
+              <Button
+                variant="outline"
+                onClick={prevStep}
+                isDisabled={currentStep === 1}
+                colorScheme="gray"
+              >
+                Previous
+              </Button>
+              {currentStep < 3 ? (
+                <Button colorScheme="yellow" onClick={nextStep}>
+                  Next
+                </Button>
+              ) : (
+                <Button
+                  colorScheme="yellow"
+                  onClick={handleSubmit}
+                  isLoading={loading}
+                  loadingText="Setting up..."
+                >
+                  Complete Setup
+                </Button>
+              )}
+            </HStack>
+          </VStack>
+        </GridItem>
+      </Grid>
+    </Box>
   );
 };
 

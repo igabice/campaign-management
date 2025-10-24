@@ -1055,7 +1055,7 @@ export const HomePage = () => {
                             w={5}
                             h={5}
                           />
-                          <Text fontSize="sm">1 team</Text>
+                          <Text fontSize="sm">2 teams</Text>
                         </HStack>
                         <HStack spacing={3}>
                           <Icon
@@ -1065,7 +1065,7 @@ export const HomePage = () => {
                             h={5}
                           />
                           <Text fontSize="sm">
-                            10 social media posts per month
+                            20 social media posts per month
                           </Text>
                         </HStack>
                         <HStack spacing={3}>
@@ -1076,7 +1076,7 @@ export const HomePage = () => {
                             h={5}
                           />
                           <Text fontSize="sm">
-                            1 social media plan per month
+                            3 AI content plans per month
                           </Text>
                         </HStack>
                         <HStack spacing={3}>
@@ -1086,7 +1086,16 @@ export const HomePage = () => {
                             w={5}
                             h={5}
                           />
-                          <Text fontSize="sm">1 team invite</Text>
+                          <Text fontSize="sm">Unlimited social accounts</Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">2 team invites</Text>
                         </HStack>
                         <HStack spacing={3}>
                           <Icon
@@ -1192,9 +1201,47 @@ export const HomePage = () => {
                             w={5}
                             h={5}
                           />
+                          <Text fontSize="sm">5 teams</Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
                           <Text fontSize="sm">
-                            Unlimited social media plans
+                            200 social media posts per month
                           </Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">
+                            10 AI content plans per month
+                          </Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">Unlimited social accounts</Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">10 team invites</Text>
                         </HStack>
                         <HStack spacing={3}>
                           <Icon
@@ -1237,15 +1284,6 @@ export const HomePage = () => {
                           <Text fontSize="sm">
                             Social media analytics & insights
                           </Text>
-                        </HStack>
-                        <HStack spacing={3}>
-                          <Icon
-                            as={CheckCircleIcon}
-                            color="green.500"
-                            w={5}
-                            h={5}
-                          />
-                          <Text fontSize="sm">Priority support</Text>
                         </HStack>
                       </VStack>
 
@@ -1310,7 +1348,7 @@ export const HomePage = () => {
                     <VStack spacing={6} p={8}>
                       <VStack spacing={2} textAlign="center">
                         <Text fontSize="lg" color={"gray.600"}>
-                          Enterprise Plan
+                          Agency Plan
                         </Text>
                         <HStack align="baseline" spacing={1}>
                           <Text
@@ -1337,7 +1375,7 @@ export const HomePage = () => {
                             w={5}
                             h={5}
                           />
-                          <Text fontSize="sm">Everything in Pro</Text>
+                          <Text fontSize="sm">Unlimited teams</Text>
                         </HStack>
                         <HStack spacing={3}>
                           <Icon
@@ -1346,7 +1384,36 @@ export const HomePage = () => {
                             w={5}
                             h={5}
                           />
-                          <Text fontSize="sm">Unlimited teams</Text>
+                          <Text fontSize="sm">
+                            Unlimited social media posts
+                          </Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">Unlimited AI content plans</Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">Unlimited social accounts</Text>
+                        </HStack>
+                        <HStack spacing={3}>
+                          <Icon
+                            as={CheckCircleIcon}
+                            color="green.500"
+                            w={5}
+                            h={5}
+                          />
+                          <Text fontSize="sm">Unlimited team invites</Text>
                         </HStack>
                         <HStack spacing={3}>
                           <Icon

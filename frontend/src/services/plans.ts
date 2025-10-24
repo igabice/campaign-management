@@ -8,6 +8,7 @@ export const plansApi = {
     limit: number = 20,
     query?: {
       teamId?: string;
+      approvalStatus?: string;
     }
   ) => {
     const response = await getPaginated(PLANS_BASE_URL, {
@@ -72,5 +73,15 @@ export const plansApi = {
 
   deletePlan: async (id: string) => {
     await del(`${PLANS_BASE_URL}/${id}`);
+  },
+
+  assignApprover: async (id: string, payload: { approverId: string }) => {
+    const response = await post(`${PLANS_BASE_URL}/${id}/assign-approver`, payload);
+    return response.data;
+  },
+
+  approveOrRejectPlan: async (id: string, payload: { action: "approve" | "reject"; notes?: string }) => {
+    const response = await post(`${PLANS_BASE_URL}/${id}/approve`, payload);
+    return response.data;
   },
 };

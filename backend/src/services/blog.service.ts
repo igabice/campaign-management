@@ -14,25 +14,14 @@ async function createBlog(
     published?: boolean;
   }
 ): Promise<Blog> {
-  // Check if user is admin (member of admin team)
-  const adminTeamId = process.env.ADMIN_TEAM_ID;
-  if (!adminTeamId) {
-    throw new ApiError(httpStatus.FORBIDDEN, "Admin team not configured");
-  }
-
-  const membership = await prisma.member.findFirst({
-    where: {
-      teamId: adminTeamId,
-      userId,
-      status: "active",
-    },
+  // Check if user is admin
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { isAdmin: true },
   });
 
-  if (!membership) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      "Only admin team members can create blogs"
-    );
+  if (!user?.isAdmin) {
+    throw new ApiError(httpStatus.FORBIDDEN, "Only admins can create blogs");
   }
 
   return prisma.blog.create({
@@ -121,24 +110,13 @@ async function updateBlogById(
   }
 
   // Check if user is admin
-  const adminTeamId = process.env.ADMIN_TEAM_ID;
-  if (!adminTeamId) {
-    throw new ApiError(httpStatus.FORBIDDEN, "Admin team not configured");
-  }
-
-  const membership = await prisma.member.findFirst({
-    where: {
-      teamId: adminTeamId,
-      userId,
-      status: "active",
-    },
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { isAdmin: true },
   });
 
-  if (!membership) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      "Only admin team members can update blogs"
-    );
+  if (!user?.isAdmin) {
+    throw new ApiError(httpStatus.FORBIDDEN, "Only admins can update blogs");
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -171,24 +149,13 @@ async function deleteBlogById(id: string, userId: string): Promise<Blog> {
   }
 
   // Check if user is admin
-  const adminTeamId = process.env.ADMIN_TEAM_ID;
-  if (!adminTeamId) {
-    throw new ApiError(httpStatus.FORBIDDEN, "Admin team not configured");
-  }
-
-  const membership = await prisma.member.findFirst({
-    where: {
-      teamId: adminTeamId,
-      userId,
-      status: "active",
-    },
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { isAdmin: true },
   });
 
-  if (!membership) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      "Only admin team members can delete blogs"
-    );
+  if (!user?.isAdmin) {
+    throw new ApiError(httpStatus.FORBIDDEN, "Only admins can delete blogs");
   }
 
   return prisma.blog.delete({ where: { id } });

@@ -12,17 +12,20 @@ import {
   Text,
   Checkbox,
   Divider,
+  Switch,
   useToast,
   Card,
   CardBody,
   CardFooter,
   Select,
+  FormHelperText,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useTeam } from "../../contexts/TeamContext";
 import { socialMediaApi } from "../../services/socialMedia";
 import { aiApi } from "../../services/ai";
 import { plansApi } from "../../services/plans";
+import { teamsApi } from "../../services/teams";
 import { FullPageLoader } from "../../components/FullPageLoader";
 import { CreateSocialMediaModal } from "../../components/modals/CreateSocialMediaModal";
 import { addDays, parseISO, getDay } from "date-fns";
@@ -57,7 +60,9 @@ export const CreatePlanPage = () => {
     []
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState("Creating content plan...");
+  const [loadingMessage, setLoadingMessage] = useState(
+    "Creating content plan..."
+  );
   const [isCreateSocialMediaModalOpen, setIsCreateSocialMediaModalOpen] =
     useState(false);
   const [schedule, setSchedule] = useState<ScheduleItem[]>(
@@ -68,6 +73,9 @@ export const CreatePlanPage = () => {
   const [tone, setTone] = useState("Professional");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
+  const [selectedApprover, setSelectedApprover] = useState<string>("");
+  const [requiresApproval, setRequiresApproval] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -84,9 +92,20 @@ export const CreatePlanPage = () => {
     }
   }, [activeTeam]);
 
+  const fetchTeamMembers = useCallback(async () => {
+    if (!activeTeam) return;
+    try {
+      const members = await teamsApi.getTeamMembers(activeTeam.id);
+      setTeamMembers(members);
+    } catch (error) {
+      console.error("Failed to fetch team members", error);
+    }
+  }, [activeTeam]);
+
   useEffect(() => {
     if (activeTeam) {
       fetchSocialMedias();
+      fetchTeamMembers();
       setStartDate(new Date().toISOString().split("T")[0]);
       setEndDate(
         new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
@@ -94,7 +113,7 @@ export const CreatePlanPage = () => {
           .split("T")[0]
       );
     }
-  }, [activeTeam, fetchSocialMedias]);
+  }, [activeTeam, fetchSocialMedias, fetchTeamMembers]);
 
   const generateScheduledPosts = (aiPosts: any[]) => {
     const start = parseISO(startDate);
@@ -204,7 +223,7 @@ export const CreatePlanPage = () => {
 
       if (action === "publish") {
         // Create and publish the plan directly
-        await plansApi.createPlan({
+        const planData = {
           ...{
             title,
             description,
@@ -215,7 +234,16 @@ export const CreatePlanPage = () => {
           },
           status: "published",
           posts: scheduledPosts,
-        });
+        };
+
+        const plan = await plansApi.createPlan(planData);
+
+        // Assign approver if required
+        if (requiresApproval && selectedApprover) {
+          await plansApi.assignApprover(plan.id, {
+            approverId: selectedApprover,
+          });
+        }
 
         toast({
           title: "Plan created successfully",
@@ -237,13 +265,15 @@ export const CreatePlanPage = () => {
               endDate,
               tone,
               teamId: activeTeam!.id,
+              requiresApproval,
+              selectedApprover,
             },
             action: "draft",
           },
         });
       } else {
         // Save plan directly as draft without posts
-        await plansApi.createPlan({
+        const plan = await plansApi.createPlan({
           ...{
             title,
             description,
@@ -255,6 +285,13 @@ export const CreatePlanPage = () => {
           status: "draft",
           posts: [],
         });
+
+        // Assign approver if required
+        if (requiresApproval && selectedApprover) {
+          await plansApi.assignApprover(plan.id, {
+            approverId: selectedApprover,
+          });
+        }
 
         toast({
           title: "Draft saved successfully",
@@ -287,7 +324,9 @@ export const CreatePlanPage = () => {
       {isLoading && <FullPageLoader message={loadingMessage} />}
       <Heading mb={2}>Create Content Plan</Heading>
       <Text color="gray.600" mb={6} fontSize="lg">
-        Plan and schedule your social media content with AI assistance. Define your content strategy, set posting schedules, and generate posts automatically.
+        Plan and schedule your social media content with AI assistance. Define
+        your content strategy, set posting schedules, and generate posts
+        automatically.
       </Text>
       <Card>
         <CardBody>
@@ -301,32 +340,32 @@ export const CreatePlanPage = () => {
               />
             </FormControl>
 
-             <FormControl>
-               <FormLabel>Description</FormLabel>
-               <Textarea
-                 value={description}
-                 onChange={(e) => setDescription(e.target.value)}
-                 placeholder="Describe the content you want to generate..."
-               />
-             </FormControl>
+            <FormControl>
+              <FormLabel>Description</FormLabel>
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Describe the content you want to generate..."
+              />
+            </FormControl>
 
-             <FormControl>
-               <FormLabel>Tone</FormLabel>
-               <Select
-                 value={tone}
-                 onChange={(e) => setTone(e.target.value)}
-                 placeholder="Select a tone for your content"
-               >
-                 {availableTones.map((toneOption) => (
-                   <option key={toneOption} value={toneOption}>
-                     {toneOption}
-                   </option>
-                 ))}
-               </Select>
-             </FormControl>
+            <FormControl>
+              <FormLabel>Tone</FormLabel>
+              <Select
+                value={tone}
+                onChange={(e) => setTone(e.target.value)}
+                placeholder="Select a tone for your content"
+              >
+                {availableTones.map((toneOption) => (
+                  <option key={toneOption} value={toneOption}>
+                    {toneOption}
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
 
-             <FormControl>
-               <FormLabel>Start Date</FormLabel>
+            <FormControl>
+              <FormLabel>Start Date</FormLabel>
               <Input
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
@@ -371,6 +410,49 @@ export const CreatePlanPage = () => {
                 </Button>
               </VStack>
             </FormControl>
+
+            <Divider />
+
+            <Heading size="md">Approval Settings</Heading>
+
+            <FormControl>
+              <HStack justify="space-between">
+                <Box>
+                  <FormLabel mb={1}>Require Approval</FormLabel>
+                  <FormHelperText>
+                    Have a team member review this plan before publishing
+                  </FormHelperText>
+                </Box>
+                <Switch
+                  colorScheme="yellow"
+                  isChecked={requiresApproval}
+                  onChange={(e) => setRequiresApproval(e.target.checked)}
+                />
+              </HStack>
+            </FormControl>
+
+            {requiresApproval && (
+              <FormControl>
+                <FormLabel>Select Approver</FormLabel>
+                <Select
+                  value={selectedApprover}
+                  onChange={(e) => setSelectedApprover(e.target.value)}
+                  placeholder="Choose a team member to approve this plan"
+                >
+                  {teamMembers
+                    .filter((member) => member.status === "active")
+                    .map((member) => (
+                      <option key={member.user.id} value={member.user.id}>
+                        {member.user.name || member.user.email}
+                      </option>
+                    ))}
+                </Select>
+                <FormHelperText>
+                  The selected person will be notified to review and approve
+                  this content plan
+                </FormHelperText>
+              </FormControl>
+            )}
 
             <Divider />
 
@@ -459,13 +541,13 @@ export const CreatePlanPage = () => {
         </CardBody>
         <CardFooter>
           <HStack spacing={4}>
-             <Button
-               onClick={() => handleGenerateWithAI("draft", false)}
-               variant="outline"
-               isLoading={isLoading}
-             >
-               Save as Draft
-             </Button>
+            <Button
+              onClick={() => handleGenerateWithAI("draft", false)}
+              variant="outline"
+              isLoading={isLoading}
+            >
+              Save as Draft
+            </Button>
             <Button
               onClick={() => handleGenerateWithAI("draft", true)}
               colorScheme="green"

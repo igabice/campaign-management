@@ -107,82 +107,139 @@ export const LoginPage: React.FC = () => {
   }
 
   return (
-    <Box maxW="md" mx="auto" mt={10} px={4}>
-      <Box textAlign="center" mb={8}>
-        <ChakraLink as={RouterLink} to="/" _hover={{ textDecoration: "none" }}>
-          <Heading size="lg" color={accentColor} mb={2}>
-            Dokahub
+    <Box minH="100vh" display="flex">
+      {/* Left side - Image */}
+      <Box
+        flex="1"
+        bg="gray.100"
+        display={{ base: "none", md: "block" }}
+        position="relative"
+        overflow="hidden"
+      >
+        <Box
+          position="absolute"
+          top="0"
+          left="0"
+          right="0"
+          bottom="0"
+          bgImage="url('/images/background.png')"
+          bgSize="cover"
+          bgPosition="center"
+          bgRepeat="no-repeat"
+        />
+        <Box
+          position="absolute"
+          top="0"
+          left="0"
+          right="0"
+          bottom="0"
+          bg="rgba(0, 0, 0, 0.4)"
+        />
+        <Box
+          position="absolute"
+          top="50%"
+          left="50%"
+          transform="translate(-50%, -50%)"
+          textAlign="center"
+          color="white"
+          zIndex="1"
+        >
+          <Heading size="xl" mb={4}>
+            Welcome Back
           </Heading>
-        </ChakraLink>
+          <Text fontSize="lg">
+            Continue your social media journey with Dokahub
+          </Text>
+        </Box>
       </Box>
-      <Heading textAlign="center" mb={6}>
-        Login
-      </Heading>
-      <Box as="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Stack spacing={4}>
-          <FormControl isInvalid={!!errors.email}>
-            <FormLabel htmlFor="email">Email</FormLabel>
-            <Input id="email" type="email" {...register("email")} />
-            <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
-          </FormControl>
-          <FormControl isInvalid={!!errors.password}>
-            <FormLabel htmlFor="password">Password</FormLabel>
-            <Input id="password" type="password" {...register("password")} />
-            <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
-          </FormControl>
-          <Button
-            type="submit"
-            isLoading={isSubmitting}
-            bg={accentColor}
-            color="black"
-            _hover={{ bg: accentColor, opacity: 0.8 }}
-          >
+
+      {/* Right side - Form */}
+      <Box
+        flex="1"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        px={8}
+        py={12}
+      >
+        <Box w="full" maxW="md">
+          <Box textAlign="center" mb={8}>
+            <ChakraLink as={RouterLink} to="/" _hover={{ textDecoration: "none" }}>
+              <Heading size="lg" color={accentColor} mb={2}>
+                Dokahub
+              </Heading>
+            </ChakraLink>
+          </Box>
+          <Heading textAlign="center" mb={6}>
             Login
-          </Button>
-        </Stack>
+          </Heading>
+          <Box as="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+            <Stack spacing={4}>
+              <FormControl isInvalid={!!errors.email}>
+                <FormLabel htmlFor="email">Email</FormLabel>
+                <Input id="email" type="email" {...register("email")} />
+                <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
+              </FormControl>
+              <FormControl isInvalid={!!errors.password}>
+                <FormLabel htmlFor="password">Password</FormLabel>
+                <Input id="password" type="password" {...register("password")} />
+                <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
+              </FormControl>
+              <Button
+                type="submit"
+                isLoading={isSubmitting}
+                bg={accentColor}
+                color="black"
+                _hover={{ bg: accentColor, opacity: 0.8 }}
+              >
+                Login
+              </Button>
+            </Stack>
+          </Box>
+          <Text textAlign="center" mt={4} mb={2}>
+            or
+          </Text>
+          <Stack spacing={2}>
+            <Button
+              onClick={handleGoogleLogin}
+              bg="white"
+              color="black"
+              border="1px"
+              borderColor="gray.300"
+              display="flex"
+              alignItems="center"
+              gap={2}
+            >
+              {/* @ts-ignore */}
+              <FaGoogle color="#e85252" /> Google
+            </Button>
+            <Button
+              onClick={handleFacebookLogin}
+              bg="white"
+              color="black"
+              border="1px"
+              borderColor="gray.300"
+              display="flex"
+              alignItems="center"
+              gap={2}
+            >
+              {/* @ts-ignore */}
+              <FaFacebook color="#5858e7" /> Facebook
+            </Button>
+          </Stack>
+          <Text mt={4} textAlign="center">
+            Don't have an account?{" "}
+            <ChakraLink as={RouterLink} to="/signup" color={accentColor}>
+              Sign up
+            </ChakraLink>
+          </Text>
+          <Text mt={2} textAlign="center">
+            <ChakraLink as={RouterLink} to="/forgot-password" color={accentColor}>
+              Forgot password?
+            </ChakraLink>
+          </Text>
+        </Box>
       </Box>
-      <Text textAlign="center" mt={4} mb={2}>
-        or
-      </Text>
-      <Stack spacing={2}>
-        <Button
-          onClick={handleGoogleLogin}
-          bg="white"
-          color="black"
-          border="1px"
-          borderColor="gray.300"
-          display="flex"
-          alignItems="center"
-          gap={2}
-        >
-          {/* @ts-ignore */}
-          <FaGoogle color="#e85252" /> Google
-        </Button>
-        <Button
-          onClick={handleFacebookLogin}
-          bg="white"
-          color="black"
-          border="1px"
-          borderColor="gray.300"
-          display="flex"
-          alignItems="center"
-          gap={2}
-        >
-          {/* @ts-ignore */}
-          <FaFacebook color="#5858e7" /> Facebook
-        </Button>
-      </Stack>
-      <Text mt={4} textAlign="center">
-        Don't have an account?{" "}
-        <ChakraLink as={RouterLink} to="/signup" color={accentColor}>
-          Sign up
-        </ChakraLink>
-      </Text>
-      <Text mt={2} textAlign="center">
-        <ChakraLink as={RouterLink} to="/forgot-password" color={accentColor}>
-          Forgot password?
-        </ChakraLink>
-      </Text>
     </Box>
   );
 };

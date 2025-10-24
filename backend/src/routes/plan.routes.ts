@@ -368,8 +368,104 @@ router
  *       "404":
  *         $ref: '#/components/responses/NotFound'
  */
- router
-   .route("/:id/publish")
-   .post(requireAuth, validate(planValidation.publishPlan), planController.publishPlan);
+router
+  .route("/:id/publish")
+  .post(requireAuth, validate(planValidation.publishPlan), planController.publishPlan);
+
+/**
+ * @swagger
+ * /plans/{id}/assign-approver:
+ *   post:
+ *     summary: Assign an approver to a plan
+ *     description: Assign a team member as the approver for a specific content plan.
+ *     tags: [Plan]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Plan id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - approverId
+ *             properties:
+ *               approverId:
+ *                 type: string
+ *                 description: ID of the user to assign as approver
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Plan'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ *       "404":
+ *         $ref: '#/components/responses/NotFound'
+ */
+router
+  .route("/:id/assign-approver")
+  .post(requireAuth, planController.assignPlanApprover);
+
+/**
+ * @swagger
+ * /plans/{id}/approve:
+ *   post:
+ *     summary: Approve or reject a plan
+ *     description: Approve or reject a content plan that has been assigned for approval.
+ *     tags: [Plan]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Plan id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - action
+ *             properties:
+ *               action:
+ *                 type: string
+ *                 enum: [approve, reject]
+ *                 description: Approval action
+ *               notes:
+ *                 type: string
+ *                 description: Optional notes for approval/rejection
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Plan'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ *       "404":
+ *         $ref: '#/components/responses/NotFound'
+ */
+router
+  .route("/:id/approve")
+  .post(requireAuth, planController.approveOrRejectPlan);
 
 export default router;

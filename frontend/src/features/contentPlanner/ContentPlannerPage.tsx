@@ -24,11 +24,14 @@ import { useTeam } from "../../contexts/TeamContext";
 import { plansApi } from "../../services/plans";
 import { Plan } from "../../types/schemas";
 import { format } from "date-fns";
+import { AssignApproverModal } from "../../components/modals/AssignApproverModal";
 
 export const ContentPlannerPage = () => {
   const { activeTeam } = useTeam();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [assignApproverModalOpen, setAssignApproverModalOpen] = useState(false);
+  const [itemToAssign, setItemToAssign] = useState<any>(null);
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -110,16 +113,17 @@ export const ContentPlannerPage = () => {
         </Alert>
       ) : (
         <Table variant="simple">
-          <Thead>
-            <Tr>
-              <Th>Title</Th>
-              <Th>Description</Th>
-              <Th>Start Date</Th>
-              <Th>End Date</Th>
-              <Th>Tone</Th>
-              <Th>Actions</Th>
-            </Tr>
-          </Thead>
+           <Thead>
+             <Tr>
+               <Th>Title</Th>
+               <Th>Description</Th>
+               <Th>Start Date</Th>
+               <Th>End Date</Th>
+               <Th>Tone</Th>
+               <Th>Approval</Th>
+               <Th>Actions</Th>
+             </Tr>
+           </Thead>
           <Tbody>
             {plans.map((plan) => (
               <Tr key={plan.id}>
@@ -133,7 +137,37 @@ export const ContentPlannerPage = () => {
                   {plan.tone && <Badge>{plan.tone}</Badge>}
                 </Td>
                 <Td>
+                  {plan.approvalStatus === "pending" && (
+                    <Badge colorScheme="yellow">Pending Approval</Badge>
+                  )}
+                  {plan.approvalStatus === "approved" && (
+                    <Badge colorScheme="green">Approved</Badge>
+                  )}
+                  {plan.approvalStatus === "rejected" && (
+                    <Badge colorScheme="red">Rejected</Badge>
+                  )}
+                  {(!plan.approvalStatus || plan.approvalStatus === "none") && (
+                    <Badge colorScheme="gray">No Approval</Badge>
+                  )}
+                </Td>
+                <Td>
                   <HStack>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      colorScheme="blue"
+                      onClick={() => {
+                        setItemToAssign({
+                          id: plan.id,
+                          type: "plan",
+                          title: plan.title,
+                          creator: plan.creator,
+                        });
+                        setAssignApproverModalOpen(true);
+                      }}
+                    >
+                      Assign Approver
+                    </Button>
                     <Button size="sm" variant="outline" onClick={() => navigate(`/content-planner/${plan.id}`)}>
                       View
                     </Button>
@@ -150,6 +184,16 @@ export const ContentPlannerPage = () => {
           </Tbody>
         </Table>
       )}
+      <AssignApproverModal
+        isOpen={assignApproverModalOpen}
+        onClose={() => setAssignApproverModalOpen(false)}
+        item={itemToAssign}
+        onAssigned={() => {
+          fetchPlans();
+          setAssignApproverModalOpen(false);
+          setItemToAssign(null);
+        }}
+      />
     </Box>
   );
 };

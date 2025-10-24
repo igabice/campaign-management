@@ -29,6 +29,7 @@ import {
   FileText,
   CreditCard,
   Settings,
+  CheckCircle,
 } from "lucide-react";
 
 interface SideMenuItem {
@@ -82,6 +83,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ onClose }) => {
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { name: "Calendar", path: "/calendar", icon: Calendar },
     { name: "Content Planner", path: "/content-planner", icon: FileText },
+    { name: "Approvals", path: "/approvals", icon: CheckCircle },
     { name: "Team", path: "/team", icon: Users },
     { name: "Subscription", path: "/subscription", icon: CreditCard },
     { name: "Preferences", path: "/preferences", icon: Settings },

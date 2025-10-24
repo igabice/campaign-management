@@ -97,6 +97,7 @@ const generateContentPlanFlow = ai.defineFlow(
     }
 
     const today = new Date();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const plannedPosts: any[] = output.posts.map((p: any) => ({
       ...p,
       date: addDays(today, p.dayOffset),
@@ -108,6 +109,7 @@ const generateContentPlanFlow = ai.defineFlow(
 
 export async function generateContentPlan(
   input: GenerateContentPlanInput
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<{ posts: any[] }> {
   return generateContentPlanFlow(input);
 }

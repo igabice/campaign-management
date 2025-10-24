@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -17,19 +16,24 @@ model User {
   updatedAt              DateTime @updatedAt
   image                  String?
   twoFactorEnabled       Boolean  @default(false)
+  isAdmin                Boolean  @default(false)
   reEngagementEmailsSent Json?    @map("re_engagement_emails_sent")
   onboardingEmailsSent   Json?    @map("onboarding_emails_sent")
 
-  accounts      Account[]
-  sessions      Session[]
-  teams         Team[]
-  memberships   Member[]
-  sentInvites   Invite[]
-  posts         Post[]
-  plans         Plan[]
-  notifications Notification[]
-  preferences   UserPreference?
-  blogs         Blog[]
+   accounts      Account[]
+   sessions      Session[]
+   teams         Team[]
+   memberships   Member[]
+   sentInvites   Invite[]
+   posts         Post[]
+   plans         Plan[]
+   notifications Notification[]
+   preferences   UserPreference?
+   blogs         Blog[]
+
+   // Approval relations
+   approvedPosts Post[] @relation("PostApprover")
+   approvedPlans Plan[] @relation("PlanApprover")
 
   stripeCustomerId String?
 
@@ -158,48 +162,62 @@ model Invite {
 }
 
 model Post {
-  id            String    @id @default(uuid())
-  title         String?
-  content       String
-  image         String?
-  scheduledDate DateTime  @map("scheduled_date")
-  sendReminder  Boolean   @default(false) @map("send_reminder")
-  reminderSent  Boolean   @default(false) @map("reminder_sent")
-  publishedAt   DateTime? @map("published_at")
-  plannerId     String?   @map("planner_id")
-  planId        String?   @map("plan_id")
-  createdBy     String    @map("created_by")
-  status        String    @default("Draft")
-  teamId        String    @map("team_id")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+   id             String    @id @default(uuid())
+   title          String?
+   content        String
+   image          String?
+   scheduledDate  DateTime  @map("scheduled_date")
+   sendReminder   Boolean   @default(false) @map("send_reminder")
+   reminderSent   Boolean   @default(false) @map("reminder_sent")
+   publishedAt    DateTime? @map("published_at")
+   plannerId      String?   @map("planner_id")
+   planId         String?   @map("plan_id")
+   createdBy      String    @map("created_by")
+   status         String    @default("Draft")
+   teamId         String    @map("team_id")
+   createdAt      DateTime  @default(now()) @map("created_at")
+   updatedAt      DateTime  @updatedAt @map("updated_at")
 
-  creator      User          @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  team         Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  socialMedias SocialMedia[]
-  plan         Plan?         @relation(fields: [planId], references: [id], onDelete: SetNull)
+   // Approval fields
+   approverId     String?   @map("approver_id")
+   approvalStatus String?   @default("none") @map("approval_status") // none, pending, approved, rejected
+   approvalNotes  String?   @map("approval_notes")
+   approvedAt     DateTime? @map("approved_at")
 
-  @@map("posts")
+   creator      User          @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+   team         Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+   socialMedias SocialMedia[]
+   plan         Plan?         @relation(fields: [planId], references: [id], onDelete: SetNull)
+   approver     User?         @relation("PostApprover", fields: [approverId], references: [id], onDelete: SetNull)
+
+   @@map("posts")
 }
 
 model Plan {
-  id          String   @id @default(uuid())
-  title       String
-  description String?
-  startDate   DateTime @map("start_date")
-  endDate     DateTime @map("end_date")
-  tone        String?
-  status      String   @default("draft")
-  createdBy   String   @map("created_by")
-  teamId      String   @map("team_id")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+   id             String   @id @default(uuid())
+   title          String
+   description    String?
+   startDate      DateTime @map("start_date")
+   endDate        DateTime @map("end_date")
+   tone           String?
+   status         String   @default("draft")
+   createdBy      String   @map("created_by")
+   teamId         String   @map("team_id")
+   createdAt      DateTime @default(now()) @map("created_at")
+   updatedAt      DateTime @updatedAt @map("updated_at")
 
-  creator User   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  team    Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  posts   Post[]
+   // Approval fields
+   approverId     String?   @map("approver_id")
+   approvalStatus String?   @default("none") @map("approval_status") // none, pending, approved, rejected
+   approvalNotes  String?   @map("approval_notes")
+   approvedAt     DateTime? @map("approved_at")
 
-  @@map("plans")
+   creator User   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+   team    Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+   posts   Post[]
+   approver User? @relation("PlanApprover", fields: [approverId], references: [id], onDelete: SetNull)
+
+   @@map("plans")
 }
 
 model Notification {
@@ -218,12 +236,12 @@ model Notification {
 }
 
 model TopicPreference {
-  id             String   @id @default(cuid())
+  id               String   @id @default(cuid())
   userPreferenceId String
-  topic          String
-  weight         Int      @default(1) // 1-5 scale for preference weight
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  topic            String
+  weight           Int      @default(1) // 1-5 scale for preference weight
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   userPreference UserPreference @relation(fields: [userPreferenceId], references: [id], onDelete: Cascade)
 
@@ -232,9 +250,9 @@ model TopicPreference {
 }
 
 model UserPreference {
-  id              String   @id @default(cuid())
-  userId          String   @unique
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Notification Preferences
   emailNotifications Boolean @default(true)
@@ -244,16 +262,16 @@ model UserPreference {
   whatsappNumber     String?
 
   // Content Planning Preferences
-  postsPerDay        Int?    @default(3)
-  postsPerWeek       Int?    @default(15)
+  postsPerDay        Int?     @default(3)
+  postsPerWeek       Int?     @default(15)
   preferredPostTimes String[] // Store as JSON array of preferred times ["09:00", "14:00", "19:00"]
   preferredPostDays  String[] // Store as JSON array of preferred times ["MON", "TUES", "WED"]
 
   // Content Topics
-  topics             TopicPreference[]
+  topics TopicPreference[]
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("user_preferences")
 }
@@ -286,16 +304,16 @@ model Contact {
 }
 
 model Blog {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   title       String
-  content     String   // Rich text content
-  slug        String   @unique
+  content     String // Rich text content
+  slug        String    @unique
   tags        String[] // Array of tags
-  published   Boolean  @default(false)
+  published   Boolean   @default(false)
   publishedAt DateTime?
-  createdBy   String   @map("created_by")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdBy   String    @map("created_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
   creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
 

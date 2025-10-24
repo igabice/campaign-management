@@ -438,4 +438,100 @@ router
   .route("/dashboard/recent")
   .get(requireAuth, postController.getRecentActivity);
 
+/**
+ * @swagger
+ * /posts/{id}/assign-approver:
+ *   post:
+ *     summary: Assign an approver to a post
+ *     description: Assign a team member as the approver for a specific post.
+ *     tags: [Post]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Post id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - approverId
+ *             properties:
+ *               approverId:
+ *                 type: string
+ *                 description: ID of the user to assign as approver
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Post'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ *       "404":
+ *         $ref: '#/components/responses/NotFound'
+ */
+router
+  .route("/:id/assign-approver")
+  .post(requireAuth, postController.assignPostApprover);
+
+/**
+ * @swagger
+ * /posts/{id}/approve:
+ *   post:
+ *     summary: Approve or reject a post
+ *     description: Approve or reject a post that has been assigned for approval.
+ *     tags: [Post]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Post id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - action
+ *             properties:
+ *               action:
+ *                 type: string
+ *                 enum: [approve, reject]
+ *                 description: Approval action
+ *               notes:
+ *                 type: string
+ *                 description: Optional notes for approval/rejection
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Post'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ *       "404":
+ *         $ref: '#/components/responses/NotFound'
+ */
+router
+  .route("/:id/approve")
+  .post(requireAuth, postController.approveOrRejectPost);
+
 export default router;
