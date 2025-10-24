@@ -1,5 +1,7 @@
 import nodemailer from "nodemailer";
 import { Invite } from "@prisma/client";
+import logger from "../config/logger";
+import config from "../config/config";
 
 interface TeamWithUser {
   id: string;
@@ -529,14 +531,14 @@ class MailService {
     changeTime: Date = new Date()
   ): Promise<void> {
     const dashboardUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/dashboard`;
-    const formattedTime = changeTime.toLocaleString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZoneName: 'short'
+    const formattedTime = changeTime.toLocaleString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZoneName: "short",
     });
 
     const html = `
@@ -592,7 +594,10 @@ class MailService {
         html,
       });
     } catch (error) {
-      console.error("Failed to send password change confirmation email:", error);
+      console.error(
+        "Failed to send password change confirmation email:",
+        error
+      );
       // Don't throw error - password change is still successful even if email fails
     }
   }
@@ -613,6 +618,19 @@ class MailService {
     } catch (error) {
       console.error("Failed to send email:", error);
       throw error;
+    }
+  }
+
+  async verifyConnection(): Promise<void> {
+    if (config.env !== "test") {
+      this.transporter
+        .verify()
+        .then(() => logger.info("Connected to email server"))
+        .catch(() => {
+          logger.warn(
+            "Unable to connect to email server. Make sure you have configured the SMTP options in .env"
+          );
+        });
     }
   }
 
