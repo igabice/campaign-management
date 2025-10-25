@@ -149,7 +149,7 @@ class MailService {
 
     const reEngagementContent = {
       3: {
-        subject: "We miss you! Come back to Campaign Manager",
+        subject: "We miss you! Come back to Dokahub",
         message:
           "It's been a few days since we last saw you. Your campaigns might need some attention!",
         cta: "Check Your Campaigns",
@@ -204,7 +204,7 @@ class MailService {
         <p>Best regards,<br>The Dokahub Team</p>
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
         <p style="font-size: 12px; color: #666;">
-          You're receiving this email because you haven't been active on Campaign Manager for ${daysInactive} days.
+          You're receiving this email because you haven't been active on Dokahub for ${daysInactive} days.
           If you no longer wish to receive these emails, you can update your preferences in your account settings.
         </p>
       </div>
@@ -249,7 +249,7 @@ class MailService {
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>${campaign.subject} 🚀</h2>
         <p>Hello ${user.name || "there"},</p>
-        <p>Welcome back! It's been ${campaign.daysAfterRegistration} days since you joined Campaign Manager.</p>
+        <p>Welcome back! It's been ${campaign.daysAfterRegistration} days since you joined Dokahub.</p>
         <p>Today, let's explore: <strong>${campaign.feature}</strong></p>
         <p>${campaign.content}</p>
 
@@ -264,7 +264,7 @@ class MailService {
           </a>
         </div>
 
-        <p>Remember, consistent use of Campaign Manager will help you:</p>
+        <p>Remember, consistent use of Dokahub will help you:</p>
         <ul>
           <li>Grow your social media presence</li>
           <li>Engage better with your audience</li>
@@ -278,7 +278,7 @@ class MailService {
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
         <p style="font-size: 12px; color: #666;">
           This is email ${campaign.daysAfterRegistration === 3 ? "1" : campaign.daysAfterRegistration === 5 ? "2" : campaign.daysAfterRegistration === 7 ? "3" : campaign.daysAfterRegistration === 14 ? "4" : "5"} of 5 in our onboarding series.
-          You're receiving this because you signed up for Campaign Manager ${campaign.daysAfterRegistration} days ago.
+          You're receiving this because you signed up for Dokahub ${campaign.daysAfterRegistration} days ago.
         </p>
       </div>
     `;

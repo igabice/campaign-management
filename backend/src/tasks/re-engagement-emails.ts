@@ -14,11 +14,14 @@ export const sendReEngagementEmails = async (): Promise<void> => {
 
     // Define the re-engagement periods (in days)
     const reEngagementPeriods = [
-      { days: 3, subject: "We miss you! Come back to Campaign Manager" },
+      { days: 3, subject: "We miss you! Come back to Dokahub" },
       { days: 5, subject: "Your campaigns are waiting for you" },
       { days: 7, subject: "Don't forget about your social media strategy" },
       { days: 14, subject: "Time to boost your social media presence" },
-      { days: 21, subject: "Your audience is waiting - let's create some content!" },
+      {
+        days: 21,
+        subject: "Your audience is waiting - let's create some content!",
+      },
     ];
 
     for (const period of reEngagementPeriods) {
@@ -51,25 +54,36 @@ export const sendReEngagementEmails = async (): Promise<void> => {
       });
 
       // Filter out users who have already received this re-engagement email
-      const filteredUsers = inactiveUsers.filter(user => {
-        const sentEmails = user.reEngagementEmailsSent as Record<string, boolean> | null;
+      const filteredUsers = inactiveUsers.filter((user) => {
+        const sentEmails = user.reEngagementEmailsSent as Record<
+          string,
+          boolean
+        > | null;
         return !sentEmails || !sentEmails[period.days.toString()];
       });
 
-      logger.info(`Found ${filteredUsers.length} users inactive for ${period.days} days (after filtering sent emails)`);
+      logger.info(
+        `Found ${filteredUsers.length} users inactive for ${period.days} days (after filtering sent emails)`
+      );
 
       for (const user of filteredUsers) {
         try {
-          logger.info(`Sending ${period.days}-day re-engagement email to ${user.email}`);
+          logger.info(
+            `Sending ${period.days}-day re-engagement email to ${user.email}`
+          );
 
           // Send the actual re-engagement email
-          await mailService.sendReEngagementEmail({
-            name: user.name,
-            email: user.email,
-          }, period.days);
+          await mailService.sendReEngagementEmail(
+            {
+              name: user.name,
+              email: user.email,
+            },
+            period.days
+          );
 
           // Mark that we've sent this re-engagement email
-          const sentEmails = (user.reEngagementEmailsSent as Record<string, boolean>) || {};
+          const sentEmails =
+            (user.reEngagementEmailsSent as Record<string, boolean>) || {};
           sentEmails[period.days.toString()] = true;
 
           await prisma.user.update({
@@ -79,18 +93,23 @@ export const sendReEngagementEmails = async (): Promise<void> => {
             },
           });
 
-          logger.info(`Successfully sent ${period.days}-day re-engagement email to ${user.email}`);
-
+          logger.info(
+            `Successfully sent ${period.days}-day re-engagement email to ${user.email}`
+          );
         } catch (error) {
-          logger.error(`Failed to send re-engagement email to ${user.email}:`, error);
+          logger.error(
+            `Failed to send re-engagement email to ${user.email}:`,
+            error
+          );
         }
       }
 
       if (inactiveUsers.length > 0) {
-        logger.info(`Sent ${period.days}-day re-engagement emails to ${inactiveUsers.length} users`);
+        logger.info(
+          `Sent ${period.days}-day re-engagement emails to ${inactiveUsers.length} users`
+        );
       }
     }
-
   } catch (error) {
     logger.error("Error in re-engagement email task:", error);
   }
