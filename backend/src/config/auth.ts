@@ -62,10 +62,10 @@ export const auth = betterAuth({
       scope: [
         "email",
         "public_profile",
-        "pages_show_list", // To get user's pages
-        "pages_read_engagement", // Basic page access
-        "pages_manage_posts", // To create posts
-        "pages_read_user_content" // For content reading
+        "pages_show_list", // Show list of pages user manages
+        "pages_read_engagement", // Read page engagement data
+        "pages_manage_posts", // Create and manage posts on pages
+        "pages_read_user_content", // Read user content on pages
       ],
     },
   },
