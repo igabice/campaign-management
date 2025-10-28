@@ -309,6 +309,7 @@ model Blog {
   content     String // Rich text content
   slug        String    @unique
   tags        String[] // Array of tags
+  image       String?
   published   Boolean   @default(false)
   publishedAt DateTime?
   createdBy   String    @map("created_by")
