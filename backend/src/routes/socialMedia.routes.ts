@@ -128,7 +128,11 @@ router
    *       "401":
    *         $ref: '#/components/responses/Unauthorized'
    */
-  .get(requireAuth, validate(socialMediaValidation.getSocialMedias), socialMediaController.getSocialMedias);
+  .get(
+    requireAuth,
+    validate(socialMediaValidation.getSocialMedias),
+    socialMediaController.getSocialMedias
+  );
 
 /**
  * @swagger
@@ -160,7 +164,11 @@ router
  */
 router
   .route("/:id")
-  .get(requireAuth, validate(socialMediaValidation.getSocialMedia), socialMediaController.getSocialMedia)
+  .get(
+    requireAuth,
+    validate(socialMediaValidation.getSocialMedia),
+    socialMediaController.getSocialMedia
+  )
   /**
    * @swagger
    * /social-media/{id}:
@@ -172,48 +180,52 @@ router
    *       - bearerAuth: []
    *     parameters:
    *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Social media id
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               accountName:
- *                 type: string
- *               platform:
- *                 type: string
- *                 enum: [facebook, twitter, tiktok, linkedin]
- *               profileLink:
- *                 type: string
- *               image:
- *                 type: string
- *               status:
- *                 type: string
- *             example:
- *               accountName: Updated Facebook Page
- *               platform: facebook
- *               profileLink: https://facebook.com/updatedpage
- *               image: https://example.com/updated.jpg
- *               status: inactive
- *     responses:
- *       "200":
- *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *                $ref: '#/components/schemas/SocialMedia'
- *       "401":
- *         $ref: '#/components/responses/Unauthorized'
- *       "404":
- *         $ref: '#/components/responses/NotFound'
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Social media id
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               accountName:
+   *                 type: string
+   *               platform:
+   *                 type: string
+   *                 enum: [facebook, twitter, tiktok, linkedin]
+   *               profileLink:
+   *                 type: string
+   *               image:
+   *                 type: string
+   *               status:
+   *                 type: string
+   *             example:
+   *               accountName: Updated Facebook Page
+   *               platform: facebook
+   *               profileLink: https://facebook.com/updatedpage
+   *               image: https://example.com/updated.jpg
+   *               status: inactive
+   *     responses:
+   *       "200":
+   *         description: OK
+   *         content:
+   *           application/json:
+   *             schema:
+   *                $ref: '#/components/schemas/SocialMedia'
+   *       "401":
+   *         $ref: '#/components/responses/Unauthorized'
+   *       "404":
+   *         $ref: '#/components/responses/NotFound'
    */
-  .patch(requireAuth, validate(socialMediaValidation.updateSocialMedia), socialMediaController.updateSocialMedia)
+  .patch(
+    requireAuth,
+    validate(socialMediaValidation.updateSocialMedia),
+    socialMediaController.updateSocialMedia
+  )
   /**
    * @swagger
    * /social-media/{id}:
@@ -229,15 +241,193 @@ router
    *         required: true
    *         schema:
    *           type: string
+   *         description: Social media id
+   *     responses:
+   *       "204":
+   *         description: No content
+   *       "401":
+   *         $ref: '#/components/responses/Unauthorized'
+   *       "404":
+   *         $ref: '#/components/responses/NotFound'
+   */
+  .delete(
+    requireAuth,
+    validate(socialMediaValidation.deleteSocialMedia),
+    socialMediaController.deleteSocialMedia
+  );
+
+/**
+ * @swagger
+ * /social-media/facebook/pages:
+ *   get:
+ *     summary: Get user's Facebook pages
+ *     description: Retrieve Facebook pages for the authenticated user.
+ *     tags: [SocialMedia]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *                   access_token:
+ *                     type: string
+ *                   category:
+ *                     type: string
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+router.get(
+  "/facebook/pages",
+  requireAuth,
+  socialMediaController.getFacebookPages
+);
+
+/**
+ * @swagger
+ * /social-media/facebook/pages:
+ *   post:
+ *     summary: Save Facebook pages as social media accounts
+ *     description: Save selected Facebook pages as social media accounts for a team.
+ *     tags: [SocialMedia]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - teamId
+ *               - pages
+ *             properties:
+ *               teamId:
+ *                 type: string
+ *               pages:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     access_token:
+ *                       type: string
+ *     responses:
+ *       "201":
+ *         description: Created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/SocialMedia'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+router.post(
+  "/facebook/pages",
+  requireAuth,
+  validate(socialMediaValidation.saveFacebookPages),
+  socialMediaController.saveFacebookPages
+);
+
+/**
+ * @swagger
+ * /social-media/facebook/post:
+ *   post:
+ *     summary: Post to Facebook page
+ *     description: Create a post on a Facebook page.
+ *     tags: [SocialMedia]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - socialMediaId
+ *               - content
+ *             properties:
+ *               socialMediaId:
+ *                 type: string
+ *               content:
+ *                 type: object
+ *                 required:
+ *                   - message
+ *                 properties:
+ *                   message:
+ *                     type: string
+ *                   link:
+ *                     type: string
+ *                   image:
+ *                     type: string
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+router.post(
+  "/facebook/post",
+  requireAuth,
+  validate(socialMediaValidation.postToFacebookPage),
+  socialMediaController.postToFacebookPage
+);
+
+/**
+ * @swagger
+ * /social-media/{id}/facebook/refresh:
+ *   post:
+ *     summary: Refresh Facebook tokens
+ *     description: Refresh access tokens for a Facebook social media account.
+ *     tags: [SocialMedia]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
  *         description: Social media id
  *     responses:
- *       "204":
- *         description: No content
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/SocialMedia'
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
  *       "404":
  *         $ref: '#/components/responses/NotFound'
-   */
-  .delete(requireAuth, validate(socialMediaValidation.deleteSocialMedia), socialMediaController.deleteSocialMedia);
+ */
+router.post(
+  "/:id/facebook/refresh",
+  requireAuth,
+  validate(socialMediaValidation.refreshFacebookTokens),
+  socialMediaController.refreshFacebookTokens
+);
 
 export default router;

@@ -28,6 +28,7 @@ import {
   AlertDialogOverlay,
   useDisclosure,
   Avatar,
+  Image,
 } from "@chakra-ui/react";
 import { DeleteIcon, AddIcon, EditIcon } from "@chakra-ui/icons";
 import { useTeam } from "../../contexts/TeamContext";
@@ -37,6 +38,7 @@ import { invitesApi } from "../../services/invites";
 import { CreateSocialMediaModal } from "../../components/modals/CreateSocialMediaModal";
 import { EditSocialMediaModal } from "../../components/modals/EditSocialMediaModal";
 import { CreateInviteModal } from "../../components/modals/CreateInviteModal";
+import { ConnectFacebookModal } from "../../components/modals/ConnectFacebookModal";
 
 interface SocialMedia {
   id: string;
@@ -45,6 +47,11 @@ interface SocialMedia {
   profileLink: string;
   image?: string;
   status: string;
+  // Facebook-specific fields
+  pageId?: string;
+  accessToken?: string;
+  refreshToken?: string;
+  tokenExpiry?: string;
 }
 
 interface TeamMember {
@@ -90,6 +97,7 @@ export const TeamPage = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateInviteModalOpen, setIsCreateInviteModalOpen] = useState(false);
+  const [isConnectFacebookModalOpen, setIsConnectFacebookModalOpen] = useState(false);
   const [editSocialMedia, setEditSocialMedia] = useState<SocialMedia | null>(null);
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
   const { isOpen: isCancelInviteOpen, onOpen: onCancelInviteOpen, onClose: onCancelInviteClose } = useDisclosure();
@@ -253,65 +261,89 @@ export const TeamPage = () => {
         </TabList>
         <TabPanels>
           <TabPanel>
-            <VStack align="stretch" spacing={4}>
-              <HStack justify="space-between">
-                <Heading size="md">Social Media Accounts</Heading>
-                <Button
-                  leftIcon={<AddIcon />}
-                  colorScheme="blue"
-                  onClick={() => setIsCreateModalOpen(true)}
-                >
-                  Add Account
-                </Button>
-              </HStack>
-              <Table variant="simple">
-                <Thead>
-                  <Tr>
-                    <Th>Account Name</Th>
-                    <Th>Platform</Th>
-                    <Th>Profile Link</Th>
-                    <Th>Status</Th>
-                    <Th>Actions</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  {socialMedia.map((sm) => (
-                    <Tr key={sm.id}>
-                      <Td>{sm.accountName}</Td>
-                      <Td>
-                        <Badge colorScheme="blue">{sm.platform}</Badge>
-                      </Td>
-                      <Td>
-                        <a href={sm.profileLink} target="_blank" rel="noopener noreferrer">
-                          {sm.profileLink}
-                        </a>
-                      </Td>
-                      <Td>
-                        <Badge colorScheme={sm.status === "active" ? "green" : "red"}>
-                          {sm.status}
-                        </Badge>
-                      </Td>
-                      <Td>
-                        <IconButton
-                          aria-label="Edit"
-                          icon={<EditIcon />}
-                          colorScheme="blue"
-                          size="sm"
-                          mr={2}
-                          onClick={() => handleEditClick(sm)}
-                        />
-                        <IconButton
-                          aria-label="Delete"
-                          icon={<DeleteIcon />}
-                          colorScheme="red"
-                          size="sm"
-                          onClick={() => handleDeleteClick(sm.id)}
-                        />
-                      </Td>
-                    </Tr>
-                  ))}
-                </Tbody>
-              </Table>
+              <VStack align="stretch" spacing={4}>
+                <HStack justify="space-between">
+                  <Heading size="md">Social Media Accounts</Heading>
+                  <HStack>
+                    <Button
+                      colorScheme="blue"
+                      variant="outline"
+                      onClick={() => setIsConnectFacebookModalOpen(true)}
+                    >
+                      Connect Facebook
+                    </Button>
+                    <Button
+                      leftIcon={<AddIcon />}
+                      colorScheme="blue"
+                      onClick={() => setIsCreateModalOpen(true)}
+                    >
+                      Add Account
+                    </Button>
+                  </HStack>
+                </HStack>
+               <Table variant="simple">
+                 <Thead>
+                   <Tr>
+                     <Th>Account</Th>
+                     <Th>Platform</Th>
+                     <Th>Profile Link</Th>
+                     <Th>Status</Th>
+                     <Th>Actions</Th>
+                   </Tr>
+                 </Thead>
+                 <Tbody>
+                   {socialMedia.map((sm) => (
+                     <Tr key={sm.id}>
+                       <Td>
+                         <HStack>
+                           {sm.image ? (
+                             <Image
+                               src={sm.image}
+                               alt={`${sm.accountName} profile`}
+                               boxSize="32px"
+                               borderRadius="full"
+                               objectFit="cover"
+                             />
+                           ) : (
+                             <Avatar size="sm" name={sm.accountName} />
+                           )}
+                           <Text>{sm.accountName}</Text>
+                         </HStack>
+                       </Td>
+                       <Td>
+                         <Badge colorScheme="blue">{sm.platform}</Badge>
+                       </Td>
+                       <Td>
+                         <a href={sm.profileLink} target="_blank" rel="noopener noreferrer">
+                           {sm.profileLink}
+                         </a>
+                       </Td>
+                       <Td>
+                         <Badge colorScheme={sm.status === "active" ? "green" : "red"}>
+                           {sm.status}
+                         </Badge>
+                       </Td>
+                       <Td>
+                         <IconButton
+                           aria-label="Edit"
+                           icon={<EditIcon />}
+                           colorScheme="blue"
+                           size="sm"
+                           mr={2}
+                           onClick={() => handleEditClick(sm)}
+                         />
+                         <IconButton
+                           aria-label="Delete"
+                           icon={<DeleteIcon />}
+                           colorScheme="red"
+                           size="sm"
+                           onClick={() => handleDeleteClick(sm.id)}
+                         />
+                       </Td>
+                     </Tr>
+                   ))}
+                 </Tbody>
+               </Table>
             </VStack>
           </TabPanel>
            <TabPanel>
@@ -461,6 +493,12 @@ export const TeamPage = () => {
         onClose={() => setIsCreateInviteModalOpen(false)}
         teamId={activeTeam?.id || ""}
         onCreated={() => fetchTeamInvites()}
+      />
+
+      <ConnectFacebookModal
+        isOpen={isConnectFacebookModalOpen}
+        onClose={() => setIsConnectFacebookModalOpen(false)}
+        onConnected={() => fetchSocialMedia()}
       />
 
       <AlertDialog

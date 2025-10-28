@@ -621,6 +621,72 @@ class MailService {
     }
   }
 
+  async sendFacebookTokenExpiredEmail(user: {
+    name: string | null;
+    email: string;
+    accountName: string;
+  }): Promise<void> {
+    const teamUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/team`;
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Facebook Connection Needs Refresh 🔄</h2>
+        <p>Hello ${user.name || "there"},</p>
+        <p>We noticed that your Facebook connection for "${user.accountName}" has expired and needs to be refreshed.</p>
+
+        <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 4px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #856404;">⚠️ Action Required</h3>
+          <p style="margin-bottom: 0; color: #856404;">
+            Your automated posting to this Facebook page has been paused until you reconnect your account.
+          </p>
+        </div>
+
+        <p>To restore automated posting, please:</p>
+        <ol>
+          <li>Go to your team settings</li>
+          <li>Find the Facebook account "${user.accountName}"</li>
+          <li>Click "Reconnect" or "Refresh Connection"</li>
+          <li>Follow the Facebook login prompts</li>
+        </ol>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${teamUrl}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+            Manage Facebook Connections
+          </a>
+        </div>
+
+        <p><strong>What happens if I don't reconnect?</strong></p>
+        <ul>
+          <li>Automated posting to this Facebook page will remain paused</li>
+          <li>Scheduled posts will be skipped</li>
+          <li>You can still post manually through Facebook</li>
+        </ul>
+
+        <p>Facebook access tokens expire regularly for security reasons. We recommend reconnecting as soon as possible to maintain uninterrupted posting.</p>
+        <p>If you have any questions or need assistance, please contact our support team.</p>
+        <p>Best regards,<br>The Dokahub Team</p>
+
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+        <p style="font-size: 12px; color: #666;">
+          This is an automated notification about your Facebook integration.
+          You're receiving this because you have connected Facebook pages for automated posting.
+        </p>
+      </div>
+    `;
+
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_FROM || "noreply@dokahub.com",
+        to: user.email,
+        subject: `Facebook Connection Expired - ${user.accountName}`,
+        html,
+      });
+    } catch (error) {
+      console.error("Failed to send Facebook token expired email:", error);
+      // Don't throw error - token refresh task should continue
+    }
+  }
+
   async verifyConnection(): Promise<void> {
     if (config.env !== "test") {
       this.transporter

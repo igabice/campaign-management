@@ -139,6 +139,12 @@ model SocialMedia {
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
+  // Facebook-specific fields
+  pageId       String?   @map("page_id") // Facebook page ID
+  accessToken  String?   @map("access_token") // Page access token for posting
+  refreshToken String?   @map("refresh_token") // Long-lived user token for refreshing
+  tokenExpiry  DateTime? @map("token_expiry") // When the access token expires
+
   team  Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
   posts Post[]
 

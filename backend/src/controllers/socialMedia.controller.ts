@@ -53,10 +53,53 @@ const deleteSocialMedia = asyncHandler(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+// Facebook-specific controllers
+const getFacebookPages = asyncHandler(async (req, res) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const session = (req as any).session;
+  const pages = await socialMediaService.getFacebookPages(session.user.id);
+  res.json(pages);
+});
+
+const saveFacebookPages = asyncHandler(async (req, res) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const session = (req as any).session;
+  const { teamId, pages } = req.body;
+
+  if (!teamId || !pages || !Array.isArray(pages)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "teamId and pages array are required");
+  }
+
+  const savedAccounts = await socialMediaService.saveFacebookPages(session.user.id, teamId, pages);
+  res.status(httpStatus.CREATED).json(savedAccounts);
+});
+
+const postToFacebookPage = asyncHandler(async (req, res) => {
+  const { socialMediaId, content } = req.body;
+
+  if (!socialMediaId || !content || !content.message) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "socialMediaId and content.message are required");
+  }
+
+  const result = await socialMediaService.postToFacebookPage(socialMediaId, content);
+  res.json(result);
+});
+
+const refreshFacebookTokens = asyncHandler(async (req, res) => {
+  const socialMediaId = req.params.id;
+  const updatedAccount = await socialMediaService.refreshFacebookTokens(socialMediaId);
+  res.json(updatedAccount);
+});
+
 export default {
   createSocialMedia,
   getSocialMedias,
   getSocialMedia,
   updateSocialMedia,
   deleteSocialMedia,
+  // Facebook-specific controllers
+  getFacebookPages,
+  saveFacebookPages,
+  postToFacebookPage,
+  refreshFacebookTokens,
 };

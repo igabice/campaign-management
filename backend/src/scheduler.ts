@@ -6,6 +6,7 @@ import { cleanupOldPosts } from "./tasks/cleanup";
 import { updateSocialMediaStats } from "./tasks/social-media-stats";
 import { sendReEngagementEmails } from "./tasks/re-engagement-emails";
 import { sendOnboardingEmails } from "./tasks/onboarding-emails";
+import { refreshFacebookTokens } from "./tasks/facebook-token-refresh";
 
 /**
  * Initialize and start all cron jobs
@@ -64,6 +65,15 @@ export const startCronJobs = () => {
       await sendOnboardingEmails();
     } catch (error) {
       logger.error("Error in onboarding email cron job:", error);
+    }
+  });
+
+  // Facebook token refresh - runs daily at 2 AM
+  cron.schedule("0 2 * * *", async () => {
+    try {
+      await refreshFacebookTokens();
+    } catch (error) {
+      logger.error("Error in Facebook token refresh cron job:", error);
     }
   });
 

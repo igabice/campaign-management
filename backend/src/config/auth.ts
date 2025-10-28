@@ -59,7 +59,14 @@ export const auth = betterAuth({
     facebook: {
       clientId: process.env.FACEBOOK_CLIENT_ID! || "development",
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET! || "development",
-      scope: ["email", "public_profile"],
+      scope: [
+        "email",
+        "public_profile",
+        "pages_show_list", // To get user's pages
+        "pages_read_engagement", // Basic page access
+        "pages_manage_posts", // To create posts
+        "pages_read_user_content" // For content reading
+      ],
     },
   },
   session: {
