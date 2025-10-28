@@ -21,7 +21,6 @@ import { authClient } from "../../lib/auth-client";
 import { useAuth } from "./AuthContext";
 import { useEffect } from "react";
 import { Spinner } from "@chakra-ui/react";
-import { FaGoogle, FaFacebook } from "react-icons/fa";
 
 type LoginFormInputs = z.infer<typeof loginSchema>;
 
@@ -111,7 +110,7 @@ export const LoginPage: React.FC = () => {
       {/* Left side - Image */}
       <Box
         flex="1"
-        bg="gray.100"
+        // bg="gray.100"
         display={{ base: "none", md: "block" }}
         position="relative"
         overflow="hidden"
@@ -122,10 +121,10 @@ export const LoginPage: React.FC = () => {
           left="0"
           right="0"
           bottom="0"
-          bgImage="url('/images/background.png')"
-          bgSize="cover"
+          bgImage="url('/background.jpeg')"
+          bgSize="contain"
           bgPosition="center"
-          bgRepeat="no-repeat"
+          // bgRepeat="no-repeat"
         />
         <Box
           position="absolute"
@@ -163,70 +162,113 @@ export const LoginPage: React.FC = () => {
         py={12}
       >
         <Box w="full" maxW="md">
-          <Box textAlign="center" mb={8}>
-            <ChakraLink as={RouterLink} to="/" _hover={{ textDecoration: "none" }}>
-              <Heading size="lg" color={accentColor} mb={2}>
-                Dokahub
-              </Heading>
-            </ChakraLink>
-          </Box>
-          <Heading textAlign="center" mb={6}>
-            Login
-          </Heading>
-          <Box as="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-            <Stack spacing={4}>
-              <FormControl isInvalid={!!errors.email}>
-                <FormLabel htmlFor="email">Email</FormLabel>
-                <Input id="email" type="email" {...register("email")} />
-                <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
-              </FormControl>
-              <FormControl isInvalid={!!errors.password}>
-                <FormLabel htmlFor="password">Password</FormLabel>
-                <Input id="password" type="password" {...register("password")} />
-                <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
-              </FormControl>
-              <Button
-                type="submit"
-                isLoading={isSubmitting}
-                bg={accentColor}
-                color="black"
-                _hover={{ bg: accentColor, opacity: 0.8 }}
+          <Box
+            bg="white"
+            border="1px"
+            borderColor="gray.200"
+            borderRadius="lg"
+            p={8}
+            boxShadow="md"
+          >
+            <Box textAlign="center" mb={8}>
+              <ChakraLink
+                as={RouterLink}
+                to="/"
+                _hover={{ textDecoration: "none" }}
               >
-                Login
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  mb={2}
+                >
+                  <img
+                    src="/logo.png"
+                    alt="Dokahub Logo"
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      marginRight: "12px",
+                    }}
+                  />
+                  {/* <Heading size="lg" color={accentColor}>
+                    Dokahub
+                  </Heading> */}
+                </Box>
+              </ChakraLink>
+            </Box>
+            <Heading textAlign="center" mb={6}>
+              Login
+            </Heading>
+            <Box as="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+              <Stack spacing={4}>
+                <FormControl isInvalid={!!errors.email}>
+                  <FormLabel htmlFor="email">Email</FormLabel>
+                  <Input id="email" type="email" {...register("email")} />
+                  <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
+                </FormControl>
+                <FormControl isInvalid={!!errors.password}>
+                  <FormLabel htmlFor="password">Password</FormLabel>
+                  <Input
+                    id="password"
+                    type="password"
+                    {...register("password")}
+                  />
+                  <FormErrorMessage>
+                    {errors.password?.message}
+                  </FormErrorMessage>
+                </FormControl>
+                <Button
+                  type="submit"
+                  isLoading={isSubmitting}
+                  bg={accentColor}
+                  color="black"
+                  _hover={{ bg: accentColor, opacity: 0.8 }}
+                >
+                  Login
+                </Button>
+              </Stack>
+            </Box>
+            <Text textAlign="center" mt={4} mb={2}>
+              or
+            </Text>
+            <Stack spacing={2}>
+              <Button
+                onClick={handleGoogleLogin}
+                bg="white"
+                color="black"
+                border="1px"
+                borderColor="gray.300"
+                display="flex"
+                alignItems="center"
+                gap={2}
+              >
+                <img
+                  src="/icons/google.svg"
+                  alt="Google"
+                  style={{ width: "20px", height: "20px" }}
+                />
+                Login with Google
+              </Button>
+              <Button
+                onClick={handleFacebookLogin}
+                bg="white"
+                color="black"
+                border="1px"
+                borderColor="gray.300"
+                display="flex"
+                alignItems="center"
+                gap={2}
+              >
+                <img
+                  src="/icons/facebook.svg"
+                  alt="Facebook"
+                  style={{ width: "20px", height: "20px" }}
+                />
+                Login with Facebook
               </Button>
             </Stack>
           </Box>
-          <Text textAlign="center" mt={4} mb={2}>
-            or
-          </Text>
-          <Stack spacing={2}>
-            <Button
-              onClick={handleGoogleLogin}
-              bg="white"
-              color="black"
-              border="1px"
-              borderColor="gray.300"
-              display="flex"
-              alignItems="center"
-              gap={2}
-            >
-              {/* @ts-ignore */}
-              <FaGoogle color="#e85252" /> Google
-            </Button>
-            <Button
-              onClick={handleFacebookLogin}
-              bg="white"
-              color="black"
-              border="1px"
-              borderColor="gray.300"
-              display="flex"
-              alignItems="center"
-              gap={2}
-            >
-              {/* @ts-ignore */}
-              <FaFacebook color="#5858e7" /> Facebook
-            </Button>
-          </Stack>
           <Text mt={4} textAlign="center">
             Don't have an account?{" "}
             <ChakraLink as={RouterLink} to="/signup" color={accentColor}>
@@ -234,7 +276,11 @@ export const LoginPage: React.FC = () => {
             </ChakraLink>
           </Text>
           <Text mt={2} textAlign="center">
-            <ChakraLink as={RouterLink} to="/forgot-password" color={accentColor}>
+            <ChakraLink
+              as={RouterLink}
+              to="/forgot-password"
+              color={accentColor}
+            >
               Forgot password?
             </ChakraLink>
           </Text>

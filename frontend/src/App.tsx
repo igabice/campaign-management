@@ -44,64 +44,91 @@ const App = () => {
     <ChakraProvider theme={theme}>
       <HelmetProvider>
         <Router>
-        <GlobalModalProvider>
-          <TeamProvider>
-            <Routes>
-           <Route path="/" element={<LandingOrDashboard />} />
-           <Route path="/home" element={<HomePage />} />
-           <Route path="/login" element={<LoginPage />} />
-           <Route path="/signup" element={<SignupPage />} />
-           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-           <Route path="/reset-password" element={<ResetPasswordPage />} />
-           <Route path="/verify-email" element={<VerifyEmailPage />} />
-            <Route path="/invites/:inviteId" element={<InviteResponsePage />} />
-            <Route path="/privacy" element={<PrivacyPage />} />
-            <Route path="/terms" element={<TermsPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-             <Route path="/blog" element={<BlogLayout><BlogListPage /></BlogLayout>} />
-             <Route path="/blog/create" element={<BlogLayout><BlogCreatePage /></BlogLayout>} />
-             <Route path="/blog/:slug" element={<BlogLayout><BlogDetailPage /></BlogLayout>} />
-             <Route element={<ProtectedRoute />}>
-              <Route
-                path="/dashboard"
-                element={
-                  <MainLayout>
-                    <Dashboard />
-                  </MainLayout>
-                }
-              />
-               <Route
-                 path="/calendar"
-                 element={
-                   <MainLayout>
-                     <CalendarPage />
-                   </MainLayout>
-                 }
-               />
+          <GlobalModalProvider>
+            <TeamProvider>
+              <Routes>
+                <Route path="/" element={<LandingOrDashboard />} />
+                <Route path="/home" element={<HomePage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup" element={<SignupPage />} />
                 <Route
-                  path="/team"
+                  path="/forgot-password"
+                  element={<ForgotPasswordPage />}
+                />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/verify-email" element={<VerifyEmailPage />} />
+                <Route
+                  path="/invites/:inviteId"
+                  element={<InviteResponsePage />}
+                />
+                <Route path="/privacy" element={<PrivacyPage />} />
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route
+                  path="/blog"
+                  element={
+                    <BlogLayout>
+                      <BlogListPage />
+                    </BlogLayout>
+                  }
+                />
+                <Route
+                  path="/blog/create"
                   element={
                     <MainLayout>
-                      <TeamPage />
+                      <BlogCreatePage />
                     </MainLayout>
                   }
                 />
                 <Route
-                  path="/content-planner"
+                  path="/blog/:slug"
                   element={
-                    <MainLayout>
-                      <ContentPlannerPage />
-                    </MainLayout>
+                    <BlogLayout>
+                      <BlogDetailPage />
+                    </BlogLayout>
                   }
                 />
-                 <Route
-                   path="/content-planner/create"
-                   element={
-                     <MainLayout>
-                       <CreatePlanPage />
-                     </MainLayout>
-                   }
-                 />
+                <Route element={<ProtectedRoute />}>
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <MainLayout>
+                        <Dashboard />
+                      </MainLayout>
+                    }
+                  />
+                  <Route
+                    path="/calendar"
+                    element={
+                      <MainLayout>
+                        <CalendarPage />
+                      </MainLayout>
+                    }
+                  />
+                  <Route
+                    path="/team"
+                    element={
+                      <MainLayout>
+                        <TeamPage />
+                      </MainLayout>
+                    }
+                  />
+                  <Route
+                    path="/content-planner"
+                    element={
+                      <MainLayout>
+                        <ContentPlannerPage />
+                      </MainLayout>
+                    }
+                  />
+                  <Route
+                    path="/content-planner/create"
+                    element={
+                      <MainLayout>
+                        <CreatePlanPage />
+                      </MainLayout>
+                    }
+                  />
                   <Route
                     path="/content-planner/preview"
                     element={
@@ -109,76 +136,76 @@ const App = () => {
                         <PreviewPlanPage />
                       </MainLayout>
                     }
-                   />
-                    <Route
-                      path="/content-planner/draft/:id"
-                      element={
-                        <MainLayout>
-                          <DraftPlanPage />
-                        </MainLayout>
-                      }
-                    />
-                    <Route
-                      path="/content-planner/:planId"
-                      element={
-                        <MainLayout>
-                          <PlanDetailsPage />
-                        </MainLayout>
-                      }
-                    />
-                     <Route
-                       path="/notifications"
-                       element={
-                         <MainLayout>
-                           <NotificationsPage />
-                         </MainLayout>
-                       }
-                     />
-                     <Route
-                       path="/approvals"
-                       element={
-                         <MainLayout>
-                           <ApprovalCenter />
-                         </MainLayout>
-                       }
-                     />
-                     <Route
-                       path="/subscription"
-                       element={
-                         <MainLayout>
-                           <SubscriptionPage />
-                         </MainLayout>
-                       }
-                     />
-                       <Route
-                         path="/preferences"
-                         element={
-                           <MainLayout>
-                             <UserPreferencePage />
-                           </MainLayout>
-                         }
-                       />
-                       <Route
-                         path="/blog-management"
-                         element={
-                           <MainLayout>
-                             <BlogManagementPage />
-                           </MainLayout>
-                         }
-                       />
-                       <Route
-                         path="/blog/edit/:id"
-                         element={
-                           <MainLayout>
-                             <BlogEditPage />
-                           </MainLayout>
-                         }
-                       />
-                       <Route path="/onboarding" element={<OnboardingPage />} />
+                  />
+                  <Route
+                    path="/content-planner/draft/:id"
+                    element={
+                      <MainLayout>
+                        <DraftPlanPage />
+                      </MainLayout>
+                    }
+                  />
+                  <Route
+                    path="/content-planner/:planId"
+                    element={
+                      <MainLayout>
+                        <PlanDetailsPage />
+                      </MainLayout>
+                    }
+                  />
+                  <Route
+                    path="/notifications"
+                    element={
+                      <MainLayout>
+                        <NotificationsPage />
+                      </MainLayout>
+                    }
+                  />
+                  <Route
+                    path="/approvals"
+                    element={
+                      <MainLayout>
+                        <ApprovalCenter />
+                      </MainLayout>
+                    }
+                  />
+                  <Route
+                    path="/subscription"
+                    element={
+                      <MainLayout>
+                        <SubscriptionPage />
+                      </MainLayout>
+                    }
+                  />
+                  <Route
+                    path="/preferences"
+                    element={
+                      <MainLayout>
+                        <UserPreferencePage />
+                      </MainLayout>
+                    }
+                  />
+                  <Route
+                    path="/blog-management"
+                    element={
+                      <MainLayout>
+                        <BlogManagementPage />
+                      </MainLayout>
+                    }
+                  />
+                  <Route
+                    path="/blog/edit/:id"
+                    element={
+                      <MainLayout>
+                        <BlogEditPage />
+                      </MainLayout>
+                    }
+                  />
+                  <Route path="/onboarding" element={<OnboardingPage />} />
                 </Route>
-           </Routes>
-          </TeamProvider>
-         </GlobalModalProvider>
+              </Routes>
+            </TeamProvider>
+          </GlobalModalProvider>
         </Router>
       </HelmetProvider>
     </ChakraProvider>
