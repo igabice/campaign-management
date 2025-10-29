@@ -401,6 +401,12 @@ router.post(
   socialMediaController.saveFacebookPages
 );
 
+router.post(
+  "/facebook/pages/permissions",
+  requireAuth,
+  socialMediaController.ensureFacebookPagePermissions
+);
+
 /**
  * @swagger
  * /social-media/facebook/post:

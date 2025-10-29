@@ -216,6 +216,44 @@ class FacebookService {
   }
 
   /**
+   * Ensure the app has permissions for a specific page
+   */
+  async ensurePagePermissions(userAccessToken: string, pageId: string): Promise<boolean> {
+    try {
+      // Method 1: Try to subscribe the app to the page
+      const subscribeResponse = await axios.post(
+        `${this.baseURL}/${pageId}/subscribed_apps`,
+        null,
+        {
+          params: {
+            access_token: userAccessToken,
+            subscribed_fields: 'feed,posts'
+          }
+        }
+      );
+
+      console.log('✅ App subscribed to page:', subscribeResponse.data);
+      return true;
+
+    } catch (error: any) {
+      console.log('❌ Cannot subscribe app to page - manual action required');
+
+      // Method 2: Generate manual auth URL
+      const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?` +
+        `client_id=${process.env.FACEBOOK_CLIENT_ID}` +
+        `&redirect_uri=${encodeURIComponent(process.env.FACEBOOK_REDIRECT_URI || '')}` +
+        `&scope=pages_manage_posts,pages_read_engagement` +
+        `&response_type=code` +
+        `&state=page_auth_${pageId}`;
+
+      console.log('🔗 Manual auth required. Open this URL:');
+      console.log(authUrl);
+
+      return false;
+    }
+  }
+
+  /**
    * Save Facebook pages as social media accounts
    */
   async saveFacebookPages(

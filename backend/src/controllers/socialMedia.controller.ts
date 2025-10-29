@@ -137,6 +137,19 @@ const postToFacebookPage = asyncHandler(async (req, res) => {
   res.json(result);
 });
 
+const ensureFacebookPagePermissions = asyncHandler(async (req, res) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const session = (req as any).session;
+  const { pageId } = req.body;
+
+  if (!pageId) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "pageId is required");
+  }
+
+  const result = await socialMediaService.ensureFacebookPagePermissions(session.user.id, pageId);
+  res.json(result);
+});
+
 const refreshFacebookTokens = asyncHandler(async (req, res) => {
   const socialMediaId = req.params.id;
   const updatedAccount = await socialMediaService.refreshFacebookTokens(socialMediaId);
@@ -154,6 +167,7 @@ export default {
   getFacebookAccounts,
   getFacebookPages,
   saveFacebookPages,
+  ensureFacebookPagePermissions,
   postToFacebookPage,
   refreshFacebookTokens,
 };

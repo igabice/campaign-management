@@ -255,6 +255,42 @@ async function postToFacebookPage(
   );
 }
 
+async function ensureFacebookPagePermissions(
+  userId: string,
+  pageId: string
+): Promise<{ success: boolean; authUrl?: string }> {
+  // Get user's Facebook access token
+  const account = await prisma.account.findFirst({
+    where: {
+      userId,
+      providerId: "facebook",
+    },
+  });
+
+  if (!account?.accessToken) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      "Facebook access token not found"
+    );
+  }
+
+  const success = await facebookService.ensurePagePermissions(account.accessToken, pageId);
+
+  if (!success) {
+    // Generate the auth URL for manual permission request
+    const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?` +
+      `client_id=${process.env.FACEBOOK_CLIENT_ID}` +
+      `&redirect_uri=${encodeURIComponent(process.env.FACEBOOK_REDIRECT_URI || '')}` +
+      `&scope=pages_manage_posts,pages_read_engagement` +
+      `&response_type=code` +
+      `&state=page_auth_${pageId}`;
+
+    return { success: false, authUrl };
+  }
+
+  return { success: true };
+}
+
 async function refreshFacebookTokens(
   socialMediaId: string
 ): Promise<SocialMedia> {
@@ -271,6 +307,7 @@ export default {
   getFacebookAccounts,
   getFacebookPages,
   saveFacebookPages,
+  ensureFacebookPagePermissions,
   postToFacebookPage,
   refreshFacebookTokens,
 };

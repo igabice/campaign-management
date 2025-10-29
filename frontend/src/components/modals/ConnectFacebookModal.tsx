@@ -25,6 +25,7 @@ import {
   Select,
   FormControl,
   FormLabel,
+  Input,
 } from "@chakra-ui/react";
 import { socialMediaApi } from "../../services/socialMedia";
 import { useTeam } from "../../contexts/TeamContext";
@@ -89,6 +90,7 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [manualPageId, setManualPageId] = useState<string>("");
 
   useEffect(() => {
     if (isOpen && session) {
@@ -295,20 +297,23 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
         let newAccountsFound = false;
 
         while (attempts < 5 && !newAccountsFound) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 1000));
           attempts++;
 
           try {
             const updatedAccounts = await socialMediaApi.getFacebookAccounts();
-            console.log(`Attempt ${attempts}: Found ${updatedAccounts.length} Facebook accounts`);
+            console.log(
+              `Attempt ${attempts}: Found ${updatedAccounts.length} Facebook accounts`
+            );
 
             if (updatedAccounts.length > facebookAccounts.length) {
               newAccountsFound = true;
               setFacebookAccounts(updatedAccounts);
 
               // Auto-select the new account
-              const newAccount = updatedAccounts.find((acc: FacebookAccount) =>
-                !facebookAccounts.some(existing => existing.id === acc.id)
+              const newAccount = updatedAccounts.find(
+                (acc: FacebookAccount) =>
+                  !facebookAccounts.some((existing) => existing.id === acc.id)
               );
               if (newAccount) {
                 setSelectedAccountId(newAccount.id);
@@ -333,7 +338,8 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
           await fetchFacebookPages();
           toast({
             title: "Account connection completed",
-            description: "Please refresh the page if you don't see the new account",
+            description:
+              "Please refresh the page if you don't see the new account",
             status: "info",
             duration: 5000,
             isClosable: true,
@@ -343,8 +349,7 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
     } catch (error: any) {
       toast({
         title: "Facebook login failed",
-        description:
-          error?.message ?? "An unexpected error occurred",
+        description: error?.message ?? "An unexpected error occurred",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -372,6 +377,48 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
     }
   };
 
+  const handleRequestPagePermissions = async (
+    pageId: string,
+    pageName: string
+  ) => {
+    try {
+      const result = await socialMediaApi.ensureFacebookPagePermissions({
+        pageId,
+      });
+
+      if (result.success) {
+        toast({
+          title: "Permissions granted",
+          description: `Successfully obtained permissions for ${pageName}`,
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        // Refresh pages to update the UI
+        await fetchFacebookPages();
+      } else if (result.authUrl) {
+        // Open the manual auth URL in a new window
+        window.open(result.authUrl, "_blank", "width=600,height=600");
+        toast({
+          title: "Manual permission required",
+          description: `Please complete the authorization in the new window for ${pageName}`,
+          status: "info",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Permission request failed",
+        description:
+          error.response?.data?.message || "Failed to request permissions",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
   const handleInitialFacebookLogin = async () => {
     try {
       const result = await authClient.signIn.social({
@@ -393,8 +440,7 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
     } catch (error: any) {
       toast({
         title: "Facebook login failed",
-        description:
-          error?.message ?? "An unexpected error occurred",
+        description: error?.message ?? "An unexpected error occurred",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -426,7 +472,13 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
 
             {facebookAccounts.length > 0 && (
               <Text fontSize="sm" color="gray.600">
-                💡 <strong>To connect pages from a different Facebook account:</strong> Click "Connect New Account" and log in with a different Facebook profile. You may need to log out of Facebook first in another browser tab.
+                💡{" "}
+                <strong>
+                  To connect pages from a different Facebook account:
+                </strong>{" "}
+                Click "Connect New Account" and log in with a different Facebook
+                profile. You may need to log out of Facebook first in another
+                browser tab.
               </Text>
             )}
 
@@ -469,6 +521,59 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
                 </VStack>
               </FormControl>
             )}
+
+            {facebookAccounts.length > 0 && (
+              <Box
+                p={4}
+                borderWidth={1}
+                borderRadius="md"
+                borderColor="gray.200"
+                bg="gray.50"
+              >
+                <VStack spacing={3} align="stretch">
+                  <Text fontSize="sm" fontWeight="medium" color="gray.700">
+                    Manually Request Page Access
+                  </Text>
+                  <Text fontSize="xs" color="gray.600">
+                    If you know a Facebook Page ID that doesn't appear above,
+                    you can manually request access to it.
+                  </Text>
+                  <HStack spacing={2}>
+                    <Input
+                      placeholder="Enter Facebook Page ID"
+                      value={manualPageId}
+                      onChange={(e) => setManualPageId(e.target.value)}
+                      size="sm"
+                      isDisabled={isLoading}
+                    />
+                    <Button
+                      size="sm"
+                      colorScheme="blue"
+                      onClick={() => {
+                        if (manualPageId.trim()) {
+                          handleRequestPagePermissions(
+                            manualPageId.trim(),
+                            `Page ${manualPageId}`
+                          );
+                          setManualPageId("");
+                        }
+                      }}
+                      isDisabled={!manualPageId.trim() || isLoading}
+                      isLoading={isLoading}
+                    >
+                      Request Access
+                    </Button>
+                  </HStack>
+                </VStack>
+              </Box>
+            )}
+            <Button
+              colorScheme="facebook"
+              size="sm"
+              onClick={handleInitialFacebookLogin}
+            >
+              Connect Facebook Account
+            </Button>
 
             {error && (
               <Alert status="error">
@@ -644,10 +749,27 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
                                 </Badge>
                               )}
                             </HStack>
-                            <Text fontSize="sm" color="gray.600">
-                              Page ID: {page.id}
-                              {!canPost && " • No posting permissions"}
-                            </Text>
+                            <HStack spacing={2} align="center">
+                              <Text fontSize="sm" color="gray.600">
+                                Page ID: {page.id}
+                                {!canPost && " • No posting permissions"}
+                              </Text>
+                              {!canPost && (
+                                <Button
+                                  size="xs"
+                                  colorScheme="blue"
+                                  variant="outline"
+                                  onClick={() =>
+                                    handleRequestPagePermissions(
+                                      page.id,
+                                      page.name
+                                    )
+                                  }
+                                >
+                                  Request Access
+                                </Button>
+                              )}
+                            </HStack>
                           </VStack>
                         </HStack>
                       </Box>

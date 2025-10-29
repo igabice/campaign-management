@@ -107,6 +107,16 @@ export const socialMediaApi = {
     return response.data;
   },
 
+  ensureFacebookPagePermissions: async (payload: {
+    pageId: string;
+  }) => {
+    const response = await post(
+      `${SOCIAL_MEDIA_BASE_URL}/facebook/pages/permissions`,
+      payload
+    );
+    return response.data;
+  },
+
   refreshFacebookTokens: async (socialMediaId: string) => {
     const response = await post(
       `${SOCIAL_MEDIA_BASE_URL}/${socialMediaId}/facebook/refresh`
