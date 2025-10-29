@@ -336,6 +336,18 @@ router.get(
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
  */
+router.get(
+  "/facebook/auth-status",
+  requireAuth,
+  socialMediaController.checkFacebookAuth
+);
+
+router.get(
+  "/facebook/pages",
+  requireAuth,
+  socialMediaController.getFacebookPages
+);
+
 router.post(
   "/facebook/pages",
   requireAuth,
