@@ -141,6 +141,7 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
     try {
       // Fetch Facebook accounts for this user
       const accounts = await socialMediaApi.getFacebookAccounts();
+      console.log(`Fetched ${accounts.length} Facebook accounts:`, accounts);
       setFacebookAccounts(accounts);
 
       if (accounts.length === 0) {
@@ -269,6 +270,138 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
     }
   };
 
+  const handleConnectNewAccount = async () => {
+    try {
+      // Show loading state
+      setIsLoading(true);
+      setError(null);
+
+      const result = await authClient.signIn.social({
+        provider: "facebook",
+        callbackURL: window.location.href,
+      });
+
+      if (result.error) {
+        toast({
+          title: "Facebook login failed",
+          description: result.error.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      } else {
+        // Wait for the account to be created and refresh multiple times
+        let attempts = 0;
+        let newAccountsFound = false;
+
+        while (attempts < 5 && !newAccountsFound) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          attempts++;
+
+          try {
+            const updatedAccounts = await socialMediaApi.getFacebookAccounts();
+            console.log(`Attempt ${attempts}: Found ${updatedAccounts.length} Facebook accounts`);
+
+            if (updatedAccounts.length > facebookAccounts.length) {
+              newAccountsFound = true;
+              setFacebookAccounts(updatedAccounts);
+
+              // Auto-select the new account
+              const newAccount = updatedAccounts.find((acc: FacebookAccount) =>
+                !facebookAccounts.some(existing => existing.id === acc.id)
+              );
+              if (newAccount) {
+                setSelectedAccountId(newAccount.id);
+              }
+
+              toast({
+                title: "New Facebook account connected",
+                description: "You can now select pages from this account",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+              });
+              break;
+            }
+          } catch (error) {
+            console.log(`Attempt ${attempts} failed:`, error);
+          }
+        }
+
+        if (!newAccountsFound) {
+          // Refresh anyway
+          await fetchFacebookPages();
+          toast({
+            title: "Account connection completed",
+            description: "Please refresh the page if you don't see the new account",
+            status: "info",
+            duration: 5000,
+            isClosable: true,
+          });
+        }
+      }
+    } catch (error: any) {
+      toast({
+        title: "Facebook login failed",
+        description:
+          error?.message ?? "An unexpected error occurred",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRefreshAccounts = async () => {
+    setIsLoading(true);
+    try {
+      await fetchFacebookPages();
+      toast({
+        title: "Accounts refreshed",
+        description: "Facebook accounts list has been updated",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error("Failed to refresh accounts:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleInitialFacebookLogin = async () => {
+    try {
+      const result = await authClient.signIn.social({
+        provider: "facebook",
+        callbackURL: window.location.href,
+      });
+      if (result.error) {
+        toast({
+          title: "Facebook login failed",
+          description: result.error.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      } else {
+        // Refresh accounts after connecting
+        await fetchFacebookPages();
+      }
+    } catch (error: any) {
+      toast({
+        title: "Facebook login failed",
+        description:
+          error?.message ?? "An unexpected error occurred",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
   const handleClose = () => {
     setSelectedPages([]);
     setSelectedAccountId("");
@@ -292,58 +425,48 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
             </Text>
 
             {facebookAccounts.length > 0 && (
+              <Text fontSize="sm" color="gray.600">
+                💡 <strong>To connect pages from a different Facebook account:</strong> Click "Connect New Account" and log in with a different Facebook profile. You may need to log out of Facebook first in another browser tab.
+              </Text>
+            )}
+
+            {facebookAccounts.length > 0 && (
               <FormControl>
                 <FormLabel fontSize="sm" fontWeight="medium">
                   Facebook Account
                 </FormLabel>
-                <HStack spacing={2}>
-                  <Select
-                    value={selectedAccountId}
-                    onChange={(e) => setSelectedAccountId(e.target.value)}
-                    placeholder="Select Facebook account"
-                  >
-                    {facebookAccounts.map((account) => (
-                      <option key={account.id} value={account.id}>
-                        Facebook Account ({account.providerAccountId})
-                      </option>
-                    ))}
-                  </Select>
+                <VStack spacing={2} align="stretch">
+                  <HStack spacing={2}>
+                    <Select
+                      value={selectedAccountId}
+                      onChange={(e) => setSelectedAccountId(e.target.value)}
+                      placeholder="Select Facebook account"
+                    >
+                      {facebookAccounts.map((account) => (
+                        <option key={account.id} value={account.id}>
+                          Facebook Account ({account.providerAccountId})
+                        </option>
+                      ))}
+                    </Select>
+                    <Button
+                      colorScheme="facebook"
+                      size="md"
+                      onClick={handleConnectNewAccount}
+                      isLoading={isLoading}
+                      loadingText="Connecting..."
+                    >
+                      Connect New Account
+                    </Button>
+                  </HStack>
                   <Button
-                    colorScheme="facebook"
-                    size="md"
-                    onClick={async () => {
-                      try {
-                        const result = await authClient.signIn.social({
-                          provider: "facebook",
-                          callbackURL: window.location.href,
-                        });
-                        if (result.error) {
-                          toast({
-                            title: "Facebook login failed",
-                            description: result.error.message,
-                            status: "error",
-                            duration: 5000,
-                            isClosable: true,
-                          });
-                        } else {
-                          // Refresh accounts after connecting new one
-                          await fetchFacebookPages();
-                        }
-                      } catch (error: any) {
-                        toast({
-                          title: "Facebook login failed",
-                          description:
-                            error?.message ?? "An unexpected error occurred",
-                          status: "error",
-                          duration: 5000,
-                          isClosable: true,
-                        });
-                      }
-                    }}
+                    size="sm"
+                    variant="outline"
+                    onClick={handleRefreshAccounts}
+                    isLoading={isLoading}
                   >
-                    Connect New Account
+                    Refresh Accounts
                   </Button>
-                </HStack>
+                </VStack>
               </FormControl>
             )}
 
@@ -359,35 +482,7 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
                     <Button
                       colorScheme="facebook"
                       size="sm"
-                      onClick={async () => {
-                        try {
-                          const result = await authClient.signIn.social({
-                            provider: "facebook",
-                            callbackURL: window.location.href,
-                          });
-                          if (result.error) {
-                            toast({
-                              title: "Facebook login failed",
-                              description: result.error.message,
-                              status: "error",
-                              duration: 5000,
-                              isClosable: true,
-                            });
-                          } else {
-                            // Refresh accounts after connecting
-                            await fetchFacebookPages();
-                          }
-                        } catch (error: any) {
-                          toast({
-                            title: "Facebook login failed",
-                            description:
-                              error?.message ?? "An unexpected error occurred",
-                            status: "error",
-                            duration: 5000,
-                            isClosable: true,
-                          });
-                        }
-                      }}
+                      onClick={handleInitialFacebookLogin}
                     >
                       Connect Facebook Account
                     </Button>
