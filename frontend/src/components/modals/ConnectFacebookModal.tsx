@@ -22,6 +22,9 @@ import {
   useToast,
   Image,
   Avatar,
+  Select,
+  FormControl,
+  FormLabel,
 } from "@chakra-ui/react";
 import { socialMediaApi } from "../../services/socialMedia";
 import { useTeam } from "../../contexts/TeamContext";
@@ -32,11 +35,30 @@ import { authClient } from "../../lib/auth-client";
 interface FacebookPage {
   id: string;
   name: string;
-  access_token: string;
+  access_token?: string;
   category?: string;
   tasks?: string[];
   profile_picture?: string;
   link?: string;
+  has_access_token?: boolean;
+}
+
+interface ExistingFacebookPage {
+  id: string;
+  pageId: string;
+  accountName: string;
+  profileLink: string;
+  image?: string;
+  status: string;
+}
+
+interface FacebookAccount {
+  id: string;
+  accountId: string;
+  providerAccountId: string;
+  accessToken: string;
+  expiresAt: string | null;
+  createdAt: string;
 }
 
 interface ConnectFacebookModalProps {
@@ -56,6 +78,13 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
   const toast = useToast();
 
   const [pages, setPages] = useState<FacebookPage[]>([]);
+  const [existingPages, setExistingPages] = useState<ExistingFacebookPage[]>(
+    []
+  );
+  const [facebookAccounts, setFacebookAccounts] = useState<FacebookAccount[]>(
+    []
+  );
+  const [selectedAccountId, setSelectedAccountId] = useState<string>("");
   const [selectedPages, setSelectedPages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -66,6 +95,32 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
       fetchFacebookPages();
     }
   }, [isOpen, session]);
+
+  useEffect(() => {
+    if (selectedAccountId && facebookAccounts.length > 0) {
+      // Refetch pages when selected account changes
+      const fetchPagesForAccount = async () => {
+        setIsLoading(true);
+        try {
+          const fetchedPages = await socialMediaApi.getFacebookPages(
+            selectedAccountId
+          );
+          console.log(
+            `Fetched ${fetchedPages.length} Facebook pages for account ${selectedAccountId}:`,
+            fetchedPages
+          );
+          setPages(fetchedPages);
+        } catch (error: any) {
+          const errorMessage =
+            error.response?.data?.message || "Failed to fetch Facebook pages";
+          setError(errorMessage);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchPagesForAccount();
+    }
+  }, [selectedAccountId, facebookAccounts.length]);
 
   const fetchFacebookPages = async () => {
     if (!session) {
@@ -84,18 +139,42 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
     setError(null);
 
     try {
-      // First check if user has Facebook authentication
-      const authStatus = await socialMediaApi.checkFacebookAuth();
+      // Fetch Facebook accounts for this user
+      const accounts = await socialMediaApi.getFacebookAccounts();
+      setFacebookAccounts(accounts);
 
-      if (!authStatus.hasFacebookAuth) {
-        // If no Facebook auth, show message with login button
-        setError(`Facebook authentication required. ${authStatus.message}`);
+      if (accounts.length === 0) {
+        // If no Facebook accounts, show message with login button
+        setError(
+          `Facebook authentication required. Please connect a Facebook account first.`
+        );
         return;
       }
 
-      // If authenticated, fetch pages
-      const fetchedPages = await socialMediaApi.getFacebookPages();
-      setPages(fetchedPages);
+      // Set the first account as selected if none is selected
+      if (!selectedAccountId && accounts.length > 0) {
+        setSelectedAccountId(accounts[0].id);
+      }
+
+      // Fetch existing Facebook pages for this team
+      const existingResponse = await socialMediaApi.getAllSocialMedia(1, 100, {
+        teamId: activeTeam?.id,
+        platform: "facebook",
+      });
+      setExistingPages(existingResponse.result || []);
+
+      // If we have a selected account, fetch available pages from that account
+      if (selectedAccountId || accounts.length > 0) {
+        const accountIdToUse = selectedAccountId || accounts[0].id;
+        const fetchedPages = await socialMediaApi.getFacebookPages(
+          accountIdToUse
+        );
+        console.log(
+          `Fetched ${fetchedPages.length} Facebook pages:`,
+          fetchedPages
+        );
+        setPages(fetchedPages);
+      }
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message || "Failed to fetch Facebook pages";
@@ -138,17 +217,35 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
     setIsConnecting(true);
 
     try {
-      const pagesToSave = pages.filter((page) =>
-        selectedPages.includes(page.id)
+      // Only save pages that are not already connected and have access tokens
+      const newPagesToSave = pages.filter(
+        (page) =>
+          selectedPages.includes(page.id) &&
+          !existingPages.some((existing) => existing.pageId === page.id) &&
+          (page.access_token || page.has_access_token)
       );
+
+      if (newPagesToSave.length === 0) {
+        toast({
+          title: "No new pages to connect",
+          description: "All selected pages are already connected",
+          status: "info",
+          duration: 3000,
+          isClosable: true,
+        });
+        onClose();
+        return;
+      }
+
       await socialMediaApi.saveFacebookPages({
         teamId: activeTeam.id,
-        pages: pagesToSave,
+        pages: newPagesToSave,
+        accountId: selectedAccountId,
       });
 
       toast({
         title: "Facebook pages connected",
-        description: `${selectedPages.length} page(s) successfully connected`,
+        description: `${newPagesToSave.length} new page(s) successfully connected`,
         status: "success",
         duration: 3000,
         isClosable: true,
@@ -174,6 +271,7 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
 
   const handleClose = () => {
     setSelectedPages([]);
+    setSelectedAccountId("");
     setError(null);
     onClose();
   };
@@ -187,10 +285,67 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
         <ModalBody>
           <VStack spacing={4} align="stretch">
             <Text>
-              Select the Facebook pages you want to connect for automated
-              posting. Make sure you've granted the necessary permissions when
-              logging in with Facebook.
+              Select additional Facebook pages you want to connect for automated
+              posting. Already connected pages are shown below for reference.
+              Make sure you've granted the necessary permissions when logging in
+              with Facebook.
             </Text>
+
+            {facebookAccounts.length > 0 && (
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="medium">
+                  Facebook Account
+                </FormLabel>
+                <HStack spacing={2}>
+                  <Select
+                    value={selectedAccountId}
+                    onChange={(e) => setSelectedAccountId(e.target.value)}
+                    placeholder="Select Facebook account"
+                  >
+                    {facebookAccounts.map((account) => (
+                      <option key={account.id} value={account.id}>
+                        Facebook Account ({account.providerAccountId})
+                      </option>
+                    ))}
+                  </Select>
+                  <Button
+                    colorScheme="facebook"
+                    size="md"
+                    onClick={async () => {
+                      try {
+                        const result = await authClient.signIn.social({
+                          provider: "facebook",
+                          callbackURL: window.location.href,
+                        });
+                        if (result.error) {
+                          toast({
+                            title: "Facebook login failed",
+                            description: result.error.message,
+                            status: "error",
+                            duration: 5000,
+                            isClosable: true,
+                          });
+                        } else {
+                          // Refresh accounts after connecting new one
+                          await fetchFacebookPages();
+                        }
+                      } catch (error: any) {
+                        toast({
+                          title: "Facebook login failed",
+                          description:
+                            error?.message ?? "An unexpected error occurred",
+                          status: "error",
+                          duration: 5000,
+                          isClosable: true,
+                        });
+                      }
+                    }}
+                  >
+                    Connect New Account
+                  </Button>
+                </HStack>
+              </FormControl>
+            )}
 
             {error && (
               <Alert status="error">
@@ -218,6 +373,9 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
                               duration: 5000,
                               isClosable: true,
                             });
+                          } else {
+                            // Refresh accounts after connecting
+                            await fetchFacebookPages();
                           }
                         } catch (error: any) {
                           toast({
@@ -231,7 +389,7 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
                         }
                       }}
                     >
-                      Login with Facebook
+                      Connect Facebook Account
                     </Button>
                   </AlertDescription>
                 </Box>
@@ -267,50 +425,139 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
               </Alert>
             ) : (
               <VStack spacing={3} align="stretch">
-                {pages.map((page) => (
-                  <Box
-                    key={page.id}
-                    p={3}
-                    borderWidth={1}
-                    borderRadius="md"
-                    borderColor={
-                      selectedPages.includes(page.id) ? "blue.300" : "gray.200"
-                    }
-                    bg={selectedPages.includes(page.id) ? "blue.50" : "white"}
-                  >
-                    <HStack spacing={3}>
-                      <Checkbox
-                        isChecked={selectedPages.includes(page.id)}
-                        onChange={() => handlePageToggle(page.id)}
-                        colorScheme="blue"
-                      />
-                      <VStack align="start" spacing={1} flex={1}>
-                        <HStack>
-                          {page.profile_picture ? (
-                            <Image
-                              src={page.profile_picture}
-                              alt={`${page.name} profile`}
-                              boxSize="24px"
-                              borderRadius="full"
-                              objectFit="cover"
-                            />
-                          ) : (
-                            <Avatar size="xs" name={page.name} />
-                          )}
-                          <Text fontWeight="medium">{page.name}</Text>
-                          {page.category && (
-                            <Badge colorScheme="gray" size="sm">
-                              {page.category}
-                            </Badge>
-                          )}
+                {/* Show connected pages first */}
+                {existingPages.length > 0 && (
+                  <>
+                    <Text fontWeight="medium" color="gray.700">
+                      Already Connected ({existingPages.length})
+                    </Text>
+                    {existingPages.map((existingPage) => (
+                      <Box
+                        key={existingPage.id}
+                        p={3}
+                        borderWidth={1}
+                        borderRadius="md"
+                        borderColor="green.300"
+                        bg="green.50"
+                        opacity={0.7}
+                      >
+                        <HStack spacing={3}>
+                          <Box
+                            w="16px"
+                            h="16px"
+                            borderRadius="full"
+                            bg="green.400"
+                          />
+                          <VStack align="start" spacing={1} flex={1}>
+                            <HStack>
+                              {existingPage.image ? (
+                                <Image
+                                  src={existingPage.image}
+                                  alt={`${existingPage.accountName} profile`}
+                                  boxSize="24px"
+                                  borderRadius="full"
+                                  objectFit="cover"
+                                />
+                              ) : (
+                                <Avatar
+                                  size="xs"
+                                  name={existingPage.accountName}
+                                />
+                              )}
+                              <Text fontWeight="medium">
+                                {existingPage.accountName}
+                              </Text>
+                              <Badge colorScheme="green" size="sm">
+                                Connected
+                              </Badge>
+                            </HStack>
+                            <Text fontSize="sm" color="gray.600">
+                              Page ID: {existingPage.pageId}
+                            </Text>
+                          </VStack>
                         </HStack>
-                        <Text fontSize="sm" color="gray.600">
-                          Page ID: {page.id}
-                        </Text>
-                      </VStack>
-                    </HStack>
-                  </Box>
-                ))}
+                      </Box>
+                    ))}
+                    {pages.some(
+                      (page) =>
+                        !existingPages.some(
+                          (existing) => existing.pageId === page.id
+                        )
+                    ) && (
+                      <Text fontWeight="medium" color="gray.700" mt={4}>
+                        Available to Connect
+                      </Text>
+                    )}
+                  </>
+                )}
+
+                {/* Show available pages */}
+                {pages
+                  .filter(
+                    (page) =>
+                      !existingPages.some(
+                        (existing) => existing.pageId === page.id
+                      )
+                  )
+                  .map((page) => {
+                    const canPost = page.access_token || page.has_access_token;
+                    return (
+                      <Box
+                        key={page.id}
+                        p={3}
+                        borderWidth={1}
+                        borderRadius="md"
+                        borderColor={
+                          selectedPages.includes(page.id)
+                            ? "blue.300"
+                            : "gray.200"
+                        }
+                        bg={
+                          selectedPages.includes(page.id) ? "blue.50" : "white"
+                        }
+                        opacity={canPost ? 1 : 0.6}
+                      >
+                        <HStack spacing={3}>
+                          <Checkbox
+                            isChecked={selectedPages.includes(page.id)}
+                            onChange={() => handlePageToggle(page.id)}
+                            colorScheme="blue"
+                            isDisabled={!canPost}
+                          />
+                          <VStack align="start" spacing={1} flex={1}>
+                            <HStack>
+                              {page.profile_picture ? (
+                                <Image
+                                  src={page.profile_picture}
+                                  alt={`${page.name} profile`}
+                                  boxSize="24px"
+                                  borderRadius="full"
+                                  objectFit="cover"
+                                />
+                              ) : (
+                                <Avatar size="xs" name={page.name} />
+                              )}
+                              <Text fontWeight="medium">{page.name}</Text>
+                              {page.category && (
+                                <Badge colorScheme="gray" size="sm">
+                                  {page.category}
+                                </Badge>
+                              )}
+                              {!canPost && (
+                                <Badge colorScheme="orange" size="sm">
+                                  View Only
+                                </Badge>
+                              )}
+                            </HStack>
+                            <Text fontSize="sm" color="gray.600">
+                              Page ID: {page.id}
+                              {!canPost && " • No posting permissions"}
+                            </Text>
+                          </VStack>
+                        </HStack>
+                      </Box>
+                    );
+                  })}
               </VStack>
             )}
           </VStack>
@@ -324,7 +571,8 @@ export const ConnectFacebookModal: React.FC<ConnectFacebookModalProps> = ({
             loadingText="Connecting..."
             isDisabled={selectedPages.length === 0 || isLoading}
           >
-            Connect {selectedPages.length > 0 && `(${selectedPages.length})`}
+            Add {selectedPages.length > 0 && `(${selectedPages.length})`} Page
+            {selectedPages.length !== 1 ? "s" : ""}
           </Button>
           <Button variant="ghost" onClick={handleClose}>
             Cancel

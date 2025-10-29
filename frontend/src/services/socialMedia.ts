@@ -58,8 +58,14 @@ export const socialMediaApi = {
   },
 
   // Facebook-specific methods
-  getFacebookPages: async () => {
-    const response = await get(`${SOCIAL_MEDIA_BASE_URL}/facebook/pages`);
+  getFacebookAccounts: async () => {
+    const response = await get(`${SOCIAL_MEDIA_BASE_URL}/facebook/accounts`);
+    return response.data;
+  },
+
+  getFacebookPages: async (accountId?: string) => {
+    const params = accountId ? { accountId } : {};
+    const response = await get(`${SOCIAL_MEDIA_BASE_URL}/facebook/pages`, { params });
     return response.data;
   },
 
@@ -68,10 +74,11 @@ export const socialMediaApi = {
     pages: Array<{
       id: string;
       name: string;
-      access_token: string;
+      access_token?: string;
       category?: string;
       tasks?: string[];
     }>;
+    accountId?: string;
   }) => {
     const response = await post(
       `${SOCIAL_MEDIA_BASE_URL}/facebook/pages`,

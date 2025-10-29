@@ -257,35 +257,81 @@ router
   );
 
 /**
- * @swagger
- * /social-media/facebook/pages:
- *   get:
- *     summary: Get user's Facebook pages
- *     description: Retrieve Facebook pages for the authenticated user.
- *     tags: [SocialMedia]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       "200":
- *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: string
- *                   name:
- *                     type: string
- *                   access_token:
- *                     type: string
- *                   category:
- *                     type: string
- *       "401":
- *         $ref: '#/components/responses/Unauthorized'
- */
+  * @swagger
+  * /social-media/facebook/accounts:
+  *   get:
+  *     summary: Get user's Facebook accounts
+  *     description: Retrieve all Facebook accounts connected to the authenticated user.
+  *     tags: [SocialMedia]
+  *     security:
+  *       - bearerAuth: []
+  *     responses:
+  *       "200":
+  *         description: OK
+  *         content:
+  *           application/json:
+  *             schema:
+  *               type: array
+  *               items:
+  *                 type: object
+  *                 properties:
+  *                   id:
+  *                     type: string
+  *                   accountId:
+  *                     type: string
+  *                   providerAccountId:
+  *                     type: string
+  *                   accessToken:
+  *                     type: string
+  *                   expiresAt:
+  *                     type: string
+  *                   createdAt:
+  *                     type: string
+  *       "401":
+  *         $ref: '#/components/responses/Unauthorized'
+  */
+router.get(
+  "/facebook/accounts",
+  requireAuth,
+  socialMediaController.getFacebookAccounts
+);
+
+/**
+  * @swagger
+  * /social-media/facebook/pages:
+  *   get:
+  *     summary: Get user's Facebook pages
+  *     description: Retrieve Facebook pages for the authenticated user.
+  *     tags: [SocialMedia]
+  *     security:
+  *       - bearerAuth: []
+  *     parameters:
+  *       - in: query
+  *         name: accountId
+  *         schema:
+  *           type: string
+  *         description: Specific Facebook account ID to get pages for
+  *     responses:
+  *       "200":
+  *         description: OK
+  *         content:
+  *           application/json:
+  *             schema:
+  *               type: array
+  *               items:
+  *                 type: object
+  *                 properties:
+  *                   id:
+  *                     type: string
+  *                   name:
+  *                     type: string
+  *                   access_token:
+  *                     type: string
+  *                   category:
+  *                     type: string
+  *       "401":
+  *         $ref: '#/components/responses/Unauthorized'
+  */
 router.get(
   "/facebook/pages",
   requireAuth,

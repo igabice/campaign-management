@@ -98,23 +98,31 @@ const checkFacebookAuth = asyncHandler(async (req, res) => {
   });
 });
 
+const getFacebookAccounts = asyncHandler(async (req, res) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const session = (req as any).session;
+  const accounts = await socialMediaService.getFacebookAccounts(session.user.id);
+  res.json(accounts);
+});
+
 const getFacebookPages = asyncHandler(async (req, res) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const session = (req as any).session;
-  const pages = await socialMediaService.getFacebookPages(session.user.id);
+  const { accountId } = req.query;
+  const pages = await socialMediaService.getFacebookPages(session.user.id, accountId as string);
   res.json(pages);
 });
 
 const saveFacebookPages = asyncHandler(async (req, res) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const session = (req as any).session;
-  const { teamId, pages } = req.body;
+  const { teamId, pages, accountId } = req.body;
 
   if (!teamId || !pages || !Array.isArray(pages)) {
     throw new ApiError(httpStatus.BAD_REQUEST, "teamId and pages array are required");
   }
 
-  const savedAccounts = await socialMediaService.saveFacebookPages(session.user.id, teamId, pages);
+  const savedAccounts = await socialMediaService.saveFacebookPages(session.user.id, teamId, pages, accountId);
   res.status(httpStatus.CREATED).json(savedAccounts);
 });
 
@@ -143,6 +151,7 @@ export default {
   deleteSocialMedia,
   // Facebook-specific controllers
   checkFacebookAuth,
+  getFacebookAccounts,
   getFacebookPages,
   saveFacebookPages,
   postToFacebookPage,

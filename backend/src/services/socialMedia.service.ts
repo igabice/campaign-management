@@ -67,19 +67,49 @@ async function deleteSocialMediaById(id: string): Promise<SocialMedia> {
 }
 
 // Facebook-specific methods
-async function getFacebookPages(userId: string): Promise<any[]> {
-  // Get user's Facebook access token from the Account model
-  const account = await prisma.account.findFirst({
+async function getFacebookAccounts(userId: string): Promise<any[]> {
+  const accounts = await prisma.account.findMany({
     where: {
       userId,
       providerId: "facebook",
     },
+    select: {
+      id: true,
+      accountId: true,
+      providerAccountId: true,
+      accessToken: true,
+      refreshToken: true,
+      expiresAt: true,
+      createdAt: true,
+    },
   });
+
+  return accounts;
+}
+
+async function getFacebookPages(userId: string, accountId?: string): Promise<any[]> {
+  // Get user's Facebook access token from the Account model
+  const account = accountId
+    ? await prisma.account.findFirst({
+        where: {
+          id: accountId,
+          userId,
+          providerId: "facebook",
+        },
+      })
+    : await prisma.account.findFirst({
+        where: {
+          userId,
+          providerId: "facebook",
+        },
+      });
 
   if (!account) {
     throw new ApiError(
       httpStatus.FORBIDDEN,
-      "No Facebook account found. Please login with Facebook first."
+      accountId
+        ? "Facebook account not found."
+        : "No Facebook account found. Please login with Facebook first."
     );
   }
 
@@ -135,15 +165,24 @@ async function getFacebookPages(userId: string): Promise<any[]> {
 async function saveFacebookPages(
   userId: string,
   teamId: string,
-  pages: any[]
+  pages: any[],
+  accountId?: string
 ): Promise<SocialMedia[]> {
   // Get user's Facebook access token for long-lived token
-  const account = await prisma.account.findFirst({
-    where: {
-      userId,
-      providerId: "facebook",
-    },
-  });
+  const account = accountId
+    ? await prisma.account.findFirst({
+        where: {
+          id: accountId,
+          userId,
+          providerId: "facebook",
+        },
+      })
+    : await prisma.account.findFirst({
+        where: {
+          userId,
+          providerId: "facebook",
+        },
+      });
 
   if (!account?.accessToken) {
     throw new ApiError(
@@ -229,6 +268,7 @@ export default {
   updateSocialMediaById,
   deleteSocialMediaById,
   // Facebook-specific methods
+  getFacebookAccounts,
   getFacebookPages,
   saveFacebookPages,
   postToFacebookPage,

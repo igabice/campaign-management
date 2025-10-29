@@ -51,20 +51,45 @@ class FacebookService {
    */
   async getUserPages(accessToken: string): Promise<FacebookPage[]> {
     try {
-      const response = await axios.get(`${this.baseURL}/me/accounts`, {
-        params: {
-          access_token: accessToken,
-          fields: "id,name,access_token,category,tasks,picture{url},link",
-        },
-      });
+      const allPages: any[] = [];
+      let url = `${this.baseURL}/me/accounts`;
+      let hasNextPage = true;
+
+      while (hasNextPage) {
+        const response = await axios.get(url, {
+          params: {
+            access_token: accessToken,
+            fields: "id,name,access_token,category,tasks,picture{url},link",
+            limit: 100, // Request more pages per call
+          },
+        });
+
+        const pages = response.data.data || [];
+        allPages.push(...pages);
+
+        // Check if there's a next page
+        if (response.data.paging && response.data.paging.next) {
+          url = response.data.paging.next;
+        } else {
+          hasNextPage = false;
+        }
+      }
+
+      console.log(`Fetched ${allPages.length} Facebook pages for user`);
+      console.log('Pages data:', allPages.map(p => ({ id: p.id, name: p.name, hasAccessToken: !!p.access_token })));
 
       // Transform the response to include the profile picture URL
-      const pages = response.data.data || [];
-      return pages.map((page: any) => ({
+      const transformedPages = allPages.map((page: any) => ({
         ...page,
         profile_picture: page.picture?.data?.url,
+        has_access_token: !!page.access_token,
       }));
+
+      // For debugging, return all pages but mark which ones have access tokens
+      // In production, we might want to filter to only show pages with access tokens
+      return transformedPages;
     } catch (error: any) {
+      console.error('Facebook API error:', error.response?.data || error.message);
       throw new ApiError(
         httpStatus.BAD_REQUEST,
         `Failed to fetch Facebook pages: ${error.response?.data?.error?.message || error.message}`
