@@ -76,30 +76,60 @@ async function getFacebookPages(userId: string): Promise<any[]> {
     },
   });
 
-  if (!account?.accessToken) {
+  if (!account) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      "No Facebook account found. Please login with Facebook first."
+    );
+  }
+
+  if (!account.accessToken) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      "Facebook access token not found. Please re-login with Facebook."
+    );
+  }
+
+  if (!account.accessToken) {
     throw new ApiError(
       httpStatus.UNAUTHORIZED,
-      "Facebook access token not found. Please login with Facebook first."
+      "Facebook access token not found. Please re-login with Facebook."
     );
   }
 
   // Get long-lived token if needed
   let accessToken = account.accessToken;
-  if (!account.refreshToken || new Date() > (account.expiresAt || new Date())) {
-    accessToken = await facebookService.getLongLivedToken(accessToken);
+  try {
+    if (!account.refreshToken || new Date() > (account.expiresAt || new Date())) {
+      accessToken = await facebookService.getLongLivedToken(accessToken);
 
-    // Update account with long-lived token
-    await prisma.account.update({
-      where: { id: account.id },
-      data: {
-        accessToken,
-        refreshToken: accessToken, // Store as refresh token for future use
-        expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days
-      },
-    });
+      // Update account with long-lived token
+      await prisma.account.update({
+        where: { id: account.id },
+        data: {
+          accessToken,
+          refreshToken: accessToken, // Store as refresh token for future use
+          expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days
+        },
+      });
+    }
+
+    const pages = await facebookService.getUserPages(accessToken);
+    return pages;
+  } catch (error: any) {
+    // If token refresh fails, provide helpful error message
+    if (error.message?.includes('long-lived token')) {
+      throw new ApiError(
+        httpStatus.FORBIDDEN,
+        "Facebook token expired. Please re-login with Facebook."
+      );
+    }
+    // If getting pages fails, it might be permissions or no pages
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      error.message || "Failed to fetch Facebook pages. Please check your Facebook permissions."
+    );
   }
-
-  return facebookService.getUserPages(accessToken);
 }
 
 async function saveFacebookPages(

@@ -95,6 +95,11 @@ export const socialMediaApi = {
     return response.data;
   },
 
+  checkFacebookAuth: async () => {
+    const response = await get(`${SOCIAL_MEDIA_BASE_URL}/facebook/auth-status`);
+    return response.data;
+  },
+
   refreshFacebookTokens: async (socialMediaId: string) => {
     const response = await post(
       `${SOCIAL_MEDIA_BASE_URL}/${socialMediaId}/facebook/refresh`

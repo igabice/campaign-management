@@ -2,6 +2,7 @@ import httpStatus from "http-status";
 import asyncHandler from "express-async-handler";
 import ApiError from "../utils/ApiError";
 import socialMediaService from "../services/socialMedia.service";
+import prisma from "../config/prisma";
 
 const createSocialMedia = asyncHandler(async (req, res) => {
   const socialMedia = await socialMediaService.createSocialMedia(req.body);
@@ -54,6 +55,49 @@ const deleteSocialMedia = asyncHandler(async (req, res) => {
 });
 
 // Facebook-specific controllers
+const checkFacebookAuth = asyncHandler(async (req, res) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const session = (req as any).session;
+
+  // Check if user has Facebook account
+  const account = await prisma.account.findFirst({
+    where: {
+      userId: session.user.id,
+      providerId: "facebook",
+    },
+  });
+
+  if (!account) {
+    res.json({
+      hasFacebookAuth: false,
+      message: "No Facebook account connected. Please login with Facebook first."
+    });
+    return;
+  }
+
+  if (!account.accessToken) {
+    res.json({
+      hasFacebookAuth: false,
+      message: "Facebook access token missing. Please re-login with Facebook."
+    });
+    return;
+  }
+
+  // Check if token is expired
+  if (account.expiresAt && new Date() > account.expiresAt) {
+    res.json({
+      hasFacebookAuth: false,
+      message: "Facebook token expired. Please re-login with Facebook."
+    });
+    return;
+  }
+
+  res.json({
+    hasFacebookAuth: true,
+    message: "Facebook authentication found."
+  });
+});
+
 const getFacebookPages = asyncHandler(async (req, res) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const session = (req as any).session;
@@ -98,6 +142,7 @@ export default {
   updateSocialMedia,
   deleteSocialMedia,
   // Facebook-specific controllers
+  checkFacebookAuth,
   getFacebookPages,
   saveFacebookPages,
   postToFacebookPage,
