@@ -315,6 +315,7 @@ model Vendor {
   serviceDescription String // Service Description
   dataProcessingRole String // Data Processing Role
   businessUnitOwner String // Business Unit Owner
+  riskLevel String? // Risk Level
 
   // Relations
   documents VendorDocument[]

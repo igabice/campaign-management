@@ -50,10 +50,22 @@ const deleteVendor = asyncHandler(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const getVendorDashboard = asyncHandler(async (req, res) => {
+  const { organizationId } = req.query;
+  if (!organizationId) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'organizationId is required');
+  }
+  const dashboardData = await vendorService.getVendorDashboardData(
+    organizationId as string
+  );
+  res.send(dashboardData);
+});
+
 export default {
   createVendor,
   getVendors,
   getVendor,
   updateVendor,
   deleteVendor,
+  getVendorDashboard,
 };

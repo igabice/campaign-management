@@ -187,4 +187,34 @@ router
         vendorController.deleteVendor
     );
 
+/**
+ * @swagger
+ * /vendors/dashboard:
+ *   get:
+ *     summary: Get vendor dashboard data
+ *     description: Retrieve aggregated data for the vendor dashboard.
+ *     tags: [Vendor]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: organizationId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the organization to retrieve dashboard data for.
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/VendorDashboard'
+ *       "400":
+ *         $ref: '#/components/responses/BadRequest'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+router.route('/dashboard').get(requireAuth, vendorController.getVendorDashboard);
+
 export default router;

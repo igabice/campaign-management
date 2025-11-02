@@ -425,6 +425,37 @@ components:
                 type: string
             otherNotes:
                 type: string
+    VendorDashboard:
+        type: object
+        properties:
+            totalVendors:
+                type: integer
+            vendorsWithDpa:
+                type: integer
+            highRiskVendors:
+                type: integer
+            overdueRenewals:
+                type: integer
+            vendorIncidentsLast90Days:
+                type: integer
+            vendorsPerRiskLevel:
+                type: array
+                items:
+                    type: object
+                    properties:
+                        level:
+                            type: string
+                        count:
+                            type: integer
+            contractsPerExpiry:
+                type: array
+                items:
+                    type: object
+                    properties:
+                        label:
+                            type: string
+                        count:
+                            type: integer
   responses:
     Unauthorized:
       description: Unauthorized
