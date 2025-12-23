@@ -4,7 +4,7 @@ const createPost = z.object({
   body: z.object({
     title: z.string().optional(),
     content: z.string().min(1, "Content is required"),
-    socialMedias: z.array(z.string().uuid("Invalid social media ID")).min(1, "At least one social media account is required"),
+    // socialMedias: z.array(z.string().uuid("Invalid social media ID")).min(1, "At least one social media account is required"),
     image: z.string().optional(),
     scheduledDate: z.string().datetime("Invalid scheduled date"),
     sendReminder: z.boolean().default(false),
@@ -38,7 +38,10 @@ const updatePost = z.object({
   body: z.object({
     title: z.string().optional(),
     content: z.string().min(1, "Content is required").optional(),
-    socialMedias: z.array(z.string().uuid("Invalid social media ID")).min(1, "At least one social media account is required").optional(),
+    socialMedias: z
+      .array(z.string().uuid("Invalid social media ID"))
+      // .min(1, "At least one social media account is required")
+      .optional(),
     image: z.string().optional(),
     scheduledDate: z.string().datetime("Invalid scheduled date").optional(),
     sendReminder: z.boolean().optional(),
