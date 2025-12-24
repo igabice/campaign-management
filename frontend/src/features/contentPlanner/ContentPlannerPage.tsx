@@ -38,7 +38,9 @@ export const ContentPlannerPage = () => {
   const fetchPlans = useCallback(async () => {
     if (!activeTeam) return;
     try {
-      const response = await plansApi.getAllPlans(1, 100, { teamId: activeTeam.id });
+      const response = await plansApi.getAllPlans(1, 100, {
+        teamId: activeTeam.id,
+      });
       setPlans(response.result);
     } catch (error) {
       console.error("Failed to fetch plans", error);
@@ -61,7 +63,7 @@ export const ContentPlannerPage = () => {
   const handleDelete = async (id: string) => {
     try {
       await plansApi.deletePlan(id);
-      setPlans(plans.filter(p => p.id !== id));
+      setPlans(plans.filter((p) => p.id !== id));
       toast({
         title: "Success",
         description: "Plan deleted successfully",
@@ -88,18 +90,26 @@ export const ContentPlannerPage = () => {
     <Box p={8}>
       <HStack justify="space-between" mb={6}>
         <Heading>Content Planner</Heading>
-        <Button colorScheme="blue" onClick={() => navigate("/content-planner/create")}>
+        <Button
+          colorScheme="blue"
+          onClick={() => navigate("/content-planner/create")}
+        >
           Create Plan
         </Button>
       </HStack>
 
       {plans.length === 0 ? (
-        <Alert status="info" borderRadius="md" bg="gray.50" borderColor="gray.200">
-          <AlertIcon />
+        <Alert
+          status="info"
+          borderRadius="md"
+          bg="gray.50"
+          borderColor="gray.200"
+        >
           <VStack align="start" spacing={1}>
             <AlertTitle>No content plans yet!</AlertTitle>
             <AlertDescription>
-              Create your first content plan to start scheduling posts with a strategic approach.
+              Create your first content plan to start scheduling posts with a
+              strategic approach.
             </AlertDescription>
             <Button
               size="sm"
@@ -113,17 +123,17 @@ export const ContentPlannerPage = () => {
         </Alert>
       ) : (
         <Table variant="simple">
-           <Thead>
-             <Tr>
-               <Th>Title</Th>
-               <Th>Description</Th>
-               <Th>Start Date</Th>
-               <Th>End Date</Th>
-               <Th>Tone</Th>
-               <Th>Approval</Th>
-               <Th>Actions</Th>
-             </Tr>
-           </Thead>
+          <Thead>
+            <Tr>
+              <Th>Title</Th>
+              <Th>Description</Th>
+              <Th>Start Date</Th>
+              <Th>End Date</Th>
+              <Th>Tone</Th>
+              <Th>Approval</Th>
+              <Th>Actions</Th>
+            </Tr>
+          </Thead>
           <Tbody>
             {plans.map((plan) => (
               <Tr key={plan.id}>
@@ -133,9 +143,7 @@ export const ContentPlannerPage = () => {
                 </Td>
                 <Td>{format(new Date(plan.startDate), "PPP")}</Td>
                 <Td>{format(new Date(plan.endDate), "PPP")}</Td>
-                <Td>
-                  {plan.tone && <Badge>{plan.tone}</Badge>}
-                </Td>
+                <Td>{plan.tone && <Badge>{plan.tone}</Badge>}</Td>
                 <Td>
                   {plan.approvalStatus === "pending" && (
                     <Badge colorScheme="yellow">Pending Approval</Badge>
@@ -168,13 +176,28 @@ export const ContentPlannerPage = () => {
                     >
                       Assign Approver
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => navigate(`/content-planner/${plan.id}`)}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => navigate(`/content-planner/${plan.id}`)}
+                    >
                       View
                     </Button>
-                     <Button size="sm" variant="outline" onClick={() => navigate(`/content-planner/draft/${plan.id}`)}>
-                       Edit
-                     </Button>
-                    <Button size="sm" colorScheme="red" variant="outline" onClick={() => handleDelete(plan.id)}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        navigate(`/content-planner/draft/${plan.id}`)
+                      }
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      colorScheme="red"
+                      variant="outline"
+                      onClick={() => handleDelete(plan.id)}
+                    >
                       Delete
                     </Button>
                   </HStack>

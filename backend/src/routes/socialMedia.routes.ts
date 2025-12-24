@@ -1,8 +1,10 @@
 import express from "express";
+import axios from "axios";
 import validate from "../middlewares/validate";
 import socialMediaValidation from "../validations/socialMedia.validation";
 import socialMediaController from "../controllers/socialMedia.controller";
 import { requireAuth } from "../middlewares/auth";
+import facebookService from "../services/facebook.service";
 
 const router = express.Router();
 
@@ -493,5 +495,56 @@ router.post(
   validate(socialMediaValidation.refreshFacebookTokens),
   socialMediaController.refreshFacebookTokens
 );
+
+// Facebook page auth callback route (public, no auth required)
+router.get('/auth/facebook/page-auth-callback', async (req, res) => {
+  try {
+    const { code, state } = req.query;
+
+    console.log('Page auth callback received:', { code, state });
+
+    if (!code) {
+      return res.redirect(`${process.env.FRONTEND_URL}/dashboard?error=no_code`);
+    }
+
+    // Exchange code for access token
+    const tokenResponse = await axios.get(
+      `https://graph.facebook.com/v19.0/oauth/access_token`,
+      {
+        params: {
+          client_id: process.env.FACEBOOK_CLIENT_ID,
+          client_secret: process.env.FACEBOOK_CLIENT_SECRET,
+          redirect_uri: `${process.env.API_URL}/api/auth/facebook/page-auth-callback`,
+          code: code
+        }
+      }
+    );
+
+    const userAccessToken = tokenResponse.data.access_token;
+
+    // Get user's pages with the new token
+    const pages = await facebookService.getUserPages(userAccessToken);
+
+    console.log('Page auth successful. Pages found:', pages.length);
+
+    // Extract page ID from state if present
+    const targetPageId = state?.toString().replace('page_auth_', '');
+
+    // Redirect to frontend with success data
+    const redirectUrl = new URL(`${process.env.FRONTEND_URL}/dashboard`);
+    redirectUrl.searchParams.set('facebook_page_auth', 'success');
+    redirectUrl.searchParams.set('pages_count', pages.length.toString());
+
+    if (targetPageId) {
+      redirectUrl.searchParams.set('target_page_id', targetPageId);
+    }
+
+    res.redirect(redirectUrl.toString());
+
+  } catch (error: any) {
+    console.error('Page auth callback error:', error.response?.data || error.message);
+    res.redirect(`${process.env.FRONTEND_URL}/dashboard?facebook_page_auth_error=auth_failed`);
+  }
+});
 
 export default router;

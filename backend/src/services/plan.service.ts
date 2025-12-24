@@ -15,6 +15,8 @@ async function createPlan(
     tone?: string;
     status?: string;
     teamId: string;
+    requiresApproval?: boolean;
+    selectedApprover?: string;
     posts?: {
       title?: string;
       content: string;
@@ -31,8 +33,12 @@ async function createPlan(
     endDate,
     posts,
     status = "draft",
+    requiresApproval,
+    selectedApprover,
     ...planData
   } = planBody;
+
+  console.log({ requiresApproval, selectedApprover });
 
   // Check if user is a member of the team
   const membership = await prisma.member.findFirst({
@@ -61,6 +67,10 @@ async function createPlan(
         status,
         createdBy: userId,
         teamId,
+        // ...(requiresApproval && selectedApprover ? {
+        //   approverId: selectedApprover,
+        //   approvalStatus: "pending"
+        // } : {}),
       },
     });
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -14,10 +14,13 @@ import {
   Badge,
   Divider,
   IconButton,
+  useToast,
+  Spinner,
 } from "@chakra-ui/react";
 import { format } from "date-fns";
 import { Twitter, Facebook, Linkedin, Instagram } from "lucide-react";
 import { Post } from "../../types/schemas";
+import { socialMediaApi } from "../../services/socialMedia";
 
 interface PostDetailsModalProps {
   isOpen: boolean;
@@ -30,6 +33,9 @@ export const PostDetailsModal: React.FC<PostDetailsModalProps> = ({
   onClose,
   post,
 }) => {
+  const [postingTo, setPostingTo] = useState<string | null>(null);
+  const toast = useToast();
+
   if (!post) return null;
 
   const getShareUrl = (platform: string, content: string) => {
@@ -53,16 +59,52 @@ export const PostDetailsModal: React.FC<PostDetailsModalProps> = ({
     }
   };
 
-  const handleShare = (platform: string) => {
-    let shareContent = post.content;
-    if (post.image) {
-      shareContent += ` ${post.image}`;
-    }
-    const url = getShareUrl(platform, shareContent);
-    if (url) {
-      window.open(url, "_blank");
+  const handleShare = async (platform: string, socialMediaId?: string) => {
+    if (platform === "facebook" && socialMediaId) {
+      // Post to Facebook page via API
+      setPostingTo(socialMediaId);
+      try {
+        const content = {
+          message: post.content,
+          ...(post.image && { image: post.image }),
+        };
+
+        await socialMediaApi.postToFacebookPage({
+          socialMediaId,
+          content,
+        });
+
+        toast({
+          title: "Success",
+          description: "Post shared to Facebook successfully!",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      } catch (error: any) {
+        console.error("Failed to post to Facebook:", error);
+        toast({
+          title: "Error",
+          description: error.response?.data?.message || "Failed to post to Facebook. Please try again.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      } finally {
+        setPostingTo(null);
+      }
     } else {
-      alert(`Sharing to ${platform} is not supported via web.`);
+      // Fallback to web sharing for other platforms
+      let shareContent = post.content;
+      if (post.image) {
+        shareContent += ` ${post.image}`;
+      }
+      const url = getShareUrl(platform, shareContent);
+      if (url) {
+        window.open(url, "_blank");
+      } else {
+        alert(`Sharing to ${platform} is not supported via web.`);
+      }
     }
   };
 
@@ -147,26 +189,28 @@ export const PostDetailsModal: React.FC<PostDetailsModalProps> = ({
           </VStack>
         </ModalBody>
         <ModalFooter>
-          <HStack spacing={2} justify="space-between" w="full">
-            <HStack spacing={2}>
-              <Text fontSize="sm" fontWeight="bold">
-                Share to:
-              </Text>
-              {post.socialMedias.map((sm) => {
-                const icon = getPlatformIcon(sm.platform);
-                return icon ? (
-                  <IconButton
-                    key={sm.id}
-                    aria-label={`Share to ${sm.platform}`}
-                    icon={icon}
-                    onClick={() => handleShare(sm.platform)}
-                    size="sm"
-                    colorScheme="blue"
-                    variant="outline"
-                  />
-                ) : null;
-              })}
-            </HStack>
+             <HStack spacing={2} justify="space-between" w="full">
+             <HStack spacing={2}>
+               <Text fontSize="sm" fontWeight="bold">
+                 Share to:
+               </Text>
+               {post.socialMedias.map((sm) => {
+                 const icon = getPlatformIcon(sm.platform);
+                 const isPosting = postingTo === sm.id;
+                 return icon ? (
+                   <IconButton
+                     key={sm.id}
+                     aria-label={`Share to ${sm.platform}`}
+                     icon={isPosting ? <Spinner size="sm" /> : icon}
+                     onClick={() => handleShare(sm.platform, sm.id)}
+                     size="sm"
+                     colorScheme="blue"
+                     variant="outline"
+                     isDisabled={isPosting}
+                   />
+                 ) : null;
+               })}
+             </HStack>
             <Button colorScheme="blue" onClick={onClose}>
               Close
             </Button>

@@ -76,7 +76,14 @@ class FacebookService {
       }
 
       console.log(`Fetched ${allPages.length} Facebook pages for user`);
-      console.log('Pages data:', allPages.map(p => ({ id: p.id, name: p.name, hasAccessToken: !!p.access_token })));
+      console.log(
+        "Pages data:",
+        allPages.map((p) => ({
+          id: p.id,
+          name: p.name,
+          hasAccessToken: !!p.access_token,
+        }))
+      );
 
       // Transform the response to include the profile picture URL
       const transformedPages = allPages.map((page: any) => ({
@@ -89,7 +96,10 @@ class FacebookService {
       // In production, we might want to filter to only show pages with access tokens
       return transformedPages;
     } catch (error: any) {
-      console.error('Facebook API error:', error.response?.data || error.message);
+      console.error(
+        "Facebook API error:",
+        error.response?.data || error.message
+      );
       throw new ApiError(
         httpStatus.BAD_REQUEST,
         `Failed to fetch Facebook pages: ${error.response?.data?.error?.message || error.message}`
@@ -110,16 +120,30 @@ class FacebookService {
     }
   ): Promise<FacebookPostResponse> {
     try {
+      console.log(`Attempting to post to Facebook page ${pageId}`);
+      console.log(
+        `Content: ${content.message.substring(0, 100)}${content.message.length > 100 ? "..." : ""}`
+      );
+      console.log(`Has image: ${!!content.image}, Has link: ${!!content.link}`);
+
       const postData: any = {
         message: content.message,
       };
 
       if (content.link) {
         postData.link = content.link;
+        console.log(`Including link: ${content.link}`);
       }
 
       // Note: For images, you'd need to upload the image first and get the media ID
       // This is a simplified version - full implementation would handle image uploads
+      if (content.image) {
+        console.log(
+          `Image posting not yet implemented for URL: ${content.image}`
+        );
+      }
+
+      console.log(`Making API call to: ${this.baseURL}/${pageId}/feed`);
 
       const response = await axios.post(
         `${this.baseURL}/${pageId}/feed`,
@@ -131,11 +155,33 @@ class FacebookService {
         }
       );
 
+      console.log(
+        `Successfully posted to Facebook. Post ID: ${response.data.id}`
+      );
       return response.data;
     } catch (error: any) {
+      console.error(`Failed to post to Facebook page ${pageId}:`);
+      console.error(`Error status: ${error.response?.status}`);
+      console.error(`Error code: ${error.response?.data?.error?.code}`);
+      console.error(`Error message: ${error.response?.data?.error?.message}`);
+      console.error(`Full error:`, error.response?.data || error.message);
+
+      // Provide more specific error messages based on error codes
+      let userFriendlyMessage = "Failed to post to Facebook";
+      if (error.response?.data?.error?.code === 190) {
+        userFriendlyMessage =
+          "Facebook access token expired. Please refresh your connection.";
+      } else if (error.response?.data?.error?.code === 200) {
+        userFriendlyMessage =
+          "Facebook permissions insufficient. Please check page access permissions.";
+      } else if (error.response?.data?.error?.code === 100) {
+        userFriendlyMessage =
+          "Invalid post content. Please check your message.";
+      }
+
       throw new ApiError(
         httpStatus.BAD_REQUEST,
-        `Failed to post to Facebook: ${error.response?.data?.error?.message || error.message}`
+        `${userFriendlyMessage}: ${error.response?.data?.error?.message || error.message}`
       );
     }
   }
@@ -218,7 +264,10 @@ class FacebookService {
   /**
    * Ensure the app has permissions for a specific page
    */
-  async ensurePagePermissions(userAccessToken: string, pageId: string): Promise<boolean> {
+  async ensurePagePermissions(
+    userAccessToken: string,
+    pageId: string
+  ): Promise<boolean> {
     try {
       // Method 1: Try to subscribe the app to the page
       const subscribeResponse = await axios.post(
@@ -227,26 +276,28 @@ class FacebookService {
         {
           params: {
             access_token: userAccessToken,
-            subscribed_fields: 'feed,posts'
-          }
+            subscribed_fields: "feed,posts",
+          },
         }
       );
 
-      console.log('✅ App subscribed to page:', subscribeResponse.data);
+      console.log("✅ App subscribed to page:", subscribeResponse.data);
       return true;
-
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error: any) {
-      console.log('❌ Cannot subscribe app to page - manual action required');
+      console.log("❌ Cannot subscribe app to page - manual action required");
 
       // Method 2: Generate manual auth URL
-      const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?` +
+      const apiUrl = process.env.API_URL || "http://localhost:3001";
+      const authUrl =
+        `https://www.facebook.com/v19.0/dialog/oauth?` +
         `client_id=${process.env.FACEBOOK_CLIENT_ID}` +
-        `&redirect_uri=${encodeURIComponent(process.env.FACEBOOK_REDIRECT_URI || '')}` +
+        `&redirect_uri=${encodeURIComponent(`${apiUrl}/api/auth/facebook/page-auth-callback`)}` +
         `&scope=pages_manage_posts,pages_read_engagement` +
         `&response_type=code` +
         `&state=page_auth_${pageId}`;
 
-      console.log('🔗 Manual auth required. Open this URL:');
+      console.log("🔗 Manual auth required. Open this URL:");
       console.log(authUrl);
 
       return false;

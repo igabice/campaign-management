@@ -217,6 +217,8 @@ async function postToFacebookPage(
     image?: string;
   }
 ): Promise<any> {
+  console.log(`Starting Facebook post for social media account ${socialMediaId}`);
+
   const socialMedia = await getSocialMediaById(socialMediaId);
   if (
     !socialMedia ||
@@ -224,30 +226,49 @@ async function postToFacebookPage(
     !socialMedia.accessToken ||
     !socialMedia.pageId
   ) {
+    console.error(`Invalid Facebook social media account ${socialMediaId}:`, {
+      exists: !!socialMedia,
+      platform: socialMedia?.platform,
+      hasToken: !!socialMedia?.accessToken,
+      hasPageId: !!socialMedia?.pageId,
+    });
     throw new ApiError(
       httpStatus.BAD_REQUEST,
       "Invalid Facebook social media account"
     );
   }
 
+  console.log(`Account details: ${socialMedia.accountName} (Page ID: ${socialMedia.pageId})`);
+  console.log(`Token expiry: ${socialMedia.tokenExpiry}, Current time: ${new Date().toISOString()}`);
+
   // Check if token is expired and refresh if needed
   if (socialMedia.tokenExpiry && new Date() > socialMedia.tokenExpiry) {
-    await facebookService.refreshTokens(socialMediaId);
-    // Re-fetch updated social media
-    const updatedSocialMedia = await getSocialMediaById(socialMediaId);
-    if (!updatedSocialMedia?.accessToken) {
-      throw new ApiError(
-        httpStatus.UNAUTHORIZED,
-        "Failed to refresh Facebook token"
+    console.log(`Token expired, attempting refresh for account ${socialMediaId}`);
+    try {
+      await facebookService.refreshTokens(socialMediaId);
+      console.log(`Token refresh successful for account ${socialMediaId}`);
+      // Re-fetch updated social media
+      const updatedSocialMedia = await getSocialMediaById(socialMediaId);
+      if (!updatedSocialMedia?.accessToken) {
+        console.error(`Failed to get refreshed token for account ${socialMediaId}`);
+        throw new ApiError(
+          httpStatus.UNAUTHORIZED,
+          "Failed to refresh Facebook token"
+        );
+      }
+      console.log(`Posting with refreshed token to page ${updatedSocialMedia.pageId}`);
+      return facebookService.postToPage(
+        updatedSocialMedia.pageId!,
+        updatedSocialMedia.accessToken,
+        content
       );
+    } catch (refreshError) {
+      console.error(`Token refresh failed for account ${socialMediaId}:`, refreshError);
+      throw refreshError;
     }
-    return facebookService.postToPage(
-      updatedSocialMedia.pageId!,
-      updatedSocialMedia.accessToken,
-      content
-    );
   }
 
+  console.log(`Posting with existing token to page ${socialMedia.pageId}`);
   return facebookService.postToPage(
     socialMedia.pageId,
     socialMedia.accessToken,
@@ -278,9 +299,10 @@ async function ensureFacebookPagePermissions(
 
   if (!success) {
     // Generate the auth URL for manual permission request
+    const apiUrl = process.env.API_URL || "http://localhost:3001";
     const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?` +
       `client_id=${process.env.FACEBOOK_CLIENT_ID}` +
-      `&redirect_uri=${encodeURIComponent(process.env.FACEBOOK_REDIRECT_URI || '')}` +
+      `&redirect_uri=${encodeURIComponent(`${apiUrl}/api/auth/facebook/page-auth-callback`)}` +
       `&scope=pages_manage_posts,pages_read_engagement` +
       `&response_type=code` +
       `&state=page_auth_${pageId}`;

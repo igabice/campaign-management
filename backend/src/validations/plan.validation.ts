@@ -9,14 +9,20 @@ const createPlan = z.object({
     tone: z.string().optional(),
     status: z.enum(["draft", "published"]).default("draft"),
     teamId: z.string().uuid("Invalid team ID"),
-    posts: z.array(z.object({
-      title: z.string().optional(),
-      content: z.string(),
-      socialMedias: z.array(z.string()),
-      image: z.string().optional(),
-      scheduledDate: z.string().datetime(),
-      sendReminder: z.boolean().optional(),
-    })).optional(),
+    requiresApproval: z.boolean().optional(),
+    selectedApprover: z.string().optional(),
+    posts: z
+      .array(
+        z.object({
+          title: z.string().optional(),
+          content: z.string(),
+          socialMedias: z.array(z.string()),
+          image: z.string().optional(),
+          scheduledDate: z.string().datetime(),
+          sendReminder: z.boolean().optional(),
+        })
+      )
+      .optional(),
   }),
 });
 
@@ -54,14 +60,16 @@ const publishPlan = z.object({
     id: z.string().uuid("Invalid plan ID"),
   }),
   body: z.object({
-    posts: z.array(z.object({
-      title: z.string().optional(),
-      content: z.string(),
-      socialMedias: z.array(z.string()),
-      image: z.string().optional(),
-      scheduledDate: z.string().datetime(),
-      sendReminder: z.boolean().optional(),
-    })),
+    posts: z.array(
+      z.object({
+        title: z.string().optional(),
+        content: z.string(),
+        socialMedias: z.array(z.string()),
+        image: z.string().optional(),
+        scheduledDate: z.string().datetime(),
+        sendReminder: z.boolean().optional(),
+      })
+    ),
   }),
 });
 

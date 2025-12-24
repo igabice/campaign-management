@@ -84,21 +84,47 @@ export const SignupPage: React.FC = () => {
     }
   };
 
+  const isMobile = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
+  };
+
   const handleFacebookSignup = async () => {
     localStorage.setItem("socialLoginInitiated", "true");
-    const { error } = await authClient.signIn.social({
-      provider: "facebook",
-      callbackURL: `${window.location.origin}/dashboard`,
-    });
-    if (error) {
-      localStorage.removeItem("socialLoginInitiated");
-      toast({
-        title: "Signup Error",
-        description: error.message,
-        status: "error",
-        duration: 5000,
-        isClosable: true,
+
+    // For mobile devices, use custom redirect endpoint to avoid popup and app switching issues
+    if (isMobile()) {
+      try {
+        // Redirect to custom mobile-friendly Facebook OAuth endpoint
+        const authUrl = `${process.env.REACT_APP_API_URL || "http://localhost:3001"}/api/mobile-facebook-login?callbackURL=${encodeURIComponent(`${window.location.origin}/dashboard`)}`;
+        window.location.href = authUrl;
+      } catch (error) {
+        localStorage.removeItem("socialLoginInitiated");
+        toast({
+          title: "Signup Error",
+          description: "Failed to connect to Facebook. Please try again.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    } else {
+      // Use popup for desktop
+      const { error } = await authClient.signIn.social({
+        provider: "facebook",
+        callbackURL: `${window.location.origin}/dashboard`,
       });
+      if (error) {
+        localStorage.removeItem("socialLoginInitiated");
+        toast({
+          title: "Signup Error",
+          description: error.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
     }
   };
 
