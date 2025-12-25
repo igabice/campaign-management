@@ -19,8 +19,6 @@ import {
   Tag,
   TagLabel,
   TagCloseButton,
-  InputGroup,
-  InputLeftAddon,
   useToast,
   Spinner,
   Divider,
@@ -35,6 +33,8 @@ import {
 } from "@chakra-ui/react";
 import { userPreferenceApi } from "../../services/userPreferences";
 import { UserPreference } from "../../types/schemas";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 const DAYS_OF_WEEK = [
   { value: "MON", label: "Monday" },
@@ -318,30 +318,31 @@ const UserPreferencePage: React.FC = () => {
                           </HStack>
                         )}
                       </Text>
-                       {preferences.telegramChatId && (
-                         <VStack align="start" spacing={2}>
-                           <Text fontSize="sm" color="green.500">
-                             ✅ Telegram notifications are active
-                           </Text>
-                           <Button
-                             size="sm"
-                             colorScheme="red"
-                             variant="outline"
-                             onClick={() => {
-                               updatePreference("telegramChatId", undefined);
-                               updatePreference("telegramEnabled", false);
-                               toast({
-                                 title: "Telegram Unlinked",
-                                 description: "Telegram notifications have been disabled",
-                                 status: "info",
-                                 duration: 3000,
-                               });
-                             }}
-                           >
-                             Unlink Telegram
-                           </Button>
-                         </VStack>
-                       )}
+                      {preferences.telegramChatId && (
+                        <VStack align="start" spacing={2}>
+                          <Text fontSize="sm" color="green.500">
+                            ✅ Telegram notifications are active
+                          </Text>
+                          <Button
+                            size="sm"
+                            colorScheme="red"
+                            variant="outline"
+                            onClick={() => {
+                              updatePreference("telegramChatId", undefined);
+                              updatePreference("telegramEnabled", false);
+                              toast({
+                                title: "Telegram Unlinked",
+                                description:
+                                  "Telegram notifications have been disabled",
+                                status: "info",
+                                duration: 3000,
+                              });
+                            }}
+                          >
+                            Unlink Telegram
+                          </Button>
+                        </VStack>
+                      )}
                     </VStack>
                   </Box>
                 )}
@@ -366,16 +367,21 @@ const UserPreferencePage: React.FC = () => {
                   />
                 </HStack>
                 {preferences.whatsappEnabled && (
-                  <InputGroup mt={3}>
-                    <InputLeftAddon>+</InputLeftAddon>
-                    <Input
+                  <Box mt={3}>
+                    <PhoneInput
                       placeholder="WhatsApp Number (without +)"
                       value={preferences.whatsappNumber || ""}
-                      onChange={(e) =>
-                        updatePreference("whatsappNumber", e.target.value)
+                      onChange={(value) =>
+                        updatePreference("whatsappNumber", value)
                       }
+                      country={"us"}
+                      inputStyle={{
+                        width: "100%",
+                        height: "40px",
+                        fontSize: "16px",
+                      }}
                     />
-                  </InputGroup>
+                  </Box>
                 )}
               </FormControl>
             </VStack>

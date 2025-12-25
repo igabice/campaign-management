@@ -1,6 +1,7 @@
 import prisma from "../config/prisma";
 import mailService from "./mail.service";
 import telegramService from "./telegram.service";
+import whatsappService from "./whatsapp.service";
 
 class NotificationService {
   // Send approval request notifications
@@ -26,12 +27,26 @@ class NotificationService {
       // Send Telegram notification if enabled
       const approverPrefs = await prisma.userPreference.findUnique({
         where: { userId: approverId },
-        select: { telegramEnabled: true, telegramChatId: true },
+        select: {
+          telegramEnabled: true,
+          telegramChatId: true,
+          whatsappEnabled: true,
+          whatsappNumber: true,
+        },
       });
+      const message = `📝 New post approval request\n\nTeam: ${post.team.title}\nPost: ${post.title || "Untitled Post"}\nCreated by: ${post.creator.name || post.creator.email}\n\nPlease review and approve/reject the post.`;
 
       if (approverPrefs?.telegramEnabled && approverPrefs.telegramChatId) {
-        const message = `📝 New post approval request\n\nTeam: ${post.team.title}\nPost: ${post.title || "Untitled Post"}\nCreated by: ${post.creator.name || post.creator.email}\n\nPlease review and approve/reject the post.`;
-        await telegramService.sendMessage(approverPrefs.telegramChatId, message);
+        await telegramService.sendMessage(
+          approverPrefs.telegramChatId,
+          message
+        );
+      }
+      if (approverPrefs?.whatsappEnabled && approverPrefs.whatsappNumber) {
+        await whatsappService.sendTemplateMessage(
+          approverPrefs.whatsappNumber,
+          message
+        );
       }
 
       // Create in-app notification
@@ -44,7 +59,10 @@ class NotificationService {
         },
       });
     } catch (error) {
-      console.error("Failed to send post approval request notifications:", error);
+      console.error(
+        "Failed to send post approval request notifications:",
+        error
+      );
     }
   }
 
@@ -70,12 +88,26 @@ class NotificationService {
       // Send Telegram notification if enabled
       const approverPrefs = await prisma.userPreference.findUnique({
         where: { userId: approverId },
-        select: { telegramEnabled: true, telegramChatId: true },
+        select: {
+          telegramEnabled: true,
+          telegramChatId: true,
+          whatsappNumber: true,
+          whatsappEnabled: true,
+        },
       });
-
+      const message = `📋 New content plan approval request\n\nTeam: ${plan.team.title}\nPlan: ${plan.title}\nCreated by: ${plan.creator.name || plan.creator.email}\n\nPlease review and approve/reject the plan.`;
       if (approverPrefs?.telegramEnabled && approverPrefs.telegramChatId) {
-        const message = `📋 New content plan approval request\n\nTeam: ${plan.team.title}\nPlan: ${plan.title}\nCreated by: ${plan.creator.name || plan.creator.email}\n\nPlease review and approve/reject the plan.`;
-        await telegramService.sendMessage(approverPrefs.telegramChatId, message);
+        await telegramService.sendMessage(
+          approverPrefs.telegramChatId,
+          message
+        );
+      }
+
+      if (approverPrefs?.whatsappEnabled && approverPrefs.whatsappNumber) {
+        await whatsappService.sendTemplateMessage(
+          approverPrefs.whatsappNumber,
+          message
+        );
       }
 
       // Create in-app notification
@@ -88,7 +120,10 @@ class NotificationService {
         },
       });
     } catch (error) {
-      console.error("Failed to send plan approval request notifications:", error);
+      console.error(
+        "Failed to send plan approval request notifications:",
+        error
+      );
     }
   }
 
@@ -114,13 +149,26 @@ class NotificationService {
       // Send Telegram notification if enabled
       const creatorPrefs = await prisma.userPreference.findUnique({
         where: { userId: creatorId },
-        select: { telegramEnabled: true, telegramChatId: true },
+        select: {
+          telegramEnabled: true,
+          telegramChatId: true,
+          whatsappEnabled: true,
+          whatsappNumber: true,
+        },
       });
+      const status =
+        post.approvalStatus === "approved" ? "✅ Approved" : "❌ Rejected";
+      const message = `📝 Post ${status}\n\nPost: ${post.title || "Untitled Post"}\nStatus: ${status}\nApproved by: ${post.approver?.name || "Approver"}${post.approvalNotes ? `\n\nNotes: ${post.approvalNotes}` : ""}`;
 
       if (creatorPrefs?.telegramEnabled && creatorPrefs.telegramChatId) {
-        const status = post.approvalStatus === "approved" ? "✅ Approved" : "❌ Rejected";
-        const message = `📝 Post ${status}\n\nPost: ${post.title || "Untitled Post"}\nStatus: ${status}\nApproved by: ${post.approver?.name || "Approver"}${post.approvalNotes ? `\n\nNotes: ${post.approvalNotes}` : ""}`;
         await telegramService.sendMessage(creatorPrefs.telegramChatId, message);
+      }
+
+      if (creatorPrefs?.whatsappEnabled && creatorPrefs.whatsappNumber) {
+        await whatsappService.sendTemplateMessage(
+          creatorPrefs.whatsappNumber,
+          message
+        );
       }
 
       // Create in-app notification
@@ -133,7 +181,10 @@ class NotificationService {
         },
       });
     } catch (error) {
-      console.error("Failed to send post approval result notifications:", error);
+      console.error(
+        "Failed to send post approval result notifications:",
+        error
+      );
     }
   }
 
@@ -158,13 +209,26 @@ class NotificationService {
       // Send Telegram notification if enabled
       const creatorPrefs = await prisma.userPreference.findUnique({
         where: { userId: creatorId },
-        select: { telegramEnabled: true, telegramChatId: true },
+        select: {
+          telegramEnabled: true,
+          telegramChatId: true,
+          whatsappEnabled: true,
+          whatsappNumber: true,
+        },
       });
+      const status =
+        plan.approvalStatus === "approved" ? "✅ Approved" : "❌ Rejected";
+      const message = `📋 Content Plan ${status}\n\nPlan: ${plan.title}\nStatus: ${status}\nApproved by: ${plan.approver?.name || "Approver"}${plan.approvalNotes ? `\n\nNotes: ${plan.approvalNotes}` : ""}`;
 
       if (creatorPrefs?.telegramEnabled && creatorPrefs.telegramChatId) {
-        const status = plan.approvalStatus === "approved" ? "✅ Approved" : "❌ Rejected";
-        const message = `📋 Content Plan ${status}\n\nPlan: ${plan.title}\nStatus: ${status}\nApproved by: ${plan.approver?.name || "Approver"}${plan.approvalNotes ? `\n\nNotes: ${plan.approvalNotes}` : ""}`;
         await telegramService.sendMessage(creatorPrefs.telegramChatId, message);
+      }
+
+      if (creatorPrefs?.whatsappEnabled && creatorPrefs.whatsappNumber) {
+        await whatsappService.sendTemplateMessage(
+          creatorPrefs.whatsappNumber,
+          message
+        );
       }
 
       // Create in-app notification
@@ -177,7 +241,10 @@ class NotificationService {
         },
       });
     } catch (error) {
-      console.error("Failed to send plan approval result notifications:", error);
+      console.error(
+        "Failed to send plan approval result notifications:",
+        error
+      );
     }
   }
 }

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
-  Container,
   Heading,
   Text,
   VStack,
@@ -465,7 +464,7 @@ const OnboardingPage: React.FC = () => {
             <PhoneInput
               value={whatsappNumber}
               onChange={(value) => setWhatsappNumber(value)}
-              country={"us"}
+              // country={"us"}
               inputStyle={{ width: "100%", height: "40px", fontSize: "16px" }}
             />
           </Box>

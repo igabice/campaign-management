@@ -36,10 +36,10 @@ class TelegramService {
 
       let userId: string;
 
-      if (text.startsWith('/start ')) {
+      if (text.startsWith("/start ")) {
         // Handle /start command with parameter
         userId = text.substring(7).trim();
-      } else if (text.startsWith('/start')) {
+      } else if (text.startsWith("/start")) {
         // Just /start without parameter
         await this.bot!.sendMessage(
           chatId,
