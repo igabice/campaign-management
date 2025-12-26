@@ -33,6 +33,8 @@ import { BlogManagementPage } from "../features/blog/BlogManagementPage";
 import { BlogEditPage } from "../features/blog/BlogEditPage";
 import { BlogLayout } from "./BlogLayout";
 import { ApprovalCenter } from "./ApprovalCenter";
+import ArticlesPage from "../features/articles/ArticlesPage";
+import ProfilePage from "../features/profile/ProfilePage";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -144,6 +146,14 @@ const AppRoutes: React.FC = () => {
           }
         />
         <Route
+          path="/articles"
+          element={
+            <MainLayout>
+              <ArticlesPage />
+            </MainLayout>
+          }
+        />
+        <Route
           path="/notifications"
           element={
             <MainLayout>
@@ -188,6 +198,14 @@ const AppRoutes: React.FC = () => {
           element={
             <MainLayout>
               <BlogEditPage />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <MainLayout>
+              <ProfilePage />
             </MainLayout>
           }
         />

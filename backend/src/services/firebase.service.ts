@@ -25,16 +25,16 @@ class FirebaseService {
 
   private initializeFirebase() {
     try {
-      const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY
-        ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)
-        : null;
+      // const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY
+      //   ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)
+      //   : null;
 
-      if (!serviceAccount) {
-        logger.warn(
-          "Firebase service account key not provided. Push notifications will be disabled."
-        );
-        return;
-      }
+      // if (!serviceAccount) {
+      //   logger.warn(
+      //     "Firebase service account key not provided. Push notifications will be disabled."
+      //   );
+      //   return;
+      // }
 
       if (!admin.apps.length) {
         admin.initializeApp(firebaseConfig);

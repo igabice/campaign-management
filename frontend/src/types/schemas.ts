@@ -91,6 +91,20 @@ export interface UserPreference {
   updatedAt: string;
 }
 
+export interface Article {
+  id: string;
+  title: string;
+  body: string;
+  hook?: string;
+  callToAction?: string;
+  onScreenText?: string;
+  topic: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  user: { id: string; name: string; email: string };
+}
+
 export interface Blog {
   id: string;
   title: string;
