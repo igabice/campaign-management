@@ -32,16 +32,22 @@ class FirebaseService {
             measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
           };
 
-          // Send config to all service worker instances
-          registration.active?.postMessage({
-            type: 'FIREBASE_CONFIG',
-            config: firebaseConfig
-          });
+           // Send config to service worker immediately
+           registration.active?.postMessage({
+             type: 'FIREBASE_CONFIG',
+             config: firebaseConfig
+           });
 
-          console.log('Firebase config sent to service worker');
+           // Also send to installing worker if it exists
+           registration.installing?.postMessage({
+             type: 'FIREBASE_CONFIG',
+             config: firebaseConfig
+           });
 
-          // Small delay to allow service worker to initialize Firebase
-          await new Promise(resolve => setTimeout(resolve, 1000));
+           console.log('Firebase config sent to service worker');
+
+           // Wait for service worker to be ready and Firebase to initialize
+           await new Promise(resolve => setTimeout(resolve, 2000));
 
         } catch (error) {
           console.error('Service Worker registration failed:', error);

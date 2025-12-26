@@ -79,7 +79,7 @@ self.addEventListener('message', (event) => {
 
         console.log('Firebase initialized in service worker');
 
-        // Set up background message handler
+        // Set up background message handler immediately
         messaging.onBackgroundMessage((payload) => {
           console.log('Service Worker: Received background message:', payload);
           console.log('Service Worker: Message structure:', JSON.stringify(payload, null, 2));
@@ -98,6 +98,8 @@ self.addEventListener('message', (event) => {
           console.log('Service Worker: Showing notification:', notificationTitle, notificationOptions.body);
           return self.registration.showNotification(notificationTitle, notificationOptions);
         });
+
+        console.log('Service Worker: Background message handler set up');
       } catch (error) {
         console.error('Failed to initialize Firebase in service worker:', error);
       }
