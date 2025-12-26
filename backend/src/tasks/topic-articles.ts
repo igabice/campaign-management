@@ -25,7 +25,8 @@ export const generateTopicArticles = async (): Promise<void> => {
     });
 
     // Group topics by user and include about field
-    const userData: { [userId: string]: { topics: string[], about?: string } } = {};
+    const userData: { [userId: string]: { topics: string[]; about?: string } } =
+      {};
     topicPreferences.forEach((tp) => {
       if (!userData[tp.userPreference.userId]) {
         userData[tp.userPreference.userId] = {
@@ -41,7 +42,9 @@ export const generateTopicArticles = async (): Promise<void> => {
 
     // Process each user's topics
     for (const [userId, userInfo] of Object.entries(userData)) {
-      logger.info(`Processing ${userInfo.topics.length} topics for user ${userId}`);
+      logger.info(
+        `Processing ${userInfo.topics.length} topics for user ${userId}`
+      );
 
       for (const topic of userInfo.topics) {
         try {
@@ -49,13 +52,14 @@ export const generateTopicArticles = async (): Promise<void> => {
           const newsItems = await newsService.searchNews(topic);
 
           // Limit to first 3 news items per topic to avoid overwhelming
-          const limitedNewsItems = newsItems.slice(0, 3);
+          const limitedNewsItems = newsItems.slice(0, 2);
 
           for (const newsItem of limitedNewsItems) {
             try {
               // Generate article from news
               const articleContent = await generateArticle({
-                agencyDescription: userInfo.about || "Tech and startup news aggregator",
+                agencyDescription:
+                  userInfo.about || "Tech and startup news aggregator",
                 title: newsItem.title,
                 content: newsItem.content,
                 contentSnippet: newsItem.contentSnippet,
@@ -74,21 +78,28 @@ export const generateTopicArticles = async (): Promise<void> => {
               });
 
               totalArticlesGenerated++;
-              logger.info(`Generated article for topic "${topic}" for user ${userId}`);
-
+              logger.info(
+                `Generated article for topic "${topic}" for user ${userId}`
+              );
             } catch (error) {
-              logger.error(`Failed to generate article for news item "${newsItem.title}":`, error);
+              logger.error(
+                `Failed to generate article for news item "${newsItem.title}":`,
+                error
+              );
             }
           }
-
         } catch (error) {
-          logger.error(`Failed to process topic "${topic}" for user ${userId}:`, error);
+          logger.error(
+            `Failed to process topic "${topic}" for user ${userId}:`,
+            error
+          );
         }
       }
     }
 
-    logger.info(`Topic articles generation completed. Generated ${totalArticlesGenerated} articles.`);
-
+    logger.info(
+      `Topic articles generation completed. Generated ${totalArticlesGenerated} articles.`
+    );
   } catch (error) {
     logger.error("Error in topic articles generation task:", error);
   }
