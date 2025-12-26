@@ -37,24 +37,6 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// Handle background messages
-messaging.onBackgroundMessage((payload) => {
-  console.log('Received background message:', payload);
-
-  const notificationTitle = payload.notification?.title || 'New Notification';
-  const notificationOptions = {
-    body: payload.notification?.body || 'You have a new notification',
-    icon: '/logo192.png',
-    badge: '/logo192.png',
-    data: payload.data,
-    tag: payload.data?.type || 'default', // Use tag to prevent duplicate notifications
-    requireInteraction: false,
-    silent: false
-  };
-
-  return self.registration.showNotification(notificationTitle, notificationOptions);
-});
-
 // Handle notification click
 self.addEventListener('notificationclick', (event) => {
   console.log('Notification clicked:', event);

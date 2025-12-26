@@ -18,6 +18,9 @@ class FirebaseService {
           const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
           console.log('Service Worker registered successfully:', registration);
 
+          // Wait for service worker to be ready
+          await navigator.serviceWorker.ready;
+
           // Send Firebase config to service worker
           const firebaseConfig = {
             apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -29,11 +32,16 @@ class FirebaseService {
             measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
           };
 
-          // Wait for service worker to be ready and send config
+          // Send config to all service worker instances
           registration.active?.postMessage({
             type: 'FIREBASE_CONFIG',
             config: firebaseConfig
           });
+
+          console.log('Firebase config sent to service worker');
+
+          // Small delay to allow service worker to initialize Firebase
+          await new Promise(resolve => setTimeout(resolve, 1000));
 
         } catch (error) {
           console.error('Service Worker registration failed:', error);
