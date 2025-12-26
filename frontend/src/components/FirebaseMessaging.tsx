@@ -65,19 +65,29 @@ export const FirebaseMessaging = () => {
     // Request notification permission and register token
     const setupFirebase = async () => {
       try {
+        console.log("Setting up Firebase messaging...");
         const token = await firebaseService.requestPermission();
         if (token) {
-          console.log("Firebase token obtained:", token);
+          console.log("Firebase token obtained successfully");
+        } else {
+          console.log("Firebase token not obtained - messaging may not be available");
         }
       } catch (error) {
         console.error("Failed to setup Firebase:", error);
+        toast({
+          title: "Notification Setup Failed",
+          description: "Unable to set up push notifications. Some features may not work.",
+          status: "warning",
+          duration: 5000,
+        });
       }
     };
 
     setupFirebase();
 
     // Setup message listener for foreground messages
-    firebaseService.setupMessageListener((payload) => {
+    try {
+      firebaseService.setupMessageListener((payload) => {
       const { notification, data } = payload;
 
       if (notification) {
@@ -108,6 +118,10 @@ export const FirebaseMessaging = () => {
         }
       }
     });
+    console.log("Firebase message listener set up successfully");
+    } catch (error) {
+      console.error("Failed to set up Firebase message listener:", error);
+    }
 
     // Cleanup function
     return () => {

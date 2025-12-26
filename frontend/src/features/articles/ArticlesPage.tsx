@@ -33,28 +33,31 @@ const ArticlesPage: React.FC = () => {
   const toast = useToast();
   const navigate = useNavigate();
 
-  const loadArticles = useCallback(async (pageNum = 1, append = false) => {
-    try {
-      const response = await articlesService.getArticles(pageNum, 12);
-      if (append) {
-        setArticles(prev => [...prev, ...response.results]);
-      } else {
-        setArticles(response.results);
+  const loadArticles = useCallback(
+    async (pageNum = 1, append = false) => {
+      try {
+        const response = await articlesService.getArticles(pageNum, 12);
+        if (append) {
+          setArticles((prev) => [...prev, ...response.results]);
+        } else {
+          setArticles(response.results);
+        }
+        setHasMore(response.page < response.totalPages);
+        setPage(pageNum);
+      } catch (error: any) {
+        console.error("Error loading articles:", error);
+        toast({
+          title: "Error",
+          description: `Failed to load articles: ${error.message}`,
+          status: "error",
+          duration: 5000,
+        });
+      } finally {
+        setLoading(false);
       }
-      setHasMore(response.page < response.totalPages);
-      setPage(pageNum);
-    } catch (error: any) {
-      console.error("Error loading articles:", error);
-      toast({
-        title: "Error",
-        description: `Failed to load articles: ${error.message}`,
-        status: "error",
-        duration: 5000,
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
+    },
+    [toast]
+  );
 
   useEffect(() => {
     loadArticles();
@@ -67,7 +70,7 @@ const ArticlesPage: React.FC = () => {
 
     try {
       await articlesService.deleteArticle(articleId);
-      setArticles(prev => prev.filter(article => article.id !== articleId));
+      setArticles((prev) => prev.filter((article) => article.id !== articleId));
       toast({
         title: "Success",
         description: "Article deleted successfully",
@@ -118,10 +121,11 @@ const ArticlesPage: React.FC = () => {
           </Text>
         </Box>
 
-        {articles.length === 0 ? (
+        {articles?.length === 0 ? (
           <Box textAlign="center" py={20}>
             <Text fontSize="lg" color="gray.500">
-              No articles generated yet. Articles will be automatically generated based on your topics.
+              No articles generated yet. Articles will be automatically
+              generated based on your topics.
             </Text>
           </Box>
         ) : (
@@ -134,8 +138,12 @@ const ArticlesPage: React.FC = () => {
               }}
               gap={6}
             >
-              {articles.map((article) => (
-                <Card key={article.id} variant="outline" _hover={{ shadow: "md" }}>
+              {articles?.map((article) => (
+                <Card
+                  key={article.id}
+                  variant="outline"
+                  _hover={{ shadow: "md" }}
+                >
                   <CardHeader pb={2}>
                     <VStack align="start" spacing={2}>
                       <Heading size="md" noOfLines={2}>
@@ -155,7 +163,12 @@ const ArticlesPage: React.FC = () => {
                     <VStack align="start" spacing={3}>
                       {article.hook && (
                         <Box>
-                          <Text fontSize="sm" fontWeight="semibold" color="gray.700" mb={1}>
+                          <Text
+                            fontSize="sm"
+                            fontWeight="semibold"
+                            color="gray.700"
+                            mb={1}
+                          >
                             Hook:
                           </Text>
                           <Text fontSize="sm" color="gray.600" noOfLines={2}>
@@ -165,7 +178,12 @@ const ArticlesPage: React.FC = () => {
                       )}
 
                       <Box>
-                        <Text fontSize="sm" fontWeight="semibold" color="gray.700" mb={1}>
+                        <Text
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          color="gray.700"
+                          mb={1}
+                        >
                           Content:
                         </Text>
                         <Text fontSize="sm" color="gray.600" noOfLines={3}>
@@ -175,10 +193,19 @@ const ArticlesPage: React.FC = () => {
 
                       {article.callToAction && (
                         <Box>
-                          <Text fontSize="sm" fontWeight="semibold" color="gray.700" mb={1}>
+                          <Text
+                            fontSize="sm"
+                            fontWeight="semibold"
+                            color="gray.700"
+                            mb={1}
+                          >
                             Call to Action:
                           </Text>
-                          <Text fontSize="sm" color="blue.600" fontWeight="medium">
+                          <Text
+                            fontSize="sm"
+                            color="blue.600"
+                            fontWeight="medium"
+                          >
                             {article.callToAction}
                           </Text>
                         </Box>
@@ -203,7 +230,12 @@ const ArticlesPage: React.FC = () => {
                             size="sm"
                           />
                           <MenuList>
-                            <MenuItem icon={<EditIcon />} onClick={() => navigate(`/articles/${article.id}/edit`)}>
+                            <MenuItem
+                              icon={<EditIcon />}
+                              onClick={() =>
+                                navigate(`/articles/${article.id}/edit`)
+                              }
+                            >
                               Edit
                             </MenuItem>
                             <MenuItem
