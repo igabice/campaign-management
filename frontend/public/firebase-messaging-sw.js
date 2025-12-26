@@ -5,39 +5,7 @@ importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-comp
 let firebaseApp = null;
 let messaging = null;
 
-// Listen for Firebase config from the main app
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'FIREBASE_CONFIG') {
-    const firebaseConfig = event.data.config;
-
-    if (!firebaseApp) {
-      firebaseApp = firebase.initializeApp(firebaseConfig);
-      messaging = firebase.messaging();
-
-      console.log('Firebase initialized in service worker');
-
-      // Set up background message handler
-      messaging.onBackgroundMessage((payload) => {
-        console.log('Received background message:', payload);
-
-        const notificationTitle = payload.notification?.title || 'New Notification';
-        const notificationOptions = {
-          body: payload.notification?.body || 'You have a new notification',
-          icon: '/logo192.png',
-          badge: '/logo192.png',
-          data: payload.data,
-          tag: payload.data?.type || 'default',
-          requireInteraction: false,
-          silent: false
-        };
-
-        return self.registration.showNotification(notificationTitle, notificationOptions);
-      });
-    }
-  }
-});
-
-// Handle notification click
+// Handle notification click - must be registered on initial evaluation
 self.addEventListener('notificationclick', (event) => {
   console.log('Notification clicked:', event);
 
@@ -97,4 +65,40 @@ self.addEventListener('notificationclick', (event) => {
       }
     })
   );
+});
+
+// Listen for Firebase config from the main app
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'FIREBASE_CONFIG') {
+    const firebaseConfig = event.data.config;
+
+    if (!firebaseApp) {
+      try {
+        firebaseApp = firebase.initializeApp(firebaseConfig);
+        messaging = firebase.messaging();
+
+        console.log('Firebase initialized in service worker');
+
+        // Set up background message handler
+        messaging.onBackgroundMessage((payload) => {
+          console.log('Received background message:', payload);
+
+          const notificationTitle = payload.notification?.title || 'New Notification';
+          const notificationOptions = {
+            body: payload.notification?.body || 'You have a new notification',
+            icon: '/logo192.png',
+            badge: '/logo192.png',
+            data: payload.data,
+            tag: payload.data?.type || 'default',
+            requireInteraction: false,
+            silent: false
+          };
+
+          return self.registration.showNotification(notificationTitle, notificationOptions);
+        });
+      } catch (error) {
+        console.error('Failed to initialize Firebase in service worker:', error);
+      }
+    }
+  }
 });
