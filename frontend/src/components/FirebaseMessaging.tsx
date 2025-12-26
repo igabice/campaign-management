@@ -88,43 +88,53 @@ export const FirebaseMessaging = () => {
     // Setup message listener for foreground messages
     try {
       firebaseService.setupMessageListener((payload) => {
-      const { notification, data } = payload;
+        const { notification, data } = payload;
 
-      if (notification) {
-        // Show toast notification
-        toast({
-          title: notification.title,
-          description: notification.body,
-          status: "info",
-          duration: 5000,
-          isClosable: true,
-        });
-
-        // Also show browser notification if permission granted
-        if (Notification.permission === "granted") {
-          const browserNotification = new Notification(notification.title, {
-            body: notification.body,
-            icon: "/logo192.png",
+        if (notification) {
+          // Show toast notification
+          toast({
+            title: notification.title,
+            description: notification.body,
+            status: "info",
+            duration: 5000,
+            isClosable: true,
           });
 
-          // Add click handler to browser notification
-          browserNotification.onclick = () => {
-            handleNotificationClick(data);
-            // Close the notification after clicking
-            browserNotification.close();
-            // Focus the window
-            window.focus();
-          };
+          // Also show browser notification if permission granted
+          if (Notification.permission === "granted") {
+            const browserNotification = new Notification(notification.title, {
+              body: notification.body,
+              icon: "/logo192.png",
+            });
+
+            // Add click handler to browser notification
+            browserNotification.onclick = () => {
+              handleNotificationClick(data);
+              // Close the notification after clicking
+              browserNotification.close();
+              // Focus the window
+              window.focus();
+            };
+          }
         }
-      }
-    });
-    console.log("Firebase message listener set up successfully");
+      });
+      console.log("Firebase message listener set up successfully");
     } catch (error) {
       console.error("Failed to set up Firebase message listener:", error);
     }
 
+    // Listen for messages from service worker
+    const handleServiceWorkerMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'NAVIGATE') {
+        navigate(event.data.url);
+      }
+    };
+
+    navigator.serviceWorker?.addEventListener('message', handleServiceWorkerMessage);
+
     // Cleanup function
     return () => {
+      navigator.serviceWorker?.removeEventListener('message', handleServiceWorkerMessage);
       // Firebase messaging cleanup is handled automatically
     };
   }, [toast, navigate, session, isLoading, handleNotificationClick]);

@@ -12,6 +12,35 @@ class FirebaseService {
         return null;
       }
 
+      // Register service worker manually if not already registered
+      if ('serviceWorker' in navigator) {
+        try {
+          const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+          console.log('Service Worker registered successfully:', registration);
+
+          // Send Firebase config to service worker
+          const firebaseConfig = {
+            apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+            authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+            projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+            storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+            messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+            appId: process.env.REACT_APP_FIREBASE_APP_ID,
+            measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+          };
+
+          // Wait for service worker to be ready and send config
+          registration.active?.postMessage({
+            type: 'FIREBASE_CONFIG',
+            config: firebaseConfig
+          });
+
+        } catch (error) {
+          console.error('Service Worker registration failed:', error);
+          // Continue without service worker - foreground messages will still work
+        }
+      }
+
       const permission = await Notification.requestPermission();
       if (permission === "granted") {
         const token = await getToken(this.messaging, {
