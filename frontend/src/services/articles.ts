@@ -1,5 +1,6 @@
-import { get, post, put, del } from "../lib/http";
+import { get, getPaginated, post, put, del } from "../lib/http";
 import { Article } from "../types/schemas";
+import { PaginatedResponse } from "../types/commons";
 
 export type { Article };
 
@@ -21,17 +22,11 @@ export interface UpdateArticleInput {
   topic?: string;
 }
 
-export interface ArticlesResponse {
-  results: Article[];
-  totalPages: number;
-  page: number;
-  limit: number;
-  totalResults: number;
-}
+export type ArticlesResponse = PaginatedResponse<Article>;
 
 export const articlesService = {
   async getArticles(page = 1, limit = 10): Promise<ArticlesResponse> {
-    const response = await get(`/articles?page=${page}&limit=${limit}`);
+    const response = await getPaginated<Article>(`/articles?page=${page}&limit=${limit}`);
     return response.data;
   },
 

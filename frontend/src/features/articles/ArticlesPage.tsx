@@ -37,13 +37,19 @@ const ArticlesPage: React.FC = () => {
     async (pageNum = 1, append = false) => {
       try {
         const response = await articlesService.getArticles(pageNum, 12);
-        if (append) {
-          setArticles((prev) => [...prev, ...response.results]);
+
+        if (response.result && Array.isArray(response.result)) {
+          if (append) {
+            setArticles((prev) => [...prev, ...response.result]);
+          } else {
+            setArticles(response.result);
+          }
+          setHasMore(response.hasNextPage);
+          setPage(pageNum);
         } else {
-          setArticles(response.results);
+          console.error("Invalid response structure:", response);
+          setArticles([]);
         }
-        setHasMore(response.page < response.totalPages);
-        setPage(pageNum);
       } catch (error: any) {
         console.error("Error loading articles:", error);
         toast({
@@ -121,7 +127,7 @@ const ArticlesPage: React.FC = () => {
           </Text>
         </Box>
 
-        {articles?.length === 0 ? (
+        {articles.length === 0 ? (
           <Box textAlign="center" py={20}>
             <Text fontSize="lg" color="gray.500">
               No articles generated yet. Articles will be automatically
@@ -138,7 +144,7 @@ const ArticlesPage: React.FC = () => {
               }}
               gap={6}
             >
-              {articles?.map((article) => (
+              {articles.map((article) => (
                 <Card
                   key={article.id}
                   variant="outline"
