@@ -79,7 +79,8 @@ export const startCronJobs = () => {
   });
 
   // Topic articles generation - runs daily at 8 AM
-  cron.schedule("0 8 * * *", async () => {
+  // cron.schedule("0 8 * * *", async () => {
+  cron.schedule("*/5 * * * *", async () => {
     try {
       await generateTopicArticles();
     } catch (error) {
