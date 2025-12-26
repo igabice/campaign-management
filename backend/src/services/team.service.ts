@@ -4,6 +4,7 @@ import ApiError from "../utils/ApiError";
 import prisma from "../config/prisma";
 import mailService from "./mail.service";
 import { checkSubscriptionLimits } from "./subscription.service";
+import firebaseService from "./firebase.service";
 
 async function createTeam(userId: string, teamBody: { title: string, description?: string }): Promise<Team> {
   console.log("Checking subscription limits for user:", userId);
@@ -48,15 +49,26 @@ async function createTeam(userId: string, teamBody: { title: string, description
      await mailService.sendWelcomeTeamEmail(teamWithUser);
    }
 
-   // Create notification for the user
-   await prisma.notification.create({
-     data: {
-       userId,
-       objectId: team.id,
-       objectType: "team",
-       description: `Your team "${team.title}" has been created successfully!`,
-     },
-   });
+    // Create notification for the user
+    await prisma.notification.create({
+      data: {
+        userId,
+        objectId: team.id,
+        objectType: "team",
+        description: `Your team "${team.title}" has been created successfully!`,
+      },
+    });
+
+    // Send Firebase push notification to the creator
+    await firebaseService.sendNotificationToUser(
+      userId,
+      "Team Created",
+      `Your team "${team.title}" has been created successfully!`,
+      {
+        type: "team_created",
+        teamId: team.id,
+      }
+    );
 
    return team;
 }

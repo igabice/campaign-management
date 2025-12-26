@@ -7,6 +7,7 @@ import { updateSocialMediaStats } from "./tasks/social-media-stats";
 import { sendReEngagementEmails } from "./tasks/re-engagement-emails";
 import { sendOnboardingEmails } from "./tasks/onboarding-emails";
 import { refreshFacebookTokens } from "./tasks/facebook-token-refresh";
+import { generateTopicArticles } from "./tasks/topic-articles";
 
 /**
  * Initialize and start all cron jobs
@@ -74,6 +75,15 @@ export const startCronJobs = () => {
       await refreshFacebookTokens();
     } catch (error) {
       logger.error("Error in Facebook token refresh cron job:", error);
+    }
+  });
+
+  // Topic articles generation - runs daily at 8 AM
+  cron.schedule("0 8 * * *", async () => {
+    try {
+      await generateTopicArticles();
+    } catch (error) {
+      logger.error("Error in topic articles generation cron job:", error);
     }
   });
 

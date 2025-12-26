@@ -96,6 +96,7 @@ const UserPreferencePage: React.FC = () => {
         emailNotifications: true,
         telegramEnabled: false,
         whatsappEnabled: false,
+        about: "",
         postsPerDay: 3,
         postsPerWeek: 15,
         preferredPostTimes: ["09:00", "14:00", "19:00"],
@@ -168,6 +169,31 @@ const UserPreferencePage: React.FC = () => {
       toast({
         title: "Error",
         description: "Failed to add topic",
+        status: "error",
+        duration: 3000,
+      });
+    }
+  };
+
+  const unlinkTelegram = async () => {
+    try {
+      await userPreferenceApi.updateUserPreferences({
+        telegramChatId: undefined,
+        telegramEnabled: false,
+      });
+      updatePreference("telegramChatId", undefined);
+      updatePreference("telegramEnabled", false);
+      toast({
+        title: "Telegram Unlinked",
+        description: "Telegram notifications have been disabled",
+        status: "info",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Error unlinking Telegram:", error);
+      toast({
+        title: "Error",
+        description: "Failed to unlink Telegram",
         status: "error",
         duration: 3000,
       });
@@ -327,17 +353,7 @@ const UserPreferencePage: React.FC = () => {
                             size="sm"
                             colorScheme="red"
                             variant="outline"
-                            onClick={() => {
-                              updatePreference("telegramChatId", undefined);
-                              updatePreference("telegramEnabled", false);
-                              toast({
-                                title: "Telegram Unlinked",
-                                description:
-                                  "Telegram notifications have been disabled",
-                                status: "info",
-                                duration: 3000,
-                              });
-                            }}
+                            onClick={unlinkTelegram}
                           >
                             Unlink Telegram
                           </Button>
@@ -383,10 +399,25 @@ const UserPreferencePage: React.FC = () => {
                     />
                   </Box>
                 )}
-              </FormControl>
-            </VStack>
-          </CardBody>
-        </Card>
+               </FormControl>
+
+               <Divider />
+
+               <FormControl>
+                 <FormLabel>About</FormLabel>
+                 <Input
+                   placeholder="Tell us about your agency or brand (e.g., 'Tech startup focused on AI solutions')"
+                   value={preferences.about || ""}
+                   onChange={(e) => updatePreference("about", e.target.value)}
+                   maxLength={500}
+                 />
+                 <FormHelperText>
+                   This description will be used when generating personalized content for you. Max 500 characters.
+                 </FormHelperText>
+               </FormControl>
+             </VStack>
+           </CardBody>
+         </Card>
 
         {/* Content Planning Preferences */}
         <Card>

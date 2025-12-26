@@ -3,6 +3,7 @@ import asyncHandler from "express-async-handler";
 import ApiError from "../utils/ApiError";
 import planService from "../services/plan.service";
 import prisma from "../config/prisma";
+import firebaseService from "../services/firebase.service";
 
 const createPlan = asyncHandler(async (req, res) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -20,16 +21,29 @@ const createPlan = asyncHandler(async (req, res) => {
 
   if (members.length > 0) {
     await Promise.all(
-      members.map((member) =>
-        prisma.notification.create({
+      members.map(async (member) => {
+        // Create in-app notification
+        await prisma.notification.create({
           data: {
             userId: member.userId,
             objectId: plan.id,
             objectType: "plan",
             description: `${session.user.name || session.user.email} created a new content plan: ${plan.title}`,
           },
-        })
-      )
+        });
+
+        // Send Firebase push notification
+        await firebaseService.sendNotificationToUser(
+          member.userId,
+          "New Content Plan",
+          `${session.user.name || session.user.email} created a new content plan: ${plan.title}`,
+          {
+            type: "plan_created",
+            planId: plan.id,
+            teamId: plan.teamId,
+          }
+        );
+      })
     );
   }
 
@@ -48,7 +62,9 @@ const getPlans = asyncHandler(async (req, res) => {
 
   const filter = {
     ...(req.query.teamId && { teamId: req.query.teamId }),
-    ...(req.query.approvalStatus && { approvalStatus: req.query.approvalStatus }),
+    ...(req.query.approvalStatus && {
+      approvalStatus: req.query.approvalStatus,
+    }),
   };
 
   const plans = await planService.queryPlans(filter, options);
@@ -83,7 +99,11 @@ const publishPlan = asyncHandler(async (req, res) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const session = (req as any).session;
   const planId = req.params.id;
-  const plan = await planService.publishPlanById(planId, session.user.id, req.body.posts);
+  const plan = await planService.publishPlanById(
+    planId,
+    session.user.id,
+    req.body.posts
+  );
 
   // Create notifications for team members (except creator)
   const members = await prisma.member.findMany({
@@ -96,16 +116,29 @@ const publishPlan = asyncHandler(async (req, res) => {
 
   if (members.length > 0) {
     await Promise.all(
-      members.map((member) =>
-        prisma.notification.create({
+      members.map(async (member) => {
+        // Create in-app notification
+        await prisma.notification.create({
           data: {
             userId: member.userId,
             objectId: plan.id,
             objectType: "plan",
             description: `${session.user.name || session.user.email} published a content plan: ${plan.title}`,
           },
-        })
-      )
+        });
+
+        // Send Firebase push notification
+        await firebaseService.sendNotificationToUser(
+          member.userId,
+          "Content Plan Published",
+          `${session.user.name || session.user.email} published a content plan: ${plan.title}`,
+          {
+            type: "plan_published",
+            planId: plan.id,
+            teamId: plan.teamId,
+          }
+        );
+      })
     );
   }
 
@@ -127,7 +160,11 @@ const assignPlanApprover = asyncHandler(async (req, res) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const session = (req as any).session;
 
-  const plan = await planService.assignPlanApprover(id, approverId, session.user.id);
+  const plan = await planService.assignPlanApprover(
+    id,
+    approverId,
+    session.user.id
+  );
   res.send(plan);
 });
 
@@ -138,7 +175,12 @@ const approveOrRejectPlan = asyncHandler(async (req, res) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const session = (req as any).session;
 
-  const plan = await planService.approveOrRejectPlan(id, action, notes, session.user.id);
+  const plan = await planService.approveOrRejectPlan(
+    id,
+    action,
+    notes,
+    session.user.id
+  );
   res.send(plan);
 });
 

@@ -76,6 +76,7 @@ export interface UserPreference {
   telegramChatId?: string;
   whatsappEnabled: boolean;
   whatsappNumber?: string;
+  about?: string;
 
   // Content Planning Preferences
   postsPerDay?: number;

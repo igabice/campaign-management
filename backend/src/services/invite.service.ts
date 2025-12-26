@@ -4,6 +4,7 @@ import ApiError from "../utils/ApiError";
 import prisma from "../config/prisma";
 import mailService from "./mail.service";
 import { checkSubscriptionLimits } from "./subscription.service";
+import firebaseService from "./firebase.service";
 
 type InviteWithRelations = Invite & {
   team: { id: string; title: string };
@@ -220,6 +221,18 @@ async function respondToInvite(
         description: `${user.name || user.email} accepted your invite to join ${invite.team.title}`,
       },
     });
+
+    // Send Firebase push notification to inviter
+    await firebaseService.sendNotificationToUser(
+      invite.inviterId,
+      "Invite Accepted",
+      `${user.name || user.email} accepted your invite to join ${invite.team.title}`,
+      {
+        type: "invite_accepted",
+        teamId: invite.teamId,
+        userId: user.id,
+      }
+    );
   }
 
   // Update invite status

@@ -11,6 +11,8 @@ import uploadRoutes from "./upload.routes";
 import userPreferenceRoutes from "./userPreference.routes";
 import contactRoutes from "./contact.routes";
 import blogRoutes from "./blog.routes";
+import articleRoutes from "./article.routes";
+import userRoutes from "./user.routes";
 
 import docRoute from "../docs/swagger";
 
@@ -27,6 +29,8 @@ router.use("/upload", uploadRoutes);
 router.use("/user-preferences", userPreferenceRoutes);
 router.use("/contact", contactRoutes);
 router.use("/blogs", blogRoutes);
+router.use("/articles", articleRoutes);
+router.use("/users", userRoutes);
 // Auth routes are handled directly by Better Auth in app.ts
 router.use("/ai", aiRoutes);
 router.use("/docs", docRoute);

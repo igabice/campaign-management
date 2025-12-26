@@ -19,21 +19,23 @@ model User {
   isAdmin                Boolean  @default(false)
   reEngagementEmailsSent Json?    @map("re_engagement_emails_sent")
   onboardingEmailsSent   Json?    @map("onboarding_emails_sent")
+  firebaseToken          String?  @map("firebase_token")
 
-   accounts      Account[]
-   sessions      Session[]
-   teams         Team[]
-   memberships   Member[]
-   sentInvites   Invite[]
-   posts         Post[]
-   plans         Plan[]
-   notifications Notification[]
-   preferences   UserPreference?
-   blogs         Blog[]
+  accounts      Account[]
+  sessions      Session[]
+  teams         Team[]
+  memberships   Member[]
+  sentInvites   Invite[]
+  posts         Post[]
+  plans         Plan[]
+  notifications Notification[]
+  preferences   UserPreference?
+  blogs         Blog[]
+  articles      Article[]
 
-   // Approval relations
-   approvedPosts Post[] @relation("PostApprover")
-   approvedPlans Plan[] @relation("PlanApprover")
+  // Approval relations
+  approvedPosts Post[] @relation("PostApprover")
+  approvedPlans Plan[] @relation("PlanApprover")
 
   stripeCustomerId String?
 
@@ -168,62 +170,62 @@ model Invite {
 }
 
 model Post {
-   id             String    @id @default(uuid())
-   title          String?
-   content        String
-   image          String?
-   scheduledDate  DateTime  @map("scheduled_date")
-   sendReminder   Boolean   @default(false) @map("send_reminder")
-   reminderSent   Boolean   @default(false) @map("reminder_sent")
-   publishedAt    DateTime? @map("published_at")
-   plannerId      String?   @map("planner_id")
-   planId         String?   @map("plan_id")
-   createdBy      String    @map("created_by")
-   status         String    @default("Draft")
-   teamId         String    @map("team_id")
-   createdAt      DateTime  @default(now()) @map("created_at")
-   updatedAt      DateTime  @updatedAt @map("updated_at")
+  id            String    @id @default(uuid())
+  title         String?
+  content       String
+  image         String?
+  scheduledDate DateTime  @map("scheduled_date")
+  sendReminder  Boolean   @default(false) @map("send_reminder")
+  reminderSent  Boolean   @default(false) @map("reminder_sent")
+  publishedAt   DateTime? @map("published_at")
+  plannerId     String?   @map("planner_id")
+  planId        String?   @map("plan_id")
+  createdBy     String    @map("created_by")
+  status        String    @default("Draft")
+  teamId        String    @map("team_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
 
-   // Approval fields
-   approverId     String?   @map("approver_id")
-   approvalStatus String?   @default("none") @map("approval_status") // none, pending, approved, rejected
-   approvalNotes  String?   @map("approval_notes")
-   approvedAt     DateTime? @map("approved_at")
+  // Approval fields
+  approverId     String?   @map("approver_id")
+  approvalStatus String?   @default("none") @map("approval_status") // none, pending, approved, rejected
+  approvalNotes  String?   @map("approval_notes")
+  approvedAt     DateTime? @map("approved_at")
 
-   creator      User          @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-   team         Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
-   socialMedias SocialMedia[]
-   plan         Plan?         @relation(fields: [planId], references: [id], onDelete: SetNull)
-   approver     User?         @relation("PostApprover", fields: [approverId], references: [id], onDelete: SetNull)
+  creator      User          @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  team         Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  socialMedias SocialMedia[]
+  plan         Plan?         @relation(fields: [planId], references: [id], onDelete: SetNull)
+  approver     User?         @relation("PostApprover", fields: [approverId], references: [id], onDelete: SetNull)
 
-   @@map("posts")
+  @@map("posts")
 }
 
 model Plan {
-   id             String   @id @default(uuid())
-   title          String
-   description    String?
-   startDate      DateTime @map("start_date")
-   endDate        DateTime @map("end_date")
-   tone           String?
-   status         String   @default("draft")
-   createdBy      String   @map("created_by")
-   teamId         String   @map("team_id")
-   createdAt      DateTime @default(now()) @map("created_at")
-   updatedAt      DateTime @updatedAt @map("updated_at")
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  startDate   DateTime @map("start_date")
+  endDate     DateTime @map("end_date")
+  tone        String?
+  status      String   @default("draft")
+  createdBy   String   @map("created_by")
+  teamId      String   @map("team_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
-   // Approval fields
-   approverId     String?   @map("approver_id")
-   approvalStatus String?   @default("none") @map("approval_status") // none, pending, approved, rejected
-   approvalNotes  String?   @map("approval_notes")
-   approvedAt     DateTime? @map("approved_at")
+  // Approval fields
+  approverId     String?   @map("approver_id")
+  approvalStatus String?   @default("none") @map("approval_status") // none, pending, approved, rejected
+  approvalNotes  String?   @map("approval_notes")
+  approvedAt     DateTime? @map("approved_at")
 
-   creator User   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-   team    Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
-   posts   Post[]
-   approver User? @relation("PlanApprover", fields: [approverId], references: [id], onDelete: SetNull)
+  creator  User   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  team     Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  posts    Post[]
+  approver User?  @relation("PlanApprover", fields: [approverId], references: [id], onDelete: SetNull)
 
-   @@map("plans")
+  @@map("plans")
 }
 
 model Notification {
@@ -266,6 +268,7 @@ model UserPreference {
   telegramChatId     String?
   whatsappEnabled    Boolean @default(false)
   whatsappNumber     String?
+  about              String?
 
   // Content Planning Preferences
   postsPerDay        Int?     @default(3)
@@ -325,4 +328,21 @@ model Blog {
   creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
 
   @@map("blogs")
+}
+
+model Article {
+  id           String   @id @default(uuid())
+  title        String
+  body         String
+  hook         String?
+  callToAction String?
+  onScreenText String?
+  topic        String
+  userId       String   @map("user_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("articles")
 }

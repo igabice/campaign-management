@@ -2,6 +2,7 @@ import prisma from "../config/prisma";
 import mailService from "./mail.service";
 import telegramService from "./telegram.service";
 import whatsappService from "./whatsapp.service";
+import firebaseService from "./firebase.service";
 
 class NotificationService {
   // Send approval request notifications
@@ -49,15 +50,27 @@ class NotificationService {
         );
       }
 
-      // Create in-app notification
-      await prisma.notification.create({
-        data: {
-          userId: approverId,
-          objectId: postId,
-          objectType: "post",
-          description: `New post approval request: "${post.title || "Untitled Post"}" from ${post.creator.name || post.creator.email}`,
-        },
-      });
+       // Create in-app notification
+       await prisma.notification.create({
+         data: {
+           userId: approverId,
+           objectId: postId,
+           objectType: "post",
+           description: `New post approval request: "${post.title || "Untitled Post"}" from ${post.creator.name || post.creator.email}`,
+         },
+       });
+
+       // Send Firebase push notification
+       await firebaseService.sendNotificationToUser(
+         approverId,
+         "New Post Approval Request",
+         `Post "${post.title || "Untitled Post"}" needs your approval`,
+         {
+           type: "post_approval_request",
+           postId,
+           teamId: post.teamId,
+         }
+       );
     } catch (error) {
       console.error(
         "Failed to send post approval request notifications:",
@@ -110,15 +123,27 @@ class NotificationService {
         );
       }
 
-      // Create in-app notification
-      await prisma.notification.create({
-        data: {
-          userId: approverId,
-          objectId: planId,
-          objectType: "plan",
-          description: `New content plan approval request: "${plan.title}" from ${plan.creator.name || plan.creator.email}`,
-        },
-      });
+       // Create in-app notification
+       await prisma.notification.create({
+         data: {
+           userId: approverId,
+           objectId: planId,
+           objectType: "plan",
+           description: `New content plan approval request: "${plan.title}" from ${plan.creator.name || plan.creator.email}`,
+         },
+       });
+
+       // Send Firebase push notification
+       await firebaseService.sendNotificationToUser(
+         approverId,
+         "New Plan Approval Request",
+         `Content plan "${plan.title}" needs your approval`,
+         {
+           type: "plan_approval_request",
+           planId,
+           teamId: plan.teamId,
+         }
+       );
     } catch (error) {
       console.error(
         "Failed to send plan approval request notifications:",
@@ -147,39 +172,52 @@ class NotificationService {
       await mailService.sendPostApprovalResultEmail(post, post.creator);
 
       // Send Telegram notification if enabled
-      const creatorPrefs = await prisma.userPreference.findUnique({
-        where: { userId: creatorId },
-        select: {
-          telegramEnabled: true,
-          telegramChatId: true,
-          whatsappEnabled: true,
-          whatsappNumber: true,
-        },
-      });
-      const status =
-        post.approvalStatus === "approved" ? "✅ Approved" : "❌ Rejected";
-      const message = `📝 Post ${status}\n\nPost: ${post.title || "Untitled Post"}\nStatus: ${status}\nApproved by: ${post.approver?.name || "Approver"}${post.approvalNotes ? `\n\nNotes: ${post.approvalNotes}` : ""}`;
+       const creatorPrefs = await prisma.userPreference.findUnique({
+         where: { userId: creatorId },
+         select: {
+           telegramEnabled: true,
+           telegramChatId: true,
+           whatsappEnabled: true,
+           whatsappNumber: true,
+         },
+       });
+       const approvalStatus =
+         post.approvalStatus === "approved" ? "✅ Approved" : "❌ Rejected";
+       const message = `📝 Post ${approvalStatus}\n\nPost: ${post.title || "Untitled Post"}\nStatus: ${approvalStatus}\nApproved by: ${post.approver?.name || "Approver"}${post.approvalNotes ? `\n\nNotes: ${post.approvalNotes}` : ""}`;
 
-      if (creatorPrefs?.telegramEnabled && creatorPrefs.telegramChatId) {
-        await telegramService.sendMessage(creatorPrefs.telegramChatId, message);
-      }
+       if (creatorPrefs?.telegramEnabled && creatorPrefs.telegramChatId) {
+         await telegramService.sendMessage(creatorPrefs.telegramChatId, message);
+       }
 
-      if (creatorPrefs?.whatsappEnabled && creatorPrefs.whatsappNumber) {
-        await whatsappService.sendTemplateMessage(
-          creatorPrefs.whatsappNumber,
-          message
-        );
-      }
+       if (creatorPrefs?.whatsappEnabled && creatorPrefs.whatsappNumber) {
+         await whatsappService.sendTemplateMessage(
+           creatorPrefs.whatsappNumber,
+           message
+         );
+       }
 
-      // Create in-app notification
-      await prisma.notification.create({
-        data: {
-          userId: creatorId,
-          objectId: postId,
-          objectType: "post",
-          description: `Your post "${post.title || "Untitled Post"}" has been ${post.approvalStatus} by ${post.approver?.name || "the approver"}`,
-        },
-      });
+       // Create in-app notification
+       await prisma.notification.create({
+         data: {
+           userId: creatorId,
+           objectId: postId,
+           objectType: "post",
+           description: `Your post "${post.title || "Untitled Post"}" has been ${post.approvalStatus} by ${post.approver?.name || "the approver"}`,
+         },
+       });
+
+       // Send Firebase push notification
+       const pushStatus = post.approvalStatus === "approved" ? "Approved" : "Rejected";
+       await firebaseService.sendNotificationToUser(
+         creatorId,
+         `Post ${pushStatus}`,
+         `Your post "${post.title || "Untitled Post"}" has been ${pushStatus.toLowerCase()}`,
+         {
+           type: "post_approval_result",
+           postId,
+           status: post.approvalStatus!,
+         }
+       );
     } catch (error) {
       console.error(
         "Failed to send post approval result notifications:",
@@ -207,39 +245,52 @@ class NotificationService {
       await mailService.sendPlanApprovalResultEmail(plan, plan.creator);
 
       // Send Telegram notification if enabled
-      const creatorPrefs = await prisma.userPreference.findUnique({
-        where: { userId: creatorId },
-        select: {
-          telegramEnabled: true,
-          telegramChatId: true,
-          whatsappEnabled: true,
-          whatsappNumber: true,
-        },
-      });
-      const status =
-        plan.approvalStatus === "approved" ? "✅ Approved" : "❌ Rejected";
-      const message = `📋 Content Plan ${status}\n\nPlan: ${plan.title}\nStatus: ${status}\nApproved by: ${plan.approver?.name || "Approver"}${plan.approvalNotes ? `\n\nNotes: ${plan.approvalNotes}` : ""}`;
+       const creatorPrefs = await prisma.userPreference.findUnique({
+         where: { userId: creatorId },
+         select: {
+           telegramEnabled: true,
+           telegramChatId: true,
+           whatsappEnabled: true,
+           whatsappNumber: true,
+         },
+       });
+       const approvalStatus =
+         plan.approvalStatus === "approved" ? "✅ Approved" : "❌ Rejected";
+       const message = `📋 Content Plan ${approvalStatus}\n\nPlan: ${plan.title}\nStatus: ${approvalStatus}\nApproved by: ${plan.approver?.name || "Approver"}${plan.approvalNotes ? `\n\nNotes: ${plan.approvalNotes}` : ""}`;
 
-      if (creatorPrefs?.telegramEnabled && creatorPrefs.telegramChatId) {
-        await telegramService.sendMessage(creatorPrefs.telegramChatId, message);
-      }
+       if (creatorPrefs?.telegramEnabled && creatorPrefs.telegramChatId) {
+         await telegramService.sendMessage(creatorPrefs.telegramChatId, message);
+       }
 
-      if (creatorPrefs?.whatsappEnabled && creatorPrefs.whatsappNumber) {
-        await whatsappService.sendTemplateMessage(
-          creatorPrefs.whatsappNumber,
-          message
-        );
-      }
+       if (creatorPrefs?.whatsappEnabled && creatorPrefs.whatsappNumber) {
+         await whatsappService.sendTemplateMessage(
+           creatorPrefs.whatsappNumber,
+           message
+         );
+       }
 
-      // Create in-app notification
-      await prisma.notification.create({
-        data: {
-          userId: creatorId,
-          objectId: planId,
-          objectType: "plan",
-          description: `Your content plan "${plan.title}" has been ${plan.approvalStatus} by ${plan.approver?.name || "the approver"}`,
-        },
-      });
+       // Create in-app notification
+       await prisma.notification.create({
+         data: {
+           userId: creatorId,
+           objectId: planId,
+           objectType: "plan",
+           description: `Your content plan "${plan.title}" has been ${plan.approvalStatus} by ${plan.approver?.name || "the approver"}`,
+         },
+       });
+
+       // Send Firebase push notification
+       const pushStatus = plan.approvalStatus === "approved" ? "Approved" : "Rejected";
+       await firebaseService.sendNotificationToUser(
+         creatorId,
+         `Plan ${pushStatus}`,
+         `Your content plan "${plan.title}" has been ${pushStatus.toLowerCase()}`,
+         {
+           type: "plan_approval_result",
+           planId,
+           status: plan.approvalStatus!,
+         }
+       );
     } catch (error) {
       console.error(
         "Failed to send plan approval result notifications:",
