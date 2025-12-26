@@ -81,7 +81,8 @@ self.addEventListener('message', (event) => {
 
         // Set up background message handler
         messaging.onBackgroundMessage((payload) => {
-          console.log('Received background message:', payload);
+          console.log('Service Worker: Received background message:', payload);
+          console.log('Service Worker: Message structure:', JSON.stringify(payload, null, 2));
 
           const notificationTitle = payload.notification?.title || 'New Notification';
           const notificationOptions = {
@@ -94,6 +95,7 @@ self.addEventListener('message', (event) => {
             silent: false
           };
 
+          console.log('Service Worker: Showing notification:', notificationTitle, notificationOptions.body);
           return self.registration.showNotification(notificationTitle, notificationOptions);
         });
       } catch (error) {

@@ -56,6 +56,7 @@ class FirebaseService {
         });
 
         if (token) {
+          console.log("FCM Token generated:", token);
           // Register token with backend
           await this.registerToken(token);
           return token;
@@ -93,19 +94,27 @@ class FirebaseService {
       return;
     }
 
+    console.log("Setting up foreground message listener");
     onMessage(this.messaging, (payload) => {
       console.log("Received foreground message:", payload);
+      console.log("Message structure:", JSON.stringify(payload, null, 2));
       callback(payload);
     });
   }
 
   async getCurrentToken(): Promise<string | null> {
     try {
-      if (!this.messaging) return null;
+      if (!this.messaging) {
+        console.warn("Firebase messaging not available");
+        return null;
+      }
 
-      return await getToken(this.messaging, {
+      const token = await getToken(this.messaging, {
         vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
       });
+
+      console.log("Current FCM token:", token);
+      return token;
     } catch (error) {
       console.error("Error getting current token:", error);
       return null;
@@ -113,5 +122,18 @@ class FirebaseService {
   }
 }
 
+// Add to window for debugging
+declare global {
+  interface Window {
+    firebaseService: FirebaseService;
+  }
+}
+
 const firebaseService = new FirebaseService();
+
+// Make service available globally for debugging
+if (typeof window !== 'undefined') {
+  window.firebaseService = firebaseService;
+}
+
 export default firebaseService;

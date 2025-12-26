@@ -88,9 +88,12 @@ export const FirebaseMessaging = () => {
     // Setup message listener for foreground messages
     try {
       firebaseService.setupMessageListener((payload) => {
+        console.log("FirebaseMessaging component received message:", payload);
+
         const { notification, data } = payload;
 
         if (notification) {
+          console.log("Showing notification:", notification.title, notification.body);
           // Show toast notification
           toast({
             title: notification.title,
@@ -116,6 +119,16 @@ export const FirebaseMessaging = () => {
               window.focus();
             };
           }
+        } else {
+          console.log("Message received but no notification object:", payload);
+          // Handle data-only messages
+          toast({
+            title: "New Message",
+            description: "You received a new message",
+            status: "info",
+            duration: 5000,
+            isClosable: true,
+          });
         }
       });
       console.log("Firebase message listener set up successfully");
